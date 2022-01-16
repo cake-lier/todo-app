@@ -1,4 +1,7 @@
+"use strict";
+
 const mongoose = require("mongoose");
+const defaultProfilePicture = "/public/images/profilePictures/default_profile_picture.png";
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -15,7 +18,7 @@ const userSchema = new mongoose.Schema({
     },
     profilePicturePath: {
         type: String,
-        default: "/images/default_profile_picture.png"
+        default: defaultProfilePicture
     },
     creationDate: {
         type: Date,
@@ -25,11 +28,12 @@ const userSchema = new mongoose.Schema({
 
 userSchema.path("email").validate(
     function(email) {
-        return this.model("User").count({ email }).exec().then(count => count === 0, _ => false);
+        return mongoose.model("User").count({ email }).exec().then(count => count === 0, _ => false);
     },
     "A user has already registered with this email, please choose another"
 );
 
 module.exports = {
-    createUserModel: () => mongoose.model("User", userSchema)
+    createUserModel: () => mongoose.model("User", userSchema),
+    defaultProfilePicture
 };

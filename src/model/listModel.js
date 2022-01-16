@@ -1,16 +1,22 @@
+"use strict";
+
 const mongoose = require("mongoose");
 const uuid = require("uuid");
 
 const memberSchema = new mongoose.Schema({
-    userId: mongoose.ObjectId,
+    userId: {
+        type: mongoose.ObjectId,
+        default: null
+    },
     anonymousId: {
         type: String,
-        validate: uuid.validate
+        default: null,
+        validate: v => v === null || uuid.validate(v)
     },
     role: {
         type: String,
         enum: ["owner", "member"],
-        required: true
+        default: "member"
     }
 });
 
@@ -21,17 +27,16 @@ const listSchema = new mongoose.Schema({
     },
     creationDate: {
         type: Date,
-        required: true,
         default: Date.now
     },
     joinCode: {
         type: String,
-        validate: uuid.validate
+        default: null,
+        validate: v => v === null || uuid.validate(v)
     },
     colorIndex: {
         type: Number,
         enum: [0, 1, 2],
-        required: true,
         default: 0
     },
     members: {
@@ -43,10 +48,10 @@ const listSchema = new mongoose.Schema({
 memberSchema.path("userId").validate(
     function(userId) {
         if (userId !== undefined) {
-            return this.model("List")
-                       .count({ members: { $elemMatch: { userId: null, anonymousId: null } } })
-                       .exec()
-                       .then(count => count === 0, _ => false)
+            return mongoose.model("List")
+                           .count({ members: { $elemMatch: { userId: null, anonymousId: null } } })
+                           .exec()
+                           .then(count => count === 0, _ => false)
         }
         return Promise.resolve(true);
     },
@@ -56,10 +61,10 @@ memberSchema.path("userId").validate(
 memberSchema.path("anonymousId").validate(
     function(userId) {
         if (userId !== undefined) {
-            return this.model("List")
-                       .count({ members: { $elemMatch: { userId: null, anonymousId: null } } })
-                       .exec()
-                       .then(count => count === 0, _ => false)
+            return mongoose.model("List")
+                           .count({ members: { $elemMatch: { userId: null, anonymousId: null } } })
+                           .exec()
+                           .then(count => count === 0, _ => false)
         }
         return Promise.resolve(true);
     },
@@ -68,7 +73,7 @@ memberSchema.path("anonymousId").validate(
 
 listSchema.path("joinCode").validate(
     function(joinCode) {
-        this.model("List").count({ joinCode }).exec().then(count => count === 0, _ => false);
+        return mongoose.model("List").count({ joinCode }).exec().then(count => count === 0, _ => false);
     },
     "An error has occurred while adding this list, please retry"
 );

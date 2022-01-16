@@ -1,15 +1,20 @@
+"use strict";
+
 const mongoose = require("mongoose");
 const uuid = require("uuid");
 
 const assigneeSchema = new mongoose.Schema({
-    userId: mongoose.ObjectId,
+    userId: {
+        type: mongoose.ObjectId,
+        default: null
+    },
     anonymousId: {
         type: String,
-        validate: uuid.validate
+        default: null,
+        validate: v => v === null || uuid.validate(v)
     },
     count: {
         type: Number,
-        required: true,
         default: 1,
         min: 1,
         validate: Number.isInteger
@@ -25,26 +30,39 @@ const itemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    text: String,
-    dueDate: Date,
-    reminderDate: Date,
-    completionDate: Date,
+    text: {
+        type: String,
+        default: null
+    },
+    dueDate: {
+        type: Date,
+        default: null
+    },
+    reminderDate: {
+        type: Date,
+        default: null
+    },
+    completionDate: {
+        type: Date,
+        default: null
+    },
     tags: [String],
     count: {
         type: Number,
-        required: true,
         default: 1,
         min: 1,
         validate: Number.isInteger
     },
     remainingCount: {
         type: Number,
-        required: true,
         default: 1,
-        min: 1,
+        min: 0,
         validate: Number.isInteger
     },
-    assignees: [assigneeSchema]
+    assignees: {
+        type: [assigneeSchema],
+        required: true
+    }
 });
 
 module.exports = {
