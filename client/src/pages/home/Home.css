@@ -1,0 +1,12 @@
+.home-body {
+    background-image: url("../../images/background_home.jpg");
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    background-attachment: fixed;
+    background-size: cover;
+    margin-bottom: -8px;
+}
+
+.login-button {
+    background-color: #FFF !important;
+}

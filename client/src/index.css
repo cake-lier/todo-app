@@ -1,0 +1,17 @@
+.p-button {
+    background: #E82D5F;
+}
+
+.p-button:enabled:hover {
+    background: #E82D5F;
+}
+
+.p-button.p-button-outlined {
+    border-color: #E82D5F;
+    color: #E82D5F;
+}
+
+.p-button.p-button-outlined:enabled:hover {
+    border-color: #E82D5F;
+    color: #E82D5F;
+}
