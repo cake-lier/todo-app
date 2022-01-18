@@ -1,6 +1,7 @@
 import { Menu } from 'primereact/menu';
 import { PrimeIcons } from 'primereact/api';
 import React, { Component } from 'react';
+import "../pages/userhome/UserHome.css"
 
 export class MainMenu extends Component {
     constructor(props) {
@@ -24,13 +25,17 @@ export class MainMenu extends Component {
 
     render() {
         return (
-            <div className="grid h-screen">
-                <div className="grid align-content-start">
-                    <Menu model={this.mainItems} style={{border: 0}}/>
-                </div>
-                <div className="grid align-content-end">
-                    <Menu model={this.subItems} style={{border: 0}}/>
-                </div>
+            <div className="grid h-full" style={{border: '1px solid #e5e5e5'}}>
+                    <div className="grid">
+                        <div className="col-12 no-padding">
+                            <Menu model={this.mainItems} style={{borderTop: 0, borderBottom:0, padding:0}}/>
+                        </div>
+                    </div>
+                    <div className="grid align-content-end">
+                        <div className="col-12 no-padding">
+                            <Menu model={this.subItems} style={{borderTop: 0, borderBottom:0, padding:0}}/>
+                        </div>
+                    </div>
             </div>
         )
     }
