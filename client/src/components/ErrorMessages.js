@@ -6,28 +6,28 @@ class ErrorMessages extends Component {
     componentDidMount() {
         switch (this.props.lastErrorCode) {
             case 0:
-                this.messages.current.show({ severity: "error", content: "An error has occurred, please try again later." });
+                this.messages.show({ severity: "error", content: "An error has occurred, please try again later." });
                 break;
             case 1:
-                this.messages.current.show({
+                this.messages.show({
                     severity: "error",
                     content: "The given username or password were incorrect, please try again with another username or password."
                 });
                 break;
             case 2:
-                this.messages.current.show({
+                this.messages.show({
                     severity: "error",
                     content: "The given password was incorrect, please try again with a different password."
                 });
                 break;
             case 3:
-                this.messages.current.show({
+                this.messages.show({
                     severity: "error",
                     content: "Login is required for performing this operation, please login before retrying again."
                 });
                 break;
             case 4:
-                this.messages.current.show({
+                this.messages.show({
                     severity: "error",
                     content: "An error has occurred while performing the request, please try again."
                 });
@@ -43,7 +43,11 @@ class ErrorMessages extends Component {
     }
 
     render() {
-        return <Messages ref={ e => this.messages = e } />;
+        return (
+            <div className="col-12 fixed top-0">
+                <Messages ref={ e => this.messages = e } />
+            </div>
+        );
     }
 }
 

@@ -1,9 +1,8 @@
 import { Component } from "react";
 import axios from "axios";
-import { Navigate } from "react-router-dom";
-import ErrorMessages from "./ErrorMessages";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { Password } from "primereact/password";
 
 class LoginForm extends Component {
 
@@ -12,8 +11,7 @@ class LoginForm extends Component {
         this.state = {
             email: "",
             password: "",
-            isLoggedIn: false,
-            lastErrorCode: null
+            loginFailed: false
         };
         this.doLogin = this.doLogin.bind(this);
     }
@@ -27,18 +25,21 @@ class LoginForm extends Component {
             }
         )
         .then(
-            _ => this.setState({ lastErrorCode: null, isLoggedIn: true }),
-            error => this.setState({ lastErrorCode: error.response.data.error })
+            user => this.props.setUser(user.data),
+            error => {
+                if (error.response.data.error === 1) {
+                    this.setState({
+                        loginFailed: true
+                    });
+                }
+                this.props.displayError(error.response.data.error);
+            }
         );
     }
 
     render() {
-        if (this.state.isLoggedIn) {
-            return <Navigate to="/home" />;
-        }
         return (
             <div className="grid">
-                <ErrorMessages lastErrorCode={ this.state.lastErrorCode !== 1 ? this.state.lastErrorCode : null } />
                 <div className="col-12 flex justify-content-center">
                     <img className="h-5rem" src="images/logo512.png"  alt="App logo" />
                 </div>
@@ -50,22 +51,24 @@ class LoginForm extends Component {
                     <span className="p-float-label">
                         <InputText
                             id="email"
-                            className={ "w-full" + (this.state.lastErrorCode === 1 ? " p-invalid" : "") }
+                            className={ "w-full" + (this.state.loginFailed ? " p-invalid" : "") }
                             value={ this.state.email }
                             onChange={ e => this.setState({ email: e.target.value }) }
                         />
                         <label htmlFor="email">E-mail</label>
                     </span>
                     <span className="p-float-label mt-2">
-                        <InputText
+                        <Password
                             id="password"
-                            className={ "w-full" + (this.state.lastErrorCode === 1 ? " p-invalid" : "") }
+                            className={ "w-full" + (this.state.loginFailed ? " p-invalid" : "") }
                             value={ this.state.password }
                             onChange={ e => this.setState({ password: e.target.value }) }
+                            feedback={ false }
+                            toggleMask
                         />
                         <label htmlFor="password">Password</label>
                     </span>
-                    <small className={ "p-error mt-2" + (this.state.lastErrorCode === 1 ? "" : " hidden") }>
+                    <small className={ "p-error mt-2" + (this.state.loginFailed ? "" : " hidden") }>
                         Username or password are incorrect.
                     </small>
                     <Button className="w-full mt-5" label="Login" onClick={ this.doLogin } />
