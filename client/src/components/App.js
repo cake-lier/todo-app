@@ -52,6 +52,10 @@ class App extends Component {
                     }
                 />
                 <Route
+                    path="/userhome"
+                    element={<UserHome/> }
+                />
+                <Route
                     path="/signup"
                     element={ null }
                 />
