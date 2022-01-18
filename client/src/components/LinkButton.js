@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button as PrimeButton } from "primereact/button";
+import { Button } from "primereact/button";
 
-export default function Button(props) {
+export default function LinkButton(props) {
     const navigate = useNavigate();
     const handleOnClick = useCallback(
         () => navigate("/" + props.route), [props.route, navigate]
     );
 
-    return <PrimeButton className={ props.className } label={ props.label } onClick={ handleOnClick } />;
+    return <Button className={ props.className } label={ props.label } onClick={ handleOnClick } />;
 }

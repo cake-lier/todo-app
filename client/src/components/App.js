@@ -1,7 +1,8 @@
 import { Component } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import Home from "../pages/home/Home";
 import axios from "axios";
+import Home from "../pages/home/Home";
+import Login from "../pages/login/Login";
 
 class App extends Component {
 
@@ -30,7 +31,7 @@ class App extends Component {
         return (
             <Routes>
                 <Route path="/" element={ this.state.user !== null ? <Navigate to="/home" /> : <Home /> } />
-                {/*<Route path="/login" element={ <Login /> } />*/}
+                <Route path="/login" element={ <Login /> } />
             </Routes>
         );
     }
