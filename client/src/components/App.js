@@ -43,13 +43,13 @@ class App extends Component {
     render() {
         return (
             <Routes>
-                <Route path="/" element={ this.state.user === null ? <Home /> : <Navigate to="/home" /> } />
+                <Route path="/" element={ this.state.user === null ? <Home /> : <Navigate to="/my-day" /> } />
                 <Route
                     path="/login"
                     element={
                         this.state.user === null
                         ? <Login setUser={ this.setUser } lastErrorCode={ this.state.lastErrorCode } />
-                        : <Navigate to="/home" />
+                        : <Navigate to="/my-day" />
                     }
                 />
                 <Route
@@ -57,7 +57,7 @@ class App extends Component {
                     element={
                         this.state.user === null
                         ? <Signup setUser={ this.setUser } lastErrorCode={ this.state.lastErrorCode } />
-                        : <Navigate to="/home" />
+                        : <Navigate to="/my-day" />
                     }
                 />
                 <Route
