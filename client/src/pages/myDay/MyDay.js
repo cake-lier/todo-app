@@ -1,14 +1,12 @@
 import { Component } from "react";
 import {MainMenu} from "../../components/MainMenu";
-import "./UserHome.css"
 
-class UserHome extends Component {
+class MyDay extends Component {
     render() {
         return(
-            //{ this.props.user._id }
             <div className="grid h-screen">
                 <div className="hidden md:block">
-                    <div className="col-6 h-screen no-padding"> {/* @todo remove padding here */}
+                    <div className="col-6 h-screen p-0">
                         <MainMenu/>
                     </div>
                 </div>
@@ -17,5 +15,5 @@ class UserHome extends Component {
     }
 }
 
-export default UserHome;
+export default MyDay;
 

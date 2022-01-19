@@ -7,7 +7,6 @@ div.p-fileupload > span.p-button {
 }
 
 img#chosenProfilePicture {
-    overflow: hidden;
     border-radius: 50%;
 }
 

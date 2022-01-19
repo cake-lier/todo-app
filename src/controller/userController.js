@@ -2,8 +2,7 @@
 
 const validation = require("../utils/validation");
 const uuid = require("uuid");
-const userModel = require("../model/userModel");
-const User = userModel.createUserModel();
+const User = require("../model/userModel").createUserModel();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const rounds = 12;
@@ -15,7 +14,7 @@ function decodeImage(encodedImage, response) {
         return [];
     }
     return [
-        "/public/images/profilePictures/" + uuid.v4().replaceAll("-", "_") + "." + matches[1],
+        "/client/public/images/profilePictures/" + uuid.v4().replaceAll("-", "_") + "." + matches[1],
         Buffer.from(matches[2], "base64")
     ];
 }
@@ -68,7 +67,7 @@ function signup(request, response) {
                   });
                   return Promise.resolve();
               }
-              return createUser(request, response, undefined, hashedPassword);
+              return createUser(request, response, null, hashedPassword);
           })
           .catch(error => {
               console.log(error);
@@ -206,7 +205,7 @@ function updateProfilePicture(request, response) {
                         });
                         return;
                     }
-                    if (user.profilePicturePath !== userModel.defaultProfilePicture) {
+                    if (user.profilePicturePath !== null) {
                         fs.rm(appRoot + user.profilePicturePath, error => {
                             if (error !== null) {
                                 console.log(error);
@@ -236,16 +235,16 @@ function updateProfilePicture(request, response) {
                     validation.sendError(response, validation.Error.ResourceNotFound);
                     return;
                 }
-                if (user.profilePicturePath !== userModel.defaultProfilePicture) {
+                if (user.profilePicturePath !== null) {
                     fs.rm(appRoot + user.profilePicturePath, error => {
                         if (error !== null) {
                             console.log(error);
                         }
-                        response.json(createUpdatedUserDocument(user, userModel.defaultProfilePicture));
+                        response.json(createUpdatedUserDocument(user, null));
                     });
                     return;
                 }
-                response.json(createUpdatedUserDocument(user, userModel.defaultProfilePicture));
+                response.json(createUpdatedUserDocument(user, null));
             },
             error => {
                 console.log(error);

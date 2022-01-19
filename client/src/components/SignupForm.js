@@ -8,14 +8,13 @@ import { useRef, useState, Fragment } from "react";
 import { Dialog } from "primereact/dialog";
 import { FileUpload } from "primereact/fileupload";
 import TermsOfService from "./TermsOfService";
-import {Divider} from "primereact/divider";
-import {Link} from "react-router-dom";
+import { Divider } from "primereact/divider";
+import { Link } from "react-router-dom";
 
 export const LoginForm = (props) => {
     const [isDialogVisible, setDialogVisible] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
     const formik = useFormik({
-        initialErrors: null,
         initialValues: {
             username: "",
             email: "",
@@ -54,9 +53,7 @@ export const LoginForm = (props) => {
             )
             .then(
                 user => props.setUser(user.data),
-                error => {
-                    props.displayError(error.response.data.error);
-                }
+                error => props.displayError(error.response.data.error)
             );
             formik.resetForm();
         }
@@ -79,6 +76,13 @@ export const LoginForm = (props) => {
     const getFieldErrorClass = name => isFormFieldValid(name) ? "" : "p-invalid";
     return (
         <div className="grid">
+            <Dialog
+                header="Waffles' Terms of Service"
+                className="w-12 md:w-6"
+                visible={ isDialogVisible }
+                onHide={ () => setDialogVisible(false) }>
+                <TermsOfService />
+            </Dialog>
             <div className="col-12 flex justify-content-center">
                 <img className="h-5rem" src="images/logo512.png"  alt="App logo" />
             </div>
@@ -186,13 +190,6 @@ export const LoginForm = (props) => {
                         </label>
                     </div>
                     { getFormErrorMessage("accept") }
-                    <Dialog
-                        header="Waffles' Terms of Service"
-                        className="w-12 md:w-6"
-                        visible={ isDialogVisible }
-                        onHide={ () => setDialogVisible(false) }>
-                        <TermsOfService />
-                    </Dialog>
                     <Button disabled={ formik.isSubmitting } type="submit" className="w-full mt-4" label="Sign up" />
                 </form>
                 <div className="flex justify-content-center mt-5">

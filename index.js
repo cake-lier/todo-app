@@ -3,7 +3,7 @@ const path = require("path");
 global.appRoot = path.resolve(__dirname);
 require("mongoose").connect("mongodb://localhost:27017,localhost:27018,localhost:27019/todo?replicaSet=rs");
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: 2097152 }));
 app.use("/static", express.static(__dirname + "/public"));
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);

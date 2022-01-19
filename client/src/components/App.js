@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import axios from "axios";
 import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
-import UserHome from "../pages/userhome/UserHome";
+import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 
 class App extends Component {
@@ -53,10 +53,6 @@ class App extends Component {
                     }
                 />
                 <Route
-                    path="/userhome"
-                    element={<UserHome/> }
-                />
-                <Route
                     path="/signup"
                     element={
                         this.state.user === null
@@ -65,8 +61,8 @@ class App extends Component {
                     }
                 />
                 <Route
-                    path="/home"
-                    element={ this.state.user !== null ? <UserHome user={ this.state.user } /> : <Navigate to="/" /> }
+                    path="/my-day"
+                    element={ this.state.user !== null ? <MyDay user={ this.state.user } /> : <Navigate to="/" /> }
                 />
             </Routes>
         );

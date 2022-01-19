@@ -1,7 +1,6 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const defaultProfilePicture = "/public/images/profilePictures/default_profile_picture.png";
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -18,7 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     profilePicturePath: {
         type: String,
-        default: defaultProfilePicture
+        default: null
     },
     creationDate: {
         type: Date,
@@ -34,6 +33,5 @@ userSchema.path("email").validate(
 );
 
 module.exports = {
-    createUserModel: () => mongoose.model("User", userSchema),
-    defaultProfilePicture
+    createUserModel: () => mongoose.model("User", userSchema)
 };
