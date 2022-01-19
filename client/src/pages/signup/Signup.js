@@ -1,10 +1,10 @@
 import { Component } from "react";
 import { Card } from 'primereact/card';
-import LoginForm from "../../components/LoginForm";
+import SignupForm from "../../components/SignupForm";
 import ErrorMessages from "../../components/ErrorMessages";
-import "./Login.css";
+import "./Signup.css";
 
-class Login extends Component {
+class Signup extends Component {
 
     constructor(props) {
         super(props);
@@ -21,10 +21,10 @@ class Login extends Component {
     render() {
         return (
             <div className="grid h-screen align-items-center">
-                <ErrorMessages lastErrorCode={ this.state.lastErrorCode !== 1 ? this.state.lastErrorCode : null } />
+                <ErrorMessages lastErrorCode={ this.state.lastErrorCode } />
                 <div className="col-12 md:col-4 md:col-offset-4">
                     <Card>
-                        <LoginForm setUser={ this.props.setUser } displayError={ this.displayError } />
+                        <SignupForm setUser={ this.props.setUser } displayError={ this.displayError } />
                     </Card>
                 </div>
             </div>
@@ -32,4 +32,4 @@ class Login extends Component {
     }
 }
 
-export default Login;
+export default Signup;

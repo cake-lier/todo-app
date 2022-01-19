@@ -4,6 +4,7 @@ import axios from "axios";
 import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import UserHome from "../pages/userhome/UserHome";
+import Signup from "../pages/signup/Signup";
 
 class App extends Component {
 
@@ -57,11 +58,11 @@ class App extends Component {
                 />
                 <Route
                     path="/signup"
-                    element={ null }
-                />
-                <Route
-                    path="/logout"
-                    element={ null }
+                    element={
+                        this.state.user === null
+                        ? <Signup setUser={ this.setUser } lastErrorCode={ this.state.lastErrorCode } />
+                        : <Navigate to="/home" />
+                    }
                 />
                 <Route
                     path="/home"

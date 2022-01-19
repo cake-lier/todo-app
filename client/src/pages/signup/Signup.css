@@ -1,0 +1,13 @@
+div#password > input {
+    width: 100%;
+}
+
+div.p-fileupload > span.p-button {
+    width: 100% !important;
+}
+
+img#chosenProfilePicture {
+    overflow: hidden;
+    border-radius: 50%;
+}
+

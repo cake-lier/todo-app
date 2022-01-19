@@ -1,18 +1,44 @@
-$primary-color: #E82D5F;
-$primary-background: #FFF;
+$primary-color: #E61950;
+$primary-background: #F7F6EE;
+$error-color: #B00020;
+
+@function getPrimaryColorWithAlpha($alpha) {
+    @return rgba(232, 45, 95, $alpha);
+}
 
 body {
     background-color: $primary-background;
+}
+
+a, button {
+    font-weight: bold;
+    color: $primary-color;
+    text-decoration: none;
+    border: 0;
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    line-height: normal;
+    font-size: medium;
+    cursor: pointer;
 }
 
 .p-button {
     background: $primary-color;
     &:enabled{
         &:hover {
-            background: $primary-color;
+            background: getPrimaryColorWithAlpha(0.92);
         }
         &:active, &:focus {
-            background: rgba(232, 45, 95, 0.68);
+            background: getPrimaryColorWithAlpha(0.68);
+        }
+    }
+    &:not(button):not(a):not(.p-disabled){
+        &:hover {
+            background: getPrimaryColorWithAlpha(0.92);
+        }
+        &:active, &:focus {
+            background: getPrimaryColorWithAlpha(0.68);
         }
     }
     &.p-button-outlined {
@@ -32,6 +58,50 @@ body {
 
 .p-float-label input:focus ~ label, .p-float-label .p-inputwrapper-focus ~ label {
     color: $primary-color;
+}
+
+.p-float-label input:focus ~ label.p-error, .p-float-label .p-inputwrapper-focus ~ label.p-error {
+    color: $error-color;
+}
+
+.p-checkbox .p-checkbox-box.p-highlight {
+    border-color: $primary-color;
+    background: $primary-color;
+    &:not(.p-disabled) {
+        &:hover {
+            border-color: $primary-color;
+            background: $primary-color;
+        }
+        &.p-focus {
+            border-color: $primary-color;
+        }
+    }
+}
+
+.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box {
+    &.p-focus {
+        border-color: $primary-color;
+    }
+    &.p-highlight:hover {
+        border-color: $primary-color;
+        background: $primary-color;
+    }
+}
+
+.p-checkbox.p-checkbox-checked:not(.p-checkbox-disabled):hover {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
+}
+
+.p-checkbox.p-checkbox-checked:not(.p-checkbox-disabled).p-checkbox-focused {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
+}
+
+.p-input-filled .p-checkbox .p-checkbox-box.p-highlight {
+    background: $primary-color;
+}
+
+.p-input-filled .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover {
+    background: $primary-color;
 }
 
 .grid {

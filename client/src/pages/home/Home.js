@@ -19,7 +19,7 @@ class Home extends Component {
                             <LinkButton className="text-lg p-button-outlined login-button" label="Log in" route="login" />
                         </div>
                         <div className="col-1 flex justify-content-center align-items-center">
-                            <LinkButton className="text-lg" label="Sign-up" route="signup" />
+                            <LinkButton className="text-lg" label="Sign up" route="signup" />
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@ class Home extends Component {
                             <LinkButton className="text-lg p-button-outlined login-button" label="Log in" route="login" />
                         </div>
                         <div className="col-4 col-offset-2 flex justify-content-end">
-                            <LinkButton className="text-lg" label="Sign-up" route="signup" />
+                            <LinkButton className="text-lg" label="Sign up" route="signup" />
                         </div>
                     </div>
                 </div>

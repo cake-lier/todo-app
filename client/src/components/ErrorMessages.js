@@ -23,7 +23,7 @@ class ErrorMessages extends Component {
             case 3:
                 this.messages.show({
                     severity: "error",
-                    content: "Login is required for performing this operation, please login before retrying again."
+                    content: "Signup is required for performing this operation, please login before retrying again."
                 });
                 break;
             case 4:
@@ -33,9 +33,15 @@ class ErrorMessages extends Component {
                 });
                 break;
             case 5:
-                this.messages.current.show({
+                this.messages.show({
                     severity: "error",
                     content: "An error has occurred while fetching the requested resource, please try again."
+                });
+                break;
+            case 99:
+                this.messages.show({
+                    severity: "error",
+                    content: "An error has occurred while loading the selected image, please try again."
                 });
                 break;
             default:
