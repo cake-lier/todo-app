@@ -13,9 +13,9 @@ export function MainMenu(props) {
         { label: "My day", icon: PrimeIcons.CHECK_SQUARE, disabled: props.selected === "My day" },
         { label: "My lists", icon: PrimeIcons.LIST, disabled: props.selected === "My lists" },
         { label: "Shared with me", icon: PrimeIcons.USERS, disabled: props.selected === "Shared with me" },
-        { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: props.selected === "Shared with me" },
+        { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: props.selected === "Calendar" },
         { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: props.selected === "Reports" },
-        { label: "Achievement", icon: PrimeIcons.STAR, disabled: props.selected === "Achievement" }
+        { label: "Achievements", icon: PrimeIcons.STAR, disabled: props.selected === "Achievements" }
     ];
     const subItems = [
         { label: "Search", icon: PrimeIcons.SEARCH, disabled: props.selected === "Search" },

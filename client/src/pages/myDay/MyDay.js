@@ -3,6 +3,7 @@ import Moment from "react-moment";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import { UserIcon } from "../../components/userIcon/UserIcon";
 import ErrorMessages from "../../components/ErrorMessages";
+import "./MyDay.scss";
 
 class MyDay extends Component {
 
@@ -19,11 +20,11 @@ class MyDay extends Component {
         return (
             <div className="grid h-screen">
                 <ErrorMessages ref={ e => this.errors = e } />
-                <div className="mx-0 p-0 hidden md:block" style={{ width: "10%" }}>
+                <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
                     <MainMenu selected={ "My day" } />
                 </div>
-                <div className="mx-0 p-0 hidden md:block" style={{ width: "90%" }}>
-                    <div className="grid" style={{ backgroundColor: "#FFF" }}>
+                <div id="pageContainer" className="mx-0 p-0 hidden md:block">
+                    <div className="grid">
                         <div className="col-2 flex-columns justify-content-center">
                             <h3 className="text-3xl font-semibold">My day</h3>
                             <p className="text-md mt-2"><Moment date={ Date.now() } local format="dddd, MMMM Do" /></p>
