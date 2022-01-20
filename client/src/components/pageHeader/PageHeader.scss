@@ -1,0 +1,24 @@
+@import "../../colors";
+
+.p-tabmenu .p-tabmenu-nav {
+  border: 0px !important;
+  position: unset !important;
+}
+
+.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+  border: 0px !important;
+  color: lightgrey !important;
+}
+
+.p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
+  color: $text-color !important;
+}
+
+.p-tabmenu-nav .p-menuitem-text {
+  line-height: normal !important;
+}
+
+.p-tabmenuitem {
+  flex: auto;
+  justify-content: center !important;
+}

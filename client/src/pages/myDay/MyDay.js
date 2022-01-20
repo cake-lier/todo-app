@@ -1,11 +1,10 @@
 import {useRef, useState} from "react";
 import BurgerMenu from "../../components/BurgerMenu";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
-import Moment from "react-moment";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
-import { UserIcon } from "../../components/userIcon/UserIcon";
 import ErrorMessages from "../../components/ErrorMessages";
 import "./MyDay.scss";
+import PageHeader from "../../components/pageHeader/PageHeader";
 
 function MyDay(props) {
 
@@ -32,20 +31,13 @@ function MyDay(props) {
             </div>
 
             <div id="pageContainer" className="mx-0 p-0  flex-grow-1 hidden md:block m-0">
-                <div className="grid">
-                    <div className="col-4 flex-columns justify-content-center">
-                        <h3 className="text-3xl font-semibold">My day</h3>
-                        <p className="text-md mt-2"><Moment date={ Date.now() } local format="dddd, MMMM Do" /></p>
-                    </div>
-                    <div className="col-7"/>
-                    <div className="col-1 flex justify-content-center">
-                        <UserIcon
-                            user={ props.user }
-                            unsetUser={ props.unsetUser }
-                            displayError={ displayError }
-                        />
-                    </div>
-                </div>
+                <PageHeader
+                    props={props}
+                    title="My Day"
+                    showDate={true}
+                    isResponsive={false}
+                    displayError={displayError}
+                />
             </div>
 
             <div className="w-full p-0 md:hidden">
@@ -56,20 +48,13 @@ function MyDay(props) {
                     </div>
                 </div>
                 <div id="pageContainer" className="mx-0 p-0 w-full md:block">
-                    <div className="grid">
-                        <div className="col-2 "/>
-                        <div className="col-8 flex-columns justify-content-center">
-                            <h3 className="text-3xl font-semibold">My day</h3>
-                            <p className="text-md mt-2"><Moment date={ Date.now() } local format="dddd, MMMM Do" /></p>
-                        </div>
-                        <div className="col-1 flex justify-content-center">
-                            <UserIcon
-                                user={ props.user }
-                                unsetUser={ props.unsetUser }
-                                displayError={ displayError }
-                            />
-                        </div>
-                    </div>
+                    <PageHeader
+                        props={props}
+                        title="My day"
+                        showDate={true}
+                        isResponsive={true}
+                        displayError={displayError}
+                    />
                 </div>
             </div>
         </div>
