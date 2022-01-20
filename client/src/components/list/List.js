@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Checkbox } from 'primereact/checkbox';
 import { Tag } from 'primereact/tag';
 import { Button } from 'primereact/button';
+import { Menu } from 'primereact/menu';
+import "./List.scss";
 
 export function List(props) {
     const listName = props.name;
@@ -10,6 +12,17 @@ export function List(props) {
                     {name: 'Production', id: '02'},
                     {name: 'Research', id: '03'}];
     const [selectedItems, setSelectedItems] = useState(Array.prototype);
+
+    const menu = useRef(null);
+    let menuItems = [
+        {label: 'Edit', icon: 'pi pi-pencil'},
+        {label: 'Due date', icon: 'pi pi-calendar'},
+        {label: 'Assign to', icon: 'pi pi-user-plus' },
+        {label: 'Add reminder', icon: 'pi pi-bell'},
+        {label: 'Add tags', icon: 'pi pi-tag' },
+        {label: 'Add priority', icon: 'pi pi-star' },
+        {label: 'Delete', icon: 'pi pi-trash'}
+    ];
 
     // when checkbox is checked/unchecked, update selectedItems[]
     const onItemChange = (e) => {
@@ -48,11 +61,14 @@ export function List(props) {
                                     <label htmlFor={item.id}>{item.name}</label>
                                 </div>
                                 <div className="flex align-items-center flex-wrap">
-                                    <Tag className="flex m-1" icon="pi pi-calendar">Jan 11</Tag>
-                                    <Tag className="flex m-1" icon="pi pi-circle-on">Unibo</Tag>
+                                    <Tag className="flex m-1 p-tag-rounded" icon="pi pi-calendar">Jan 11</Tag>
+                                    <Tag className="flex m-1 p-tag-rounded" icon="pi pi-circle-on">Unibo</Tag>
                                 </div>
                             </div>
-                            <Button icon="pi pi-ellipsis-v" className="p-button-rounded p-button-icon-only p-button-text" />
+                            <Button icon="pi pi-ellipsis-v"
+                                    onClick={(e) => menu.current.toggle(e)}
+                                    className="p-button-rounded p-button-icon-only p-button-text" />
+                            <Menu model={menuItems} popup ref={menu} />
                         </div>
                     )
                 })
