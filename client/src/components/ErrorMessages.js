@@ -3,8 +3,13 @@ import { Messages } from "primereact/messages";
 
 class ErrorMessages extends Component {
 
-    componentDidMount() {
-        switch (this.props.lastErrorCode) {
+    constructor(props) {
+        super(props);
+        this.displayError = this.displayError.bind(this);
+    }
+
+    displayError(error) {
+        switch (error) {
             case 0:
                 this.messages.show({ severity: "error", content: "An error has occurred, please try again later." });
                 break;
@@ -48,10 +53,16 @@ class ErrorMessages extends Component {
         }
     }
 
+    componentDidMount() {
+        if (this.props.initialError !== undefined) {
+            this.displayError(this.props.initialError);
+        }
+    }
+
     render() {
         return (
-            <div className="col-12 fixed top-0">
-                <Messages ref={ e => this.messages = e } />
+            <div className="col-12 fixed top-0" style={{ zIndex: 1001 }}>
+                <Messages ref={ e => this.messages = e }   />
             </div>
         );
     }

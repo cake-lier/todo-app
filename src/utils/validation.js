@@ -4,7 +4,7 @@ class Error {
     static GeneralError = new Error(0, 500);
     static LoginError = new Error(1, 400);
     static PasswordError = new Error(2, 400);
-    static LoginRequiredError = new Error(3, 400);
+    static LoginRequiredError = new Error(3, 401);
     static RequestError = new Error(4, 400);
     static ResourceNotFound = new Error(5, 404);
 

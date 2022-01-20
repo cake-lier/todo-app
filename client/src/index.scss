@@ -1,6 +1,4 @@
-$primary-color: #E61950;
-$primary-background: #F7F6EE;
-$error-color: #B00020;
+@import "colors";
 
 @function getPrimaryColorWithAlpha($alpha) {
     @return rgba(232, 45, 95, $alpha);
@@ -21,6 +19,10 @@ a, button {
     line-height: normal;
     font-size: medium;
     cursor: pointer;
+}
+
+h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link, .p-menu .p-menuitem-link .p-menuitem-text {
+    color: $text-color;
 }
 
 .p-button {

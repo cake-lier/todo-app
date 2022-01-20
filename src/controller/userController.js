@@ -14,7 +14,7 @@ function decodeImage(encodedImage, response) {
         return [];
     }
     return [
-        "/client/public/images/profilePictures/" + uuid.v4().replaceAll("-", "_") + "." + matches[1],
+        "/static/images/profilePictures/" + uuid.v4().replaceAll("-", "_") + "." + matches[1],
         Buffer.from(matches[2], "base64")
     ];
 }

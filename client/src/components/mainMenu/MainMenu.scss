@@ -1,0 +1,6 @@
+@import "../../colors";
+
+div#mainMenu.p-menu a.p-menuitem-link.p-disabled {
+  background-color: $disabled-color;
+  opacity: 100%;
+}

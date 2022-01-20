@@ -8,20 +8,19 @@ class Login extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            lastErrorCode: props.lastErrorCode
-        };
         this.displayError = this.displayError.bind(this);
     }
 
     displayError(lastErrorCode) {
-        this.setState({ lastErrorCode });
+        if (lastErrorCode !== 1) {
+            this.errors.displayError(lastErrorCode);
+        }
     }
 
     render() {
         return (
             <div className="grid h-screen align-items-center">
-                <ErrorMessages lastErrorCode={ this.state.lastErrorCode !== 1 ? this.state.lastErrorCode : null } />
+                <ErrorMessages ref={ e => this.errors = e } />
                 <div className="col-12 md:col-4 md:col-offset-4">
                     <Card>
                         <LoginForm setUser={ this.props.setUser } displayError={ this.displayError } />
