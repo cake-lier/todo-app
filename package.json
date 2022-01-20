@@ -19,5 +19,8 @@
     "run-rs": "^0.7.5",
     "socketio": "^1.0.0",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "prop-types": "^15.8.1"
   }
 }
