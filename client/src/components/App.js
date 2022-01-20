@@ -6,7 +6,7 @@ import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
-import {List} from "./list/List";
+import {List} from "./List";
 
 class App extends Component {
 
