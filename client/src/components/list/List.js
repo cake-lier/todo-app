@@ -34,12 +34,11 @@ export function List(props) {
 
     return (
         <div>
-            <div className="card">
                 <h2 className="font-medium text-3xl text-900">{listName}</h2>
                 {
                     items.map((item) => {
                         return (
-                            <div className="flex align-items-start flex-column lg:justify-content-between lg:flex-row m-2">
+                            <div className="flex justify-content-between m-2">
                                 <div>
                                     <div id={item.id} className="field-checkbox m-1">
                                         <Checkbox inputId={item.id}
@@ -54,14 +53,11 @@ export function List(props) {
                                         <Tag className="flex m-1" icon="pi pi-circle-on">Unibo</Tag>
                                     </div>
                                 </div>
-                                <div className="mt-3 lg:mt-0">
-                                    <Button icon="pi pi-ellipsis-v" className="p-button-rounded" />
-                                </div>
+                                <Button icon="pi pi-ellipsis-v" className="p-button-rounded p-button-icon-only p-button-text" />
                             </div>
                         )
                     })
                 }
-            </div>
         </div>
     )
 }
