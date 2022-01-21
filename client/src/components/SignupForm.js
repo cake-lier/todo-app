@@ -24,9 +24,11 @@ export const LoginForm = (props) => {
         validate: data => {
             const errors = {};
             if (!data.username) {
-                errors.username = "An username is required.";
-            } else if (!/^[A-Z0-9_\- ]/i.test(data.username)) {
-                errors.username = "A username must only contain letters, numbers, spaces, underscores and dashes.";
+                errors.username = "A username is required.";
+            } else if (!/^[A-Z0-9_-]/i.test(data.username)) {
+                errors.username = "A username must only contain letters, numbers, underscores and dashes.";
+            } else if (data.username.length > 15) {
+                errors.username = "A username must be no more than 15 characters long.";
             }
             if (!data.email) {
                 errors.email = "An email is required";
@@ -41,7 +43,7 @@ export const LoginForm = (props) => {
             }
             return errors;
         },
-        onSubmit: data => {
+        onSubmit: data =>
             axios.post(
                 "users",
                 {
@@ -53,10 +55,11 @@ export const LoginForm = (props) => {
             )
             .then(
                 user => props.setUser(user.data),
-                error => props.displayError(error.response.data.error)
-            );
-            formik.resetForm();
-        }
+                error => {
+                    props.displayError(error.response.data.error);
+                    formik.resetForm();
+                }
+            )
     });
     const encodeImage = e => {
         const reader = new FileReader();
@@ -99,7 +102,7 @@ export const LoginForm = (props) => {
                                 className="w-6rem h-6rem"
                                 src={
                                     profilePicture === null
-                                    ? "images/default_profile_picture.jpg"
+                                    ? "/static/images/default_profile_picture.jpg"
                                     : profilePicture
                                 }
                                 alt="Chosen profile avatar"

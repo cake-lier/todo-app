@@ -3,17 +3,23 @@ import { PrimeIcons } from 'primereact/api';
 import { useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import "./MainMenu.scss";
-import {bool} from "prop-types";
+import { bool } from "prop-types";
 
-
-export function MainMenu({open}, props) {
+export function MainMenu({ open }, props) {
     const navigate = useNavigate();
-    const handleOnSettingsClicked = useCallback(
-        () => navigate("/settings"), [navigate]
-    );
+    const useOnClicked = url => {
+        return useCallback(
+            () => navigate("/" + url), [url]
+        );
+    }
 
     const mainItems = [
-        { label: "My day", icon: PrimeIcons.CHECK_SQUARE, disabled: props.selected === "My day" },
+        {
+            label: "My day",
+            icon: PrimeIcons.CHECK_SQUARE,
+            disabled: props.selected === "My day",
+            command: useOnClicked("my-day")
+        },
         { label: "My lists", icon: PrimeIcons.LIST, disabled: props.selected === "My lists" },
         { label: "Shared with me", icon: PrimeIcons.USERS, disabled: props.selected === "Shared with me" },
         { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: props.selected === "Calendar" },
@@ -22,7 +28,12 @@ export function MainMenu({open}, props) {
     ];
     const subItems = [
         { label: "Search", icon: PrimeIcons.SEARCH, disabled: props.selected === "Search" },
-        { label: "Settings", icon: PrimeIcons.COG, disabled: props.selected === "Settings", command: handleOnSettingsClicked }
+        {
+            label: "Settings",
+            icon: PrimeIcons.COG,
+            disabled: props.selected === "Settings",
+            command: useOnClicked("settings")
+        }
     ];
 
     const expand = {

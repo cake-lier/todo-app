@@ -14,14 +14,16 @@ function decodeImage(encodedImage, response) {
         return [];
     }
     return [
-        "/static/images/profilePictures/" + uuid.v4().replaceAll("-", "_") + "." + matches[1],
+        "/images/profilePictures/" + uuid.v4().replaceAll("-", "_") + "." + matches[1],
         Buffer.from(matches[2], "base64")
     ];
 }
 
-function deletePassword(user) {
+function createUserObject(user) {
     const clone = JSON.parse(JSON.stringify(user));
     delete clone.password;
+    clone.profilePicturePath =
+        "/static" + (clone.profilePicturePath === null ? "/images/default_profile_picture.jpg": clone.profilePicturePath);
     return clone;
 }
 
@@ -34,7 +36,7 @@ function createUser(request, response, path, hashedPassword) {
     })
     .then(user => {
         request.session.userId = user._id;
-        response.json(deletePassword(user));
+        response.json(createUserObject(user));
     });
 }
 
@@ -54,7 +56,7 @@ function signup(request, response) {
                       return Promise.resolve();
                   }
                   const [path, data] = result;
-                  fs.writeFile(appRoot + path, data, { flag: "wx", encoding: "base64" }, error => {
+                  fs.writeFile(appRoot + "/public" + path, data, { flag: "wx", encoding: "base64" }, error => {
                       if (error !== null) {
                           console.log(error);
                           validation.sendError(response, validation.Error.GeneralError);
@@ -87,7 +89,7 @@ function getUser(request, response) {
                     validation.sendError(response, validation.Error.ResourceNotFound);
                     return;
                 }
-                response.json(deletePassword(user));
+                response.json(createUserObject(user));
             },
             error => {
                 console.log(error);
@@ -96,29 +98,125 @@ function getUser(request, response) {
         );
 }
 
-function updateUsername(request, response) {
-    if (!validation.validateRequest(request, response, ["username"], [], true)) {
+function createUpdatedUserDocument(user, username, email, profilePicturePath) {
+    const clone = JSON.parse(JSON.stringify(user));
+    if (username !== undefined) {
+        clone.username = username;
+    }
+    if (email !== undefined) {
+        clone.email = email;
+    }
+    clone.profilePicturePath =
+        "/static" + (profilePicturePath === null ? "/images/default_profile_picture.jpg": profilePicturePath);
+    delete clone.password;
+    return clone;
+}
+
+function updateAccount(request, response) {
+    const userId = request.session.userId;
+    if (!validation.validateRequest(request, response, [], [], true)) {
         return;
     }
-    User.findByIdAndUpdate(
-        request.session.userId,
-        { $set: { username: request.body.username } },
-        { runValidators: true, new: true, context: "query" }
-    )
-    .exec()
-    .then(
-        user => {
-            if (user === null) {
-                validation.sendError(response, validation.Error.ResourceNotFound);
+    if (typeof request.body.profilePicture === "string") {
+        const result = decodeImage(request.body.profilePicture, response);
+        if (result.length < 2) {
+            return;
+        }
+        const [path, data] = result;
+        fs.writeFile(appRoot + "/public" + path, data, { flag: "wx", encoding: "base64" }, error => {
+            if (error !== null) {
+                console.log(error);
+                validation.sendError(response, validation.Error.GeneralError);
                 return;
             }
-            response.json(deletePassword(user));
-        },
-        error => {
-            console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
-        }
-    );
+            User.findByIdAndUpdate(
+                userId,
+                {
+                    $set: { profilePicturePath: path, email: request.body.email, username: request.body.username }
+                },
+                { context: "query" }
+            )
+            .exec()
+            .then(
+                user => {
+                    if (user === null) {
+                        fs.rm(appRoot + "/public" + path, error => {
+                            if (error !== null) {
+                                console.log(error);
+                            }
+                            validation.sendError(response, validation.Error.ResourceNotFound);
+                        });
+                        return;
+                    }
+                    if (user.profilePicturePath !== null) {
+                        fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
+                            if (error !== null) {
+                                console.log(error);
+                            }
+                            response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, path));
+                        });
+                        return;
+                    }
+                    response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, path));
+                },
+                error => {
+                    console.log(error);
+                    validation.sendError(response, validation.Error.GeneralError);
+                }
+            );
+        });
+    } else if (request.body.profilePicture === null) {
+        User.findByIdAndUpdate(
+            userId,
+            { $set: { email: request.body.email, username: request.body.username }, $unset: { profilePicturePath: "" } },
+            { context: "query" }
+        )
+        .exec()
+        .then(
+            user => {
+                if (user === null) {
+                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    return;
+                }
+                if (user.profilePicturePath !== null) {
+                    fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
+                        if (error !== null) {
+                            console.log(error);
+                        }
+                        response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, null));
+                    });
+                    return;
+                }
+                response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, null));
+            },
+            error => {
+                console.log(error);
+                validation.sendError(response, validation.Error.GeneralError);
+            }
+        );
+    } else if (request.body.profilePicture === undefined) {
+        User.findByIdAndUpdate(
+            request.session.userId,
+            { $set: { email: request.body.email, username: request.body.username } },
+            { new: true, context: "query" }
+        )
+        .exec()
+        .then(
+            user => {
+                if (user === null) {
+                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    return;
+                }
+                response.json(createUserObject(user));
+            },
+            error => {
+                console.log(error);
+                validation.sendError(response, validation.Error.GeneralError);
+            }
+        );
+    } else {
+        validation.sendError(response, validation.Error.RequestError);
+    }
 }
 
 function updatePassword(request, response) {
@@ -151,7 +249,7 @@ function updatePassword(request, response) {
                                            if (user === null) {
                                                validation.sendError(response, validation.Error.GeneralError);
                                            } else {
-                                               response.json(deletePassword(user));
+                                               response.json(createUserObject(user));
                                            }
                                            return Promise.resolve();
                                        });
@@ -162,96 +260,6 @@ function updatePassword(request, response) {
               console.log(error);
               validation.sendError(response, validation.Error.GeneralError);
           });
-}
-
-function createUpdatedUserDocument(user, profilePicturePath) {
-    const clone = JSON.parse(JSON.stringify(user));
-    clone.profilePicturePath = profilePicturePath;
-    delete clone.password;
-    return clone;
-}
-
-function updateProfilePicture(request, response) {
-    const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, [], [], true)) {
-        return;
-    }
-    if (typeof request.body.profilePicture === "string") {
-        const result = decodeImage(request.body.profilePicture, response);
-        if (result.length < 2) {
-            return;
-        }
-        const [path, data] = result;
-        fs.writeFile(appRoot + path, data, { flag: "wx", encoding: "base64" }, error => {
-            if (error !== null) {
-                console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
-                return;
-            }
-            User.findByIdAndUpdate(
-                userId,
-                { $set: { profilePicturePath: path } },
-                { runValidators: true, context: "query" }
-            )
-            .exec()
-            .then(
-                user => {
-                    if (user === null) {
-                        fs.rm(appRoot + path, error => {
-                            if (error !== null) {
-                                console.log(error);
-                            }
-                            validation.sendError(response, validation.Error.ResourceNotFound);
-                        });
-                        return;
-                    }
-                    if (user.profilePicturePath !== null) {
-                        fs.rm(appRoot + user.profilePicturePath, error => {
-                            if (error !== null) {
-                                console.log(error);
-                            }
-                            response.json(createUpdatedUserDocument(user, path));
-                        });
-                        return;
-                    }
-                    response.json(createUpdatedUserDocument(user, path));
-                },
-                error => {
-                    console.log(error);
-                    validation.sendError(response, validation.Error.GeneralError);
-                }
-            );
-        });
-    } else {
-        User.findByIdAndUpdate(
-            userId,
-            { $unset: { profilePicturePath: "" } },
-            { runValidators: true, context: "query" }
-        )
-        .exec()
-        .then(
-            user => {
-                if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
-                    return;
-                }
-                if (user.profilePicturePath !== null) {
-                    fs.rm(appRoot + user.profilePicturePath, error => {
-                        if (error !== null) {
-                            console.log(error);
-                        }
-                        response.json(createUpdatedUserDocument(user, null));
-                    });
-                    return;
-                }
-                response.json(createUpdatedUserDocument(user, null));
-            },
-            error => {
-                console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
-            }
-        );
-    }
 }
 
 function unregister(request, response) {
@@ -277,8 +285,8 @@ function unregister(request, response) {
                                         .then(result => {
                                             if (result.deleteCount === 0) {
                                                 validation.sendError(response, validation.Error.GeneralError);
-                                            } else if (user.profilePicturePath !== userModel.defaultProfilePicture) {
-                                                fs.rm(appRoot + user.profilePicturePath, error => {
+                                            } else if (user.profilePicturePath !== null) {
+                                                fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
                                                     if (error !==  null) {
                                                         console.log(error);
                                                     }
@@ -314,7 +322,7 @@ function login(request, response) {
                                  validation.sendError(response, validation.Error.LoginError);
                              } else {
                                  request.session.userId = user._id;
-                                 response.json(deletePassword(user));
+                                 response.json(createUserObject(user));
                              }
                              return Promise.resolve();
                          });
@@ -335,9 +343,8 @@ function logout(request, response) {
 module.exports = {
     signup,
     getUser,
-    updateUsername,
+    updateAccount,
     updatePassword,
-    updateProfilePicture,
     unregister,
     login,
     logout
