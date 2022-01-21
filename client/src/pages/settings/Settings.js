@@ -5,13 +5,11 @@ import ErrorMessages from "../../components/ErrorMessages";
 import { Link } from "react-router-dom";
 import { Divider } from "primereact/divider";
 import { ChangeAccountDataForm } from "../../components/ChangeAccountDataForm";
-import "./Settings.scss";
 import DeleteAccountForm from "../../components/deleteAccountForm/DeleteAccountForm";
 import ChangePasswordForm from "../../components/ChangePasswordForm";
 import { Messages } from "primereact/messages";
 import { InputSwitch } from 'primereact/inputswitch';
-import {Button} from "primereact/button";
-import {Password} from "primereact/password";
+import "./Settings.scss";
 
 class Settings extends Component {
 
@@ -37,7 +35,7 @@ class Settings extends Component {
         if (tabName === "password") {
             return (
                 <div className="grid">
-                    <div className="col-5 ml-8">
+                    <div className="col-12 md:col-5 md:ml-8">
                         <ChangePasswordForm displaySuccess={ this.displaySuccess } displayError={ this.displayError } />
                     </div>
                 </div>
@@ -68,7 +66,7 @@ class Settings extends Component {
         return (
             <>
                 <div className="grid">
-                    <div className="col-5 ml-8">
+                    <div className="col-12 md:col-5 md:ml-8">
                         <ChangeAccountDataForm
                             user={ this.props.user }
                             setUser={ this.props.setUser }
@@ -78,7 +76,7 @@ class Settings extends Component {
                 </div>
                 <Divider className="my-0" />
                 <div className="grid">
-                    <div className="col-5 ml-8">
+                    <div className="col-12 md:col-5 md:ml-8">
                         <DeleteAccountForm unsetUser={ this.props.unsetUser } displayError={ this.displayError } />
                     </div>
                 </div>
@@ -96,7 +94,7 @@ class Settings extends Component {
                 <div id="settingsMainMenuContainer" className="mx-0 p-0 hidden md:block">
                     <MainMenu selected={ "Settings" } />
                 </div>
-                <div id="settingsPageContainer" className="mx-0 p-0hidden md:block">
+                <div id="settingsPageContainer" className="mx-0 p-0">
                     <div className="grid">
                         <div className="col-12">
                             <div className="grid">
