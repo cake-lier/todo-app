@@ -36,7 +36,7 @@ const listSchema = new mongoose.Schema({
     },
     colorIndex: {
         type: Number,
-        enum: [0, 1, 2],
+        enum: [0, 1, 2, 3, 4],
         default: 0
     },
     members: {

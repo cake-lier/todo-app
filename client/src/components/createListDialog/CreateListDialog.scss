@@ -1,0 +1,44 @@
+@import "../../colors";
+
+.p-dialog .p-dialog-content {
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+.p-dialog-content{
+  padding-bottom: 0 !important;
+}
+
+.p-dialog .p-dialog-footer {
+  border-bottom-right-radius: 10px !important;
+  border-bottom-left-radius: 10px !important;
+  padding: 0 !important;
+}
+
+.p-button{
+  min-width: fit-content !important;
+}
+
+.p-selectbutton .p-button {
+  border: none !important;
+}
+
+#pastel-yellow-option {
+  color: $pastel-yellow !important;
+}
+
+#pastel-green-option {
+  color: $pastel-green;
+}
+
+#pastel-blue-option {
+  color: $pastel-blue;
+}
+
+#pastel-purple-option {
+  color: $pastel-purple;
+}
+
+#pastel-red-option {
+  color: $pastel-red;
+}

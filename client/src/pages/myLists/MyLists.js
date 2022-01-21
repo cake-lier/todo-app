@@ -37,7 +37,7 @@ function MyLists(props) {
                     displayError={displayError}
                 />
                 <CreationHeader
-                    props={props}
+                    displayError={props.displayError}
                     title="Add new list"
                 />
             </div>
@@ -58,7 +58,7 @@ function MyLists(props) {
                         displayError={displayError}
                     />
                     <CreationHeader
-                        props={props}
+                        displayError={props.displayError}
                         title="Add new list"
                     />
                 </div>
