@@ -53,12 +53,6 @@ class ErrorMessages extends Component {
         }
     }
 
-    componentDidMount() {
-        if (this.props.initialError !== undefined) {
-            this.displayError(this.props.initialError);
-        }
-    }
-
     render() {
         return (
             <div className="col-12 fixed top-0" style={{ zIndex: 1001 }}>

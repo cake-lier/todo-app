@@ -1,8 +1,6 @@
-import { Component } from "react";
+import { useCallback, useRef, useState } from "react";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
-import { UserIcon } from "../../components/userIcon/UserIcon";
 import ErrorMessages from "../../components/ErrorMessages";
-import { Link } from "react-router-dom";
 import { Divider } from "primereact/divider";
 import { ChangeAccountDataForm } from "../../components/ChangeAccountDataForm";
 import DeleteAccountForm from "../../components/deleteAccountForm/DeleteAccountForm";
@@ -10,33 +8,32 @@ import ChangePasswordForm from "../../components/ChangePasswordForm";
 import { Messages } from "primereact/messages";
 import { InputSwitch } from 'primereact/inputswitch';
 import "./Settings.scss";
+import PageHeader from "../../components/pageHeader/PageHeader";
+import { useNavigate } from "react-router-dom";
+import BurgerMenu from "../../components/BurgerMenu";
+import {useOnClickOutside} from "../../components/ClickOutsideHook";
 
-class Settings extends Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            profilePicture: props.user.profilePicture
-        }
-        this.displayError = this.displayError.bind(this);
-        this.getTabElement = this.getTabElement.bind(this);
-        this.displaySuccess = this.displaySuccess.bind(this);
+export function Settings(props) {
+    const errors = useRef();
+    const displayError = lastErrorCode => {
+        errors.displayError(lastErrorCode);
     }
-
-    displayError(lastErrorCode) {
-        this.errors.displayError(lastErrorCode);
+    const messages = useRef();
+    const displaySuccess = () => {
+        messages.current.show({ severity: "success", content: "The password was changed successfully." });
     }
-
-    displaySuccess() {
-        this.messages.show({ severity: "success", content: "The password was changed successfully." });
+    const navigate = useNavigate();
+    const useOnTabClicked = url => {
+        return useCallback(
+            () => navigate("/settings/" + url), [url]
+        );
     }
-
-    getTabElement(tabName) {
+    const getTabElement = tabName => {
         if (tabName === "password") {
             return (
                 <div className="grid">
                     <div className="col-12 md:col-5 md:ml-8">
-                        <ChangePasswordForm displaySuccess={ this.displaySuccess } displayError={ this.displayError } />
+                        <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />
                     </div>
                 </div>
             );
@@ -68,79 +65,90 @@ class Settings extends Component {
                 <div className="grid">
                     <div className="col-12 md:col-5 md:ml-8">
                         <ChangeAccountDataForm
-                            user={ this.props.user }
-                            setUser={ this.props.setUser }
-                            displayError={ this.displayError }
+                            user={ props.user }
+                            setUser={ props.setUser }
+                            displayError={ displayError }
                         />
                     </div>
                 </div>
                 <Divider className="my-0" />
                 <div className="grid">
                     <div className="col-12 md:col-5 md:ml-8">
-                        <DeleteAccountForm unsetUser={ this.props.unsetUser } displayError={ this.displayError } />
+                        <DeleteAccountForm unsetUser={ props.unsetUser } displayError={ displayError } />
                     </div>
                 </div>
             </>
         );
     }
-
-    render() {
-        return (
-            <div className="grid h-screen">
-                <ErrorMessages ref={ e => this.errors = e } />
-                <div className="col-12 fixed top-0" style={{ zIndex: 1001 }}>
-                    <Messages ref={ e => this.messages = e } />
+    const [open, setOpen] = useState(false);
+    const node = useRef();
+    useOnClickOutside(node, () => setOpen(false));
+    const divStyle = {
+        zIndex: "10",
+        position: "relative",
+        visible: "false"
+    }
+    return (
+        <div className="grid h-screen">
+            <ErrorMessages ref={ errors } />
+            <div className="col-12 fixed top-0" style={{ zIndex: 1001 }}>
+                <Messages ref={ messages } />
+            </div>
+            <div id="settingsMainMenuContainer" className="mx-0 p-0 hidden md:block">
+                <MainMenu selected={ "Settings" } open={ true } />
+            </div>
+            <div id="settingsMainMenuContainer" className="mx-0 p-0 h-full absolute flex justify-content-center md:hidden">
+                <div className="h-full w-full" ref={ node } style={ divStyle }>
+                    <BurgerMenu open={ open } setOpen={ setOpen } />
+                    <MainMenu selected={ "Settings" } open={ open } />
                 </div>
-                <div id="settingsMainMenuContainer" className="mx-0 p-0 hidden md:block">
-                    <MainMenu selected={ "Settings" } />
-                </div>
-                <div id="settingsPageContainer" className="mx-0 p-0">
-                    <div className="grid">
-                        <div className="col-12">
-                            <div className="grid">
-                                <div className="col-6">
-                                    <div className="grid h-full">
-                                        <div className="col-2 ml-5 flex justify-content-center align-items-center">
-                                            <h3 className="text-3xl font-semibold">Settings</h3>
-                                        </div>
-                                        <div className="col-2 flex justify-content-center align-items-center">
-                                            <div className={ "text-lg " + (this.props.tab === "account" ? "font-bold" : "") }>
-                                                <Link to="/settings/account">Account</Link>
-                                            </div>
-                                        </div>
-                                        <div className="col-2 flex justify-content-center align-items-center">
-                                            <div className={"text-lg " + (this.props.tab === "password" ? "font-bold" : "") }>
-                                                <Link to="/settings/password">Password</Link>
-                                            </div>
-                                        </div>
-                                        <div className="col-2 flex justify-content-center align-items-center">
-                                            <p className={"text-lg " + (this.props.tab === "notifications" ? "font-bold" : "") }>
-                                                <Link to="/settings/notifications">Notifications</Link>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-5" />
-                                <div className="col-1 flex justify-content-center">
-                                    <UserIcon
-                                        user={ this.props.user }
-                                        unsetUser={ this.props.unsetUser }
-                                        displayError={ this.displayError }
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-12 p-0">
-                            <Divider className="my-0" />
-                        </div>
-                        <div className="col-12">
-                            { this.getTabElement(this.props.tab) }
-                        </div>
+            </div>
+            <div id="settingsPageContainer" className="mx-0 p-0 hidden md:block">
+                <PageHeader
+                    user={ props.user }
+                    unsetUser={ props.unsetUser }
+                    title={ "Settings" }
+                    isResponsive={ false }
+                    tabs={ [
+                        { label: "Account", command: useOnTabClicked("account") },
+                        { label: "Password", command: useOnTabClicked("password") },
+                        { label: "Notifications", command: useOnTabClicked("notifications") }
+                    ] }
+                    displayError={ displayError }
+                />
+                <div className="grid">
+                    <div className="col-12 p-0">
+                        <Divider className="my-0" />
+                    </div>
+                    <div className="col-12">
+                        { getTabElement(props.tab) }
                     </div>
                 </div>
             </div>
-        );
-    }
+            <div id="settingsPageContainer" className="mx-0 p-0 md:hidden">
+                <PageHeader
+                    user={ props.user }
+                    unsetUser={ props.unsetUser }
+                    title={ "Settings" }
+                    isResponsive={ true }
+                    tabs={ [
+                        { label: "Account", command: useOnTabClicked("account") },
+                        { label: "Password", command: useOnTabClicked("password") },
+                        { label: "Notifications", command: useOnTabClicked("notifications") }
+                    ] }
+                    displayError={ displayError }
+                />
+                <div className="grid">
+                    <div className="col-12 p-0">
+                        <Divider className="my-0" />
+                    </div>
+                    <div className="col-12">
+                        { getTabElement(props.tab) }
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default Settings;

@@ -1,8 +1,7 @@
 import React from 'react';
 import { bool, func } from 'prop-types';
 
-const BurgerMenu = ({open, setOpen}) => {
-
+const BurgerMenu = ({ open, setOpen }) => {
     const burgerStyle = {
         fontSize: "2rem",
         position: "absolute",
@@ -10,8 +9,8 @@ const BurgerMenu = ({open, setOpen}) => {
     }
 
     return (
-        <i className="pi pi-bars pl-1 pt-4" onClick={() => setOpen(!open)} style={burgerStyle}></i>
-    )
+        <i className="pi pi-bars pl-2 pt-4 cursor-pointer" onClick={ () => setOpen(!open) } style={ burgerStyle } />
+    );
 }
 
 BurgerMenu.propTypes = {

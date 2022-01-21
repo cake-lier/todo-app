@@ -2,10 +2,10 @@ import { Menu } from 'primereact/menu';
 import { PrimeIcons } from 'primereact/api';
 import { useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
+import { bool, string } from "prop-types";
 import "./MainMenu.scss";
-import { bool } from "prop-types";
 
-export function MainMenu({ open }, props) {
+export function MainMenu({ open, selected }) {
     const navigate = useNavigate();
     const useOnClicked = url => {
         return useCallback(
@@ -17,21 +17,21 @@ export function MainMenu({ open }, props) {
         {
             label: "My day",
             icon: PrimeIcons.CHECK_SQUARE,
-            disabled: props.selected === "My day",
+            disabled: selected === "My day",
             command: useOnClicked("my-day")
         },
-        { label: "My lists", icon: PrimeIcons.LIST, disabled: props.selected === "My lists" },
-        { label: "Shared with me", icon: PrimeIcons.USERS, disabled: props.selected === "Shared with me" },
-        { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: props.selected === "Calendar" },
-        { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: props.selected === "Reports" },
-        { label: "Achievements", icon: PrimeIcons.STAR, disabled: props.selected === "Achievements" }
+        { label: "My lists", icon: PrimeIcons.LIST, disabled: selected === "My lists" },
+        { label: "Shared with me", icon: PrimeIcons.USERS, disabled: selected === "Shared with me" },
+        { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: selected === "Calendar" },
+        { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: selected === "Reports" },
+        { label: "Achievements", icon: PrimeIcons.STAR, disabled: selected === "Achievements" }
     ];
     const subItems = [
-        { label: "Search", icon: PrimeIcons.SEARCH, disabled: props.selected === "Search" },
+        { label: "Search", icon: PrimeIcons.SEARCH, disabled: selected === "Search" },
         {
             label: "Settings",
             icon: PrimeIcons.COG,
-            disabled: props.selected === "Settings",
+            disabled: selected === "Settings",
             command: useOnClicked("settings")
         }
     ];
@@ -56,5 +56,6 @@ export function MainMenu({ open }, props) {
 }
 
 MainMenu.propTypes = {
+    selected: string.isRequired,
     open: bool.isRequired
 }

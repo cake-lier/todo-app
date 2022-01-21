@@ -1,17 +1,26 @@
 @import "../../colors";
 
 .p-tabmenu .p-tabmenu-nav {
-  border: 0px !important;
+  border: 0 !important;
   position: unset !important;
+  overflow: hidden;
 }
 
 .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
-  border: 0px !important;
+  border: 0 !important;
   color: lightgrey !important;
 }
 
 .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
   color: $text-color !important;
+}
+
+#headerTabMenu.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover {
+  background-color: transparent;
+}
+
+#headerTabMenu.p-tabmenu .p-tabmenu-nav li.p-highlight .p-menuitem-link:focus {
+  background-color: transparent;
 }
 
 .p-tabmenu-nav .p-menuitem-text {
@@ -21,4 +30,8 @@
 .p-tabmenuitem {
   flex: auto;
   justify-content: center !important;
+}
+
+#headerTabMenu.p-tabmenu .p-tabmenu-nav .p-tabmenu-ink-bar {
+  display: none;
 }
