@@ -10,7 +10,7 @@ const PageHeader = ({props, title, showDate, tabs, isResponsive, displayError}) 
             <div className="grid">
                 <div className="col-1 "/>
                 <div className="col-9 m-0 flex flex-columns justify-content-right">
-                    <div className="w-min m-0 flex flex-column justify-content-center">
+                    <div className="w-max m-0 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{title}</h3>
                         {showDate ? <p className="text-md w-max m-0"><Moment date={ Date.now() } local format="dddd, MMMM Do" /></p> : null}
                     </div>
@@ -31,7 +31,7 @@ const PageHeader = ({props, title, showDate, tabs, isResponsive, displayError}) 
         return(
             <div className="grid">
                 <div className="col-11 pl-2 flex flex-row m-0 p-0">
-                    <div className="w-min m-0 flex flex-column justify-content-center">
+                    <div className="w-max m-0 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{title}</h3>
                         {showDate ? <p className="text-md w-max m-0"><Moment date={ Date.now() } local format="dddd, MMMM Do" /></p> : null}
                     </div>

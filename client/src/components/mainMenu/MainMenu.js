@@ -11,10 +11,13 @@ export function MainMenu({open}, props) {
     const handleOnSettingsClicked = useCallback(
         () => navigate("/settings"), [navigate]
     );
+    const handleOnMyListsClicked = useCallback(
+        () => navigate("/my-lists"), [navigate]
+    );
 
     const mainItems = [
         { label: "My day", icon: PrimeIcons.CHECK_SQUARE, disabled: props.selected === "My day" },
-        { label: "My lists", icon: PrimeIcons.LIST, disabled: props.selected === "My lists" },
+        { label: "My lists", icon: PrimeIcons.LIST, disabled: props.selected === "My lists", command: handleOnMyListsClicked },
         { label: "Shared with me", icon: PrimeIcons.USERS, disabled: props.selected === "Shared with me" },
         { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: props.selected === "Calendar" },
         { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: props.selected === "Reports" },

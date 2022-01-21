@@ -6,6 +6,7 @@ import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
+import MyLists from "../pages/myLists/MyLists";
 
 class App extends Component {
 
@@ -72,6 +73,14 @@ class App extends Component {
                         element={
                             this.state.user !== null
                             ? <MyDay user={ this.state.user } unsetUser={ this.unsetUser } />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/my-lists"
+                        element={
+                            this.state.user !== null
+                            ? <MyLists user={ this.state. user } unsetUser={ this.unsetUser } />
                             : <Navigate to="/" />
                         }
                     />

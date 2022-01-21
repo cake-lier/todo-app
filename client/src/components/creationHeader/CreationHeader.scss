@@ -1,0 +1,12 @@
+@import "../../colors";
+
+#create-button {
+  background: $secondary-background !important;
+  border: 2px solid $disabled-color;
+  color: $text-color;
+}
+
+#search-button {
+  background: $secondary-background !important;
+  color: $text-color;
+}
