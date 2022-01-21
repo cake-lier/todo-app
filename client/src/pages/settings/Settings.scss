@@ -1,0 +1,10 @@
+@import "../../colors";
+
+div#settingsMainMenuContainer {
+    width: 10%;
+}
+
+div#settingsPageContainer {
+    width: 90%;
+    background-color: $secondary-background;
+}

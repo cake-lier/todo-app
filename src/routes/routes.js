@@ -8,9 +8,8 @@ function initializeUserRoutes(app) {
                           .get(controller.user.getUser);
     app.route("/users/me/session").post(controller.user.login)
                                   .delete(controller.user.logout);
-    app.route("/users/me/username").put(controller.user.updateUsername);
+    app.route("/users/me/account").put(controller.user.updateAccount);
     app.route("/users/me/password").put(controller.user.updatePassword);
-    app.route("/users/me/profilePicture").put(controller.user.updateProfilePicture);
 }
 
 function initializeListRoutes(app) {

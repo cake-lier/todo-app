@@ -6,6 +6,7 @@ import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
+import Settings from "../pages/settings/Settings";
 
 class App extends Component {
 
@@ -72,6 +73,36 @@ class App extends Component {
                         element={
                             this.state.user !== null
                             ? <MyDay user={ this.state.user } unsetUser={ this.unsetUser } />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route path="/settings" element={ <Navigate to="/settings/account" /> } />
+                    <Route
+                        path="/settings/account"
+                        element={
+                            this.state.user !== null
+                            ? <Settings
+                                    user={ this.state.user }
+                                    unsetUser={ this.unsetUser }
+                                    setUser={ this.setUser }
+                                    tab="account"
+                              />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/settings/password"
+                        element={
+                            this.state.user !== null
+                            ? <Settings user={ this.state.user } tab="password" />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/settings/notifications"
+                        element={
+                            this.state.user !== null
+                            ? <Settings user={ this.state.user } setUser={ this.setUser } tab="notifications" />
                             : <Navigate to="/" />
                         }
                     />
