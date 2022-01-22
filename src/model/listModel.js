@@ -73,7 +73,10 @@ memberSchema.path("anonymousId").validate(
 
 listSchema.path("joinCode").validate(
     function(joinCode) {
-        return mongoose.model("List").count({ joinCode }).exec().then(count => count === 0, _ => false);
+        if (joinCode !== null) {
+            return mongoose.model("List").count({ joinCode }).exec().then(count => count === 0, _ => false);
+        }
+        return true;
     },
     "An error has occurred while adding this list, please retry"
 );

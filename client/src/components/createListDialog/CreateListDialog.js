@@ -6,7 +6,7 @@ import {useState} from "react";
 import "./CreateListDialog.scss"
 import axios from "axios";
 
-export default function CreateListDialog({displayError, display, setDisplay}) {
+export default function CreateListDialog({display, setDisplay}) {
 
     const [state, setState] = useState("true");
     const [isSubmitting, setSubmitting] = useState("false");
@@ -24,6 +24,15 @@ export default function CreateListDialog({displayError, display, setDisplay}) {
 
     const visibilityOptions = ["Private", "Public"];
 
+    const cancel = () => {
+        setSubmitting(false);
+        setState(true);
+        setListName("");
+        setPrivate("Private");
+        setColor(0);
+        setDisplay(false);
+    }
+
     const renderFooter = () => {
         return (
             <div className="grid">
@@ -31,7 +40,7 @@ export default function CreateListDialog({displayError, display, setDisplay}) {
                     <Button
                         className="w-full p-button-text"
                         label="Cancel"
-                        onClick={() => setDisplay(false)} />
+                        onClick={() => cancel()} />
                 </div>
                 <div className="col-6 p-3 flex justify-content-center">
                     <Button
@@ -58,18 +67,16 @@ export default function CreateListDialog({displayError, display, setDisplay}) {
                 "/lists",
                 {
                     title: listName,
-                    joinCode: isPrivate != "Private",
-                    colorIndex: color,
+                    isVisible: isPrivate != "Private",
+                    colorIndex: color
                 }
             ).then(
                 list => {
-                    setState(true);
-                    setSubmitting(false);
-                    setDisplay(false);
+                    console.log(list.data);
                     console.log("SUBMIT")
+                    cancel();
                 },
                 error => {
-                    displayError(error.response.data.error);
                 }
             )
         } else {
@@ -94,7 +101,7 @@ export default function CreateListDialog({displayError, display, setDisplay}) {
                         placeholder="List name"
                         id="listName"
                         value={listName}
-                        onChange={(e) => setListName(e.value)}
+                        onChange={(e) => setListName(e.target.value)}
                     />
                     <small id="username2-help"
                            className={(state ? "hidden" : "p-error block")}>
