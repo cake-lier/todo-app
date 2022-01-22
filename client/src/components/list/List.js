@@ -108,11 +108,11 @@ export function List(props) {
             }
 
             <Dialog footer={calendarFooter('Set due date', 'display1')} dismissableMask={true} closable={false} visible={displayCalendar1} onHide={() => setDisplayCalendar1(false)}>
-                <Calendar id="time24" value={date1} onChange={(e) => setDate1(e.value)} inline />
+                <Calendar id="time24" value={date1} onChange={(e) => setDate1(e.value)} inline stepMinute={2} />
             </Dialog>
 
             <Dialog footer={calendarFooter('Set reminder', 'display2')} dismissableMask={true} closable={false} visible={displayCalendar2} onHide={() => setDisplayCalendar2(false)}>
-                <Calendar id="time24" value={date2} onChange={(e) => setDate2(e.value)} showTime inline />
+                <Calendar id="time24" value={date2} onChange={(e) => setDate2(e.value)} showTime inline stepMinute={2} />
             </Dialog>
 
         </div>
