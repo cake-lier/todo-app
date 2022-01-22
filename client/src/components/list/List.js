@@ -6,6 +6,7 @@ import { Menu } from 'primereact/menu';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import "./List.scss";
+import {io} from "socket.io-client";
 
 export function List(props) {
     // checklist
@@ -20,7 +21,7 @@ export function List(props) {
     const menu = useRef(null);
     let menuItems = [
         {label: 'Edit', icon: 'pi pi-pencil'},
-        {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
+        {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true); triggerSocket();}},
         {label: 'Assign to', icon: 'pi pi-user-plus' },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
         {label: 'Add tags', icon: 'pi pi-tag' },
@@ -69,6 +70,11 @@ export function List(props) {
 
     const onHide = (name) => {
         dialogFuncMap[`${name}`](false);
+    }
+
+    // socket testing
+    function triggerSocket() {
+        props.socket.emit('duedate');
     }
 
     return (

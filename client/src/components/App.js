@@ -2,6 +2,7 @@ import { Component } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { Dialog } from "primereact/dialog";
 import axios from "axios";
+import { io } from "socket.io-client";
 import Home from "../pages/home/Home";
 import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
@@ -15,7 +16,8 @@ class App extends Component {
         this.state = {
             user: null,
             displayError: false,
-            ready: false
+            ready: false,
+            socket: null
         };
         this.setUser = this.setUser.bind(this);
         this.unsetUser = this.unsetUser.bind(this);
@@ -23,19 +25,26 @@ class App extends Component {
 
     setUser(user) {
         this.setState({ user });
+        if ( this.state.socket === null ) this.setState({socket: io()});
     }
 
     unsetUser() {
         this.setState({ user: null });
+        if ( this.state.socket !== null ) this.state.socket.disconnect();
     }
 
     componentDidMount() {
        axios.get("/users/me")
             .then(
-                response => this.setState({
-                    user: response.data,
-                    ready: true
-                }),
+                response => {
+                    this.setState({
+                        user: response.data,
+                        ready: true
+                    });
+                    if(this.state.user !== null) {
+                        this.setState({socket: io()});
+                    }
+                },
                 error => this.setState({
                     displayError: error.response.data.error !== 3,
                     ready: true
@@ -78,7 +87,7 @@ class App extends Component {
                     />
                     <Route  // for testing
                         path="/list"
-                        element={<List name="School things" />}
+                        element={<List name="School things" socket={this.state.socket}/>}
                     />
                 </Routes>
             </>
