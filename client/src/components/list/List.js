@@ -21,7 +21,7 @@ export function List(props) {
     const menu = useRef(null);
     let menuItems = [
         {label: 'Edit', icon: 'pi pi-pencil'},
-        {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true); triggerSocket();}},
+        {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
         {label: 'Assign to', icon: 'pi pi-user-plus' },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
         {label: 'Add tags', icon: 'pi pi-tag' },
@@ -63,18 +63,18 @@ export function List(props) {
     const calendarFooter = (btn_text, display) => {
         return (
             <div  className="flex justify-content-center">
-                <Button label={btn_text} onClick={() => onHide(display)} />
+                <Button label={btn_text} onClick={() => {
+                    onHide(display);
+                    props.socket.emit('reminder', date2);
+                }} />
             </div>
         )
     }
 
+    // socket receive
+
     const onHide = (name) => {
         dialogFuncMap[`${name}`](false);
-    }
-
-    // socket testing
-    function triggerSocket() {
-        props.socket.emit('duedate');
     }
 
     return (

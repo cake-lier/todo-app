@@ -43,6 +43,9 @@ class App extends Component {
                     });
                     if(this.state.user !== null) {
                         this.setState({socket: io()});
+                        this.state.socket.on('reminder', (data) => {
+                            alert("Reminder!!!");
+                        })
                     }
                 },
                 error => this.setState({

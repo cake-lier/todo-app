@@ -44,8 +44,12 @@ const schedule = require('node-schedule');
 io.on('connection', (socket) =>  {
     console.log('a user connected');
 
-    socket.on('duedate', (data) => {
-        console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    socket.on('reminder', (data) => {
+        console.log('Reminder set for ' + data);
+        schedule.scheduleJob(data, function(){
+            console.log('Trigger reminder');
+            socket.emit('reminder');
+        });
     });
 
     socket.on("message", data => {  console.log("RECEIVED THIS MSG: " + data);});
