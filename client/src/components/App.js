@@ -7,6 +7,7 @@ import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import Settings from "../pages/settings/Settings";
+import Calendar from "../pages/calendar/Calendar";
 
 class App extends Component {
 
@@ -104,6 +105,14 @@ class App extends Component {
                             this.state.user !== null
                             ? <Settings user={ this.state.user } setUser={ this.setUser } tab="notifications" />
                             : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/calendar"
+                        element={
+                            this.state.user !== null
+                                ? <Calendar user={ this.state.user } unsetUser={ this.unsetUser } />
+                                : <Navigate to="/" />
                         }
                     />
                 </Routes>

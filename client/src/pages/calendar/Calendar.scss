@@ -1,0 +1,57 @@
+@import "../../colors";
+
+div#calendarMainMenuContainer {
+    width: 10%;
+}
+
+div#calendarPageContainer {
+    background-color: $secondary-background;
+}
+
+button.fc-button {
+    background-color: $primary-color !important;
+}
+
+.fc a:not(.fc-daygrid-block-event) {
+    color: $text-color;
+}
+
+.fc a.fc-daygrid-block-event .fc-event-title {
+    color: $secondary-background !important;
+}
+
+.fc-liquid-hack td, .fc-liquid-hack th {
+    position: initial;
+}
+
+.fc.fc-theme-standard .fc-toolbar .fc-button {
+    color: $secondary-background !important;
+    border: none !important;
+}
+
+.fc.fc-theme-standard .fc-toolbar .fc-button.fc-button-active {
+    background-color: getPrimaryColorWithAlpha(0.38) !important;
+    cursor: pointer;
+}
+
+.fc {
+    width: 100%;
+}
+
+div.fc-event-title {
+    color: inherit;
+}
+
+.fc-col-header-cell a:hover, a.fc-daygrid-day-number {
+    text-decoration: none !important;
+}
+
+.fc-dayGridMonth-view .fc-col-header-cell-cushion, .fc-dayGridDay-view .fc-col-header-cell-cushion {
+    cursor: default;
+}
+
+@media screen and (min-width: 768px) {
+    div#calendarPageContainer {
+        width: 90%;
+    }
+}

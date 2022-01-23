@@ -176,27 +176,19 @@ function updateText(request, response) {
     );
 }
 
-function updateDueDate(request, response) {
+function updateDate(request, response) {
     if (!validation.validateRequest(request, response, [], ["id"])) {
         return;
+    }
+    if (request.body.dueDate !== undefined && request.body.reminderString !== undefined) {
+        validation.sendError(response, validation.Error.RequestError);
     }
     updateItemAtomicProperty(
         request,
         response,
-        request.body.dueDate ? { $set: { dueDate: request.body.dueDate } } : { $unset: { dueDate: "" } }
-    );
-}
-
-function updateReminderDate(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
-        return;
-    }
-    updateItemAtomicProperty(
-        request,
-        response,
-        request.body.reminderDate
-        ? { $set: { reminderDate: request.body.reminderDate } }
-        : { $unset: { reminderDate: "" } }
+        request.body.dueDate !== undefined
+        ? { $set: { dueDate: request.body.dueDate }, $unset: { reminderString: "" } }
+        : { $set: { reminderString: request.body.reminderString }, $unset: { dueDate: "" } }
     );
 }
 
@@ -384,8 +376,7 @@ module.exports = {
     getListItems,
     updateTitle,
     updateText,
-    updateDueDate,
-    updateReminderDate,
+    updateDate,
     updateCompletion,
     addTags,
     removeTags,

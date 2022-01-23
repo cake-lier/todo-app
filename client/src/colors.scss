@@ -4,3 +4,7 @@ $secondary-background: #FFFFFF;
 $text-color: #38373D;
 $error-color: #B00020;
 $disabled-color: rgba(0, 0, 0, 0.04);
+
+@function getPrimaryColorWithAlpha($alpha) {
+  @return rgba(232, 45, 95, $alpha);
+}

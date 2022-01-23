@@ -22,7 +22,12 @@ export function MainMenu({ open, selected }) {
         },
         { label: "My lists", icon: PrimeIcons.LIST, disabled: selected === "My lists" },
         { label: "Shared with me", icon: PrimeIcons.USERS, disabled: selected === "Shared with me" },
-        { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: selected === "Calendar" },
+        {
+            label: "Calendar",
+            icon: PrimeIcons.CALENDAR,
+            disabled: selected === "Calendar",
+            command: useOnClicked("calendar")
+        },
         { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: selected === "Reports" },
         { label: "Achievements", icon: PrimeIcons.STAR, disabled: selected === "Achievements" }
     ];
