@@ -65,6 +65,12 @@ class App extends Component {
         }
     }
 
+    componentWillUnmount() {
+        if (this.state.socket !== null) {
+            this.state.socket.disconnect();
+        }
+    }
+
     render() {
         if (!this.state.ready) {
             return null;
