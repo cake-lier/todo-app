@@ -102,7 +102,7 @@ export function ChangeAccountDataForm(props) {
                     <Button
                         className="mt-1"
                         icon="pi pi-trash"
-                        label="Discard selected picture"
+                        label="Delete your profile picture"
                         type="button"
                         onClick={ clearUploadedImage }
                         disabled={ profilePicture === defaultProfilePicture }
@@ -110,7 +110,7 @@ export function ChangeAccountDataForm(props) {
                     <Button
                         className="mt-1"
                         icon="pi pi-arrow-circle-left"
-                        label="Revert to original picture"
+                        label="Go back to original picture"
                         type="button"
                         onClick={ resetOriginalImage }
                         disabled={ profilePicture === props.user.profilePicturePath }

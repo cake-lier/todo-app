@@ -16,7 +16,7 @@ import "./Calendar.scss";
 export default function Calendar(props) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
-        errors.displayError(lastErrorCode);
+        errors.current.displayError(lastErrorCode);
     }, [errors]);
     const [open, setOpen] = useState(false);
     const node = useRef();

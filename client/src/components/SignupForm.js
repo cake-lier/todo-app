@@ -11,7 +11,7 @@ import TermsOfService from "./TermsOfService";
 import { Divider } from "primereact/divider";
 import { Link } from "react-router-dom";
 
-export const LoginForm = (props) => {
+export default function LoginForm(props) {
     const [isDialogVisible, setDialogVisible] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
     const formik = useFormik({
@@ -37,6 +37,8 @@ export const LoginForm = (props) => {
             }
             if (!data.password) {
                 errors.password = "A password is required.";
+            } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/.test(data.password)) {
+                errors.password = "The password does not conform to security rules.";
             }
             if (!data.accept) {
                 errors.accept = "You need to agree to the terms and conditions of this service before registering.";
@@ -165,7 +167,7 @@ export const LoginForm = (props) => {
                             footer={
                                 <Fragment>
                                     <Divider />
-                                    <h3 className="font-semibold text-md my-2">Suggestions</h3>
+                                    <h3 className="font-semibold text-md my-2">Password requirements</h3>
                                     <ul className="pl-2 ml-2 mt-0">
                                         <li className="mt-3">At least one lowercase character.</li>
                                         <li className="mt-2">At least one uppercase character.</li>
@@ -202,5 +204,3 @@ export const LoginForm = (props) => {
         </div>
     );
 }
-
-export default LoginForm;

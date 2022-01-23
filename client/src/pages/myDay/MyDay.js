@@ -9,7 +9,7 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 export default function MyDay(props) {
     const errors = useRef();
     const displayError = (lastErrorCode) => {
-        errors.displayError(lastErrorCode);
+        errors.current.displayError(lastErrorCode);
     }
     const [open, setOpen] = useState(false);
     const node = useRef();

@@ -4,7 +4,7 @@ import ErrorMessages from "../../components/ErrorMessages";
 import { Divider } from "primereact/divider";
 import { ChangeAccountDataForm } from "../../components/ChangeAccountDataForm";
 import DeleteAccountForm from "../../components/deleteAccountForm/DeleteAccountForm";
-import ChangePasswordForm from "../../components/ChangePasswordForm";
+import ChangePasswordForm from "../../components/changePasswordForm/ChangePasswordForm";
 import { Messages } from "primereact/messages";
 import { InputSwitch } from 'primereact/inputswitch';
 import "./Settings.scss";
@@ -16,7 +16,7 @@ import {useOnClickOutside} from "../../components/ClickOutsideHook";
 export function Settings(props) {
     const errors = useRef();
     const displayError = lastErrorCode => {
-        errors.displayError(lastErrorCode);
+        errors.current.displayError(lastErrorCode);
     }
     const messages = useRef();
     const displaySuccess = () => {
