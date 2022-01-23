@@ -1,12 +1,9 @@
 @import "colors";
 
-@function getPrimaryColorWithAlpha($alpha) {
-    @return rgba(232, 45, 95, $alpha);
-}
-
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
 h1, h1 a, h2, h2 a, h3, h3 a, h4, h4 a, h5, h5 a, h6, h6 a,
-p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link, .p-menu .p-menuitem-link .p-menuitem-text,
+p, div, .p-menu .p-menuitem-link, .p-menu .p-menuitem-link .p-menuitem-text,
 #nav li a, div.title a, .headline, .subtitle, .Heading, .Footer {
     font-family: 'Source Sans Pro', sans-serif !important;
 }

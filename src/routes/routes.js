@@ -30,8 +30,7 @@ function initializeItemRoutes(app) {
     app.route("/items").get(controller.item.getUserItems);
     app.route("/items/:id/title").put(controller.item.updateTitle);
     app.route("/items/:id/text").put(controller.item.updateText);
-    app.route("/items/:id/dueDate").put(controller.item.updateDueDate);
-    app.route("/items/:id/reminderDate").put(controller.item.updateReminderDate);
+    app.route("/items/:id/date").put(controller.item.updateDate);
     app.route("/items/:id/complete").put(controller.item.updateCompletion);
     app.route("/items/:id/tags").post(controller.item.addTags)
                                 .delete(controller.item.removeTags);

@@ -38,8 +38,8 @@ const itemSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    reminderDate: {
-        type: Date,
+    reminderString: {
+        type: String,
         default: null
     },
     completionDate: {

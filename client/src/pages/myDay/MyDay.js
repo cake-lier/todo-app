@@ -29,7 +29,7 @@ export default function MyDay(props) {
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }
-                    title={ "My Day" }
+                    title="My Day"
                     showDate={ true }
                     isResponsive={ false }
                     displayError={ displayError }

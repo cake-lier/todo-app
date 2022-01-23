@@ -8,7 +8,8 @@ import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import Settings from "../pages/settings/Settings";
-import {List} from "./list/List";
+import Calendar from "../pages/calendar/Calendar";
+import { List } from "./list/List";
 
 class App extends Component {
 
@@ -25,13 +26,18 @@ class App extends Component {
     }
 
     setUser(user) {
-        this.setState({ user });
-        if ( this.state.socket === null ) this.setState({socket: io()});
+        this.setState({
+            user,
+            socket: io()
+        });
     }
 
     unsetUser() {
-        this.setState({ user: null });
-        if ( this.state.socket !== null ) this.state.socket.disconnect();
+        this.state.socket.disconnect();
+        this.setState({
+            user: null,
+            socket: null
+        });
     }
 
     componentDidMount() {
@@ -40,20 +46,23 @@ class App extends Component {
                 response => {
                     this.setState({
                         user: response.data,
+                        socket: io(),
                         ready: true
                     });
-                    if(this.state.user !== null) {
-                        this.setState({socket: io()});
-                        this.state.socket.on('reminder', (data) => {
-                            alert("Reminder!!!");
-                        })
-                    }
                 },
                 error => this.setState({
                     displayError: error.response.data.error !== 3,
                     ready: true
                 })
             );
+    }
+
+    componentDidUpdate(_, prevState) {
+        if (prevState.socket === null && this.state.socket !== null) {
+            this.state.socket.on('reminder', () => {
+                alert("Reminder!!!");
+            });
+        }
     }
 
     render() {
@@ -117,6 +126,14 @@ class App extends Component {
                             this.state.user !== null
                             ? <Settings user={ this.state.user } setUser={ this.setUser } tab="notifications" />
                             : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/calendar"
+                        element={
+                            this.state.user !== null
+                                ? <Calendar user={ this.state.user } unsetUser={ this.unsetUser } />
+                                : <Navigate to="/" />
                         }
                     />
                     <Route  // for testing
