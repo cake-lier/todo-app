@@ -28,12 +28,14 @@ class App extends Component {
     setUser(user) {
         this.setState({
             user,
-            socket: io()
+            socket: this.state.socket !== null ? this.state.socket : io()
         });
     }
 
     unsetUser() {
-        this.state.socket.disconnect();
+        if (this.state.socket !== null) {
+            this.state.socket.disconnect();
+        }
         this.setState({
             user: null,
             socket: null
