@@ -1,5 +1,6 @@
 import "./List.scss";
 import {Item} from "../Item";
+import { Button } from 'primereact/button';
 
 export function List(props) {
     // checklist
@@ -9,9 +10,15 @@ export function List(props) {
                     {name: 'Production', key: '02'},
                     {name: 'Research', key: '03'}];
 
+    // create item
+    const onNewItem = () => {
+        console.log("new item");
+    }
+
     return (
         <div>
             <h2 className="font-medium text-3xl text-900">{listName}</h2>
+            <Button label="New Task" icon="pi pi-plus" onClick={onNewItem}/>
             {
                 items.map((item) => {
                     return( <Item item={item} />)
