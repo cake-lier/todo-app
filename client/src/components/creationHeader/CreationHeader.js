@@ -3,7 +3,7 @@ import "./CreationHeader.scss";
 import {useState} from "react";
 import CreateListDialog from "../createListDialog/CreateListDialog";
 
-function CreationHeader({title, displayError, lists, setLists}) {
+function CreationHeader({displayError, lists, setLists}) {
 
     const [display, setDisplay] = useState(false);
 
@@ -20,7 +20,7 @@ function CreationHeader({title, displayError, lists, setLists}) {
                 <Button
                     className="p-2"
                     id="create-button"
-                    label={title}
+                    label="Add new list"
                     icon="pi pi-plus"
                     iconPos="left"
                     onClick={() => setDisplay(true)}

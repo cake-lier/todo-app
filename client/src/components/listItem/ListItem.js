@@ -23,7 +23,7 @@ export default function ListItem({lists, setLists}) {
                 //TODO
             }
         )
-    }, []);
+    }, [setLists]);
 
     const renderListItem = (data) => {
         return (
@@ -39,6 +39,8 @@ export default function ListItem({lists, setLists}) {
                 <ListSubMenu
                     data={data}
                     menuRef={menu}
+                    lists={lists}
+                    setLists={setLists}
                 />
             </div>
         );

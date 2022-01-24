@@ -37,7 +37,7 @@ function deleteList(request, response) {
     .exec()
     .then(
         result => {
-            if (result.deletedCount === 0) {
+            if (result && result.deletedCount === 0) {
                 validation.sendError(response, validation.Error.ResourceNotFound);
                 return;
             }

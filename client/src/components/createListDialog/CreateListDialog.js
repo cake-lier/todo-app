@@ -62,12 +62,12 @@ export default function CreateListDialog({display, setDisplay, lists, setLists})
         e.preventDefault();
         setSubmitting(true);
         console.log("CLICKED")
-        if (listName != "") {
+        if (listName !== "") {
             axios.post(
                 "/lists",
                 {
                     title: listName,
-                    isVisible: isPrivate != "Private",
+                    isVisible: isPrivate !== "Private",
                     colorIndex: color
                 }
             ).then(
@@ -78,6 +78,7 @@ export default function CreateListDialog({display, setDisplay, lists, setLists})
                     cancel();
                 },
                 error => {
+                    // TO DO
                 }
             )
         } else {

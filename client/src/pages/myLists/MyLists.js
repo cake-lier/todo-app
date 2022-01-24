@@ -14,7 +14,7 @@ function MyLists(props) {
     }
 
     const [open, setOpen] = useState(false);
-    const [lists, setLists] = useState(null);
+    const [lists, setLists] = useState([]);
     const node = useRef();
 
     const divStyle = {
@@ -40,12 +40,11 @@ function MyLists(props) {
                     displayError={displayError}
                 />
                 <CreationHeader
-                    title="Add new list"
                     lists={lists}
                     setLists={setLists}
                 />
 
-                <Divider className={!lists || lists.length == 0? "hidden" : "m-0 p-0"} />
+                <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />
 
                 <ListItem
                     lists={lists}
@@ -69,10 +68,11 @@ function MyLists(props) {
                         displayError={displayError}
                     />
                     <CreationHeader
-                        title="Add new list"
+                        lists={lists}
+                        setLists={setLists}
                     />
 
-                    <Divider className={!lists || lists.length == 0? "hidden" : "m-0 p-0"} />
+                    <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />
 
                     <ListItem
                         lists={lists}
