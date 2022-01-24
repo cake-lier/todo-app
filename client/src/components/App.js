@@ -10,6 +10,7 @@ import Signup from "../pages/signup/Signup";
 import Settings from "../pages/settings/Settings";
 import Calendar from "../pages/calendar/Calendar";
 import { List } from "./list/List";
+import Join from "../pages/join/Join";
 
 class App extends Component {
 
@@ -143,6 +144,10 @@ class App extends Component {
                                 ? <Calendar user={ this.state.user } unsetUser={ this.unsetUser } />
                                 : <Navigate to="/" />
                         }
+                    />
+                    <Route
+                        path="/join"
+                        element={ this.state.user === null ? <Join /> : <Navigate to="/my-day" /> }
                     />
                     <Route  // for testing
                         path="/list"

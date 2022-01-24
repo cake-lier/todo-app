@@ -32,7 +32,7 @@ const listSchema = new mongoose.Schema({
     joinCode: {
         type: String,
         default: null,
-        validate: v => v === null || uuid.validate(v)
+        validate: v => v === null || (v.length === 6 && v.split("").every(c => /[a-zA-Z0-9#!&@]/.test(c)))
     },
     colorIndex: {
         type: Number,

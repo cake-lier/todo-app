@@ -3,6 +3,7 @@
 const List = require("../model/listModel").createListModel();
 const User = require("../model/userModel.js").createUserModel();
 const uuid = require("uuid");
+const otp = require("otp-generator");
 const validation = require("../utils/validation");
 
 function createList(request, response) {
@@ -156,7 +157,7 @@ function updateVisibility(request, response) {
         request,
         response,
         { _id: request.params.id, members: { $elemMatch: { userId: request.session.userId, role: "owner" } } },
-        request.body.isVisible ? { $set: { joinCode: uuid.v4() } } : { $unset: { joinCode: "" } },
+        request.body.isVisible ? { $set: { joinCode: otp.generate(6) } } : { $unset: { joinCode: "" } },
     );
 }
 

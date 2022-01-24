@@ -1,0 +1,17 @@
+@import "../../colors";
+
+div.otpInput > input {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  font-size: 1.25rem;
+  margin: 0 !important;
+}
+
+@media screen and (min-width: 768px) {
+  div.otpInput > input {
+    width: 3rem !important;
+    height: 3rem !important;
+    font-size: 1.5rem;
+    margin: 0 !important;
+  }
+}
