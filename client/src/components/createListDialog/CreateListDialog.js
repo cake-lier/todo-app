@@ -6,7 +6,7 @@ import {useState} from "react";
 import "./CreateListDialog.scss"
 import axios from "axios";
 
-export default function CreateListDialog({display, setDisplay}) {
+export default function CreateListDialog({display, setDisplay, lists, setLists}) {
 
     const [state, setState] = useState("true");
     const [isSubmitting, setSubmitting] = useState("false");
@@ -72,8 +72,9 @@ export default function CreateListDialog({display, setDisplay}) {
                 }
             ).then(
                 list => {
+                    const newList = [...lists, list.data];
+                    setLists(newList);
                     console.log(list.data);
-                    console.log("SUBMIT")
                     cancel();
                 },
                 error => {
@@ -86,7 +87,7 @@ export default function CreateListDialog({display, setDisplay}) {
     }
 
     return (
-        <Dialog className="w-27rem m-3" visible={display} footer={renderFooter()} closable={false} showHeader={false}>
+        <Dialog id="create-list-dialog" className="w-27rem m-3" visible={display} footer={renderFooter()} closable={false} showHeader={false}>
             <div className="grid">
                 <div className="col-12 mt-3 flex justify-content-center">
                     <h1 className="text-1xl">Create a new list</h1>

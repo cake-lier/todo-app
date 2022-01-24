@@ -3,18 +3,20 @@ import "./CreationHeader.scss";
 import {useState} from "react";
 import CreateListDialog from "../createListDialog/CreateListDialog";
 
-function CreationHeader({title, displayError}) {
+function CreationHeader({title, displayError, lists, setLists}) {
 
     const [display, setDisplay] = useState(false);
 
     return (
-        <div className="grid">
+        <div className="grid pb-5">
             <CreateListDialog
                 displayError={displayError}
                 display={display}
                 setDisplay={setDisplay}
+                lists={lists}
+                setLists={setLists}
             />
-            <div className="col-6 m-0 pl-1 flex align-content-center">
+            <div className="col-6 m-0 p-0 pl-1 flex align-content-center">
                 <Button
                     className="p-2"
                     id="create-button"
