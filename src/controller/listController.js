@@ -4,10 +4,11 @@ const List = require("../model/listModel").createListModel();
 const User = require("../model/userModel.js").createUserModel();
 const uuid = require("uuid");
 const otp = require("otp-generator");
-const validation = require("../utils/validation");
+const { Error, validateRequest, sendError } = require("../utils/validation");
+const { notifyRoomExceptSender } = require("./sockets");
 
 function createList(request, response) {
-    if (!validation.validateRequest(request, response, ["title"], [], true)) {
+    if (!validateRequest(request, response, ["title"], [], true)) {
         return;
     }
     List.create({
@@ -20,16 +21,19 @@ function createList(request, response) {
         }]
     })
     .then(
-        list => response.json(list),
+        list => {
+            sockets[request.session.userId].forEach(s => s.join(`list:${ l._id.toString() }`));
+            response.json(list);
+        },
         error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         }
     );
 }
 
 function deleteList(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"], true)) {
+    if (!validateRequest(request, response, [], ["id"], true)) {
         return;
     }
     List.findOneAndDelete(
@@ -39,24 +43,25 @@ function deleteList(request, response) {
     .then(
         result => {
             if (result.deletedCount === 0) {
-                validation.sendError(response, validation.Error.ResourceNotFound);
+                sendError(response, Error.ResourceNotFound);
                 return;
             }
+            sockets[request.session.userId].forEach(s => s.leave(`list:${ l._id.toString() }`));
             response.send();
         },
         error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         }
     );
 }
 
 function getList(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     if (request.session.userId === undefined && request.body.anonymousId === undefined) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return;
     }
     List.findOne({
@@ -72,20 +77,20 @@ function getList(request, response) {
     .then(
         list => {
             if (list === null) {
-                validation.sendError(response, validation.Error.ResourceNotFound);
+                sendError(response, Error.ResourceNotFound);
                 return;
             }
             response.json(list);
         },
         error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         }
     );
 }
 
 function getUserLists(request, response) {
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
     List.find({ members: { $elemMatch: { userId: request.session.userId } } })
@@ -94,7 +99,7 @@ function getUserLists(request, response) {
             lists => response.json(lists),
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
 }
@@ -109,21 +114,27 @@ function updateListProperty(request, response, filterObject, updateObject, optio
     .then(
         list => {
             if (list === null) {
-                validation.sendError(response, validation.Error.ResourceNotFound);
+                sendError(response, Error.ResourceNotFound);
                 return;
             }
+            notifyRoomExceptSender(
+                `list:${ list._id.toString() }`,
+                request.session.userId,
+                "listUpdate",
+                list._id.toString()
+            );
             response.json(list);
         },
         error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         }
     );
 }
 
 function updateUnprivilegedListProperty(request, response, updateObject) {
     if (request.session.userId === undefined && request.body.anonymousId === undefined) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return;
     }
     updateListProperty(
@@ -143,14 +154,14 @@ function updateUnprivilegedListProperty(request, response, updateObject) {
 }
 
 function updateTitle(request, response) {
-    if (!validation.validateRequest(request, response, ["title"], ["id"])) {
+    if (!validateRequest(request, response, ["title"], ["id"])) {
         return;
     }
     updateUnprivilegedListProperty(request, response, { $set: { title: request.body.title } });
 }
 
 function updateVisibility(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"], true)) {
+    if (!validateRequest(request, response, [], ["id"], true)) {
         return;
     }
     updateListProperty(
@@ -162,7 +173,7 @@ function updateVisibility(request, response) {
 }
 
 function updateColorIndex(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateUnprivilegedListProperty(
@@ -174,11 +185,11 @@ function updateColorIndex(request, response) {
 
 function addMember(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, [], ["id"], true)) {
+    if (!validateRequest(request, response, [], ["id"], true)) {
         return;
     }
     if (request.body.userId === undefined && request.body.anonymousId === undefined) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return;
     }
     if (request.body.userId !== undefined) {
@@ -188,7 +199,7 @@ function addMember(request, response) {
                     .exec()
                     .then(user => {
                         if (user === null) {
-                            validation.sendError(response, validation.Error.RequestError);
+                            sendError(response, Error.RequestError);
                             return;
                         }
                         updateListProperty(
@@ -224,7 +235,7 @@ function addMember(request, response) {
 }
 
 function removeMember(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id", "memberId"], true)) {
+    if (!validateRequest(request, response, [], ["id", "memberId"], true)) {
         return;
     }
     updateListProperty(

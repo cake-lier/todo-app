@@ -1,6 +1,6 @@
 "use strict";
 
-const validation = require("../utils/validation");
+const { Error, validateRequest, sendError } = require("../utils/validation");
 const uuid = require("uuid");
 const User = require("../model/userModel").createUserModel();
 const bcrypt = require("bcrypt");
@@ -10,7 +10,7 @@ const rounds = 12;
 function decodeImage(encodedImage, response) {
     const matches = encodedImage.match(/^\s*data:image\/(png|jpg|jpeg);base64,(\S+)\s*$/);
     if (matches.length !== 3 || (matches[1] !== "png" && matches[1] !== "jpg" && matches[1] !== "jpeg")) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return [];
     }
     return [
@@ -41,7 +41,7 @@ function createUser(request, response, path, hashedPassword) {
 }
 
 function signup(request, response) {
-    if (!validation.validateRequest(
+    if (!validateRequest(
         request,
         response,
         ["username", "email", "password"]
@@ -59,12 +59,12 @@ function signup(request, response) {
                   fs.writeFile(appRoot + "/public" + path, data, { flag: "wx", encoding: "base64" }, error => {
                       if (error !== null) {
                           console.log(error);
-                          validation.sendError(response, validation.Error.GeneralError);
+                          sendError(response, Error.GeneralError);
                           return;
                       }
                       createUser(request, response, path, hashedPassword).catch(error => {
                           console.log(error);
-                          validation.sendError(response, validation.Error.GeneralError);
+                          sendError(response, Error.GeneralError);
                       });
                   });
                   return Promise.resolve();
@@ -73,12 +73,12 @@ function signup(request, response) {
           })
           .catch(error => {
               console.log(error);
-              validation.sendError(response, validation.Error.GeneralError);
+              sendError(response, Error.GeneralError);
           });
 }
 
 function getUser(request, response) {
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
     User.findById(request.session.userId)
@@ -86,14 +86,14 @@ function getUser(request, response) {
         .then(
             user => {
                 if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    sendError(response, Error.ResourceNotFound);
                     return;
                 }
                 response.json(createUserObject(user));
             },
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
 }
@@ -114,7 +114,7 @@ function createUpdatedUserDocument(user, username, email, profilePicturePath) {
 
 function updateAccount(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
     if (typeof request.body.profilePicture === "string") {
@@ -126,7 +126,7 @@ function updateAccount(request, response) {
         fs.writeFile(appRoot + "/public" + path, data, { flag: "wx", encoding: "base64" }, error => {
             if (error !== null) {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
                 return;
             }
             User.findByIdAndUpdate(
@@ -144,7 +144,7 @@ function updateAccount(request, response) {
                             if (error !== null) {
                                 console.log(error);
                             }
-                            validation.sendError(response, validation.Error.ResourceNotFound);
+                            sendError(response, Error.ResourceNotFound);
                         });
                         return;
                     }
@@ -161,7 +161,7 @@ function updateAccount(request, response) {
                 },
                 error => {
                     console.log(error);
-                    validation.sendError(response, validation.Error.GeneralError);
+                    sendError(response, Error.GeneralError);
                 }
             );
         });
@@ -175,7 +175,7 @@ function updateAccount(request, response) {
         .then(
             user => {
                 if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    sendError(response, Error.ResourceNotFound);
                     return;
                 }
                 if (user.profilePicturePath !== null) {
@@ -191,7 +191,7 @@ function updateAccount(request, response) {
             },
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
     } else if (request.body.profilePicture === undefined) {
@@ -204,24 +204,24 @@ function updateAccount(request, response) {
         .then(
             user => {
                 if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    sendError(response, Error.ResourceNotFound);
                     return;
                 }
                 response.json(createUserObject(user));
             },
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
     } else {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
     }
 }
 
 function updatePassword(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, ["oldPassword", "newPassword"], [], true)) {
+    if (!validateRequest(request, response, ["oldPassword", "newPassword"], [], true)) {
         return;
     }
     bcrypt.hash(request.body.newPassword, rounds)
@@ -230,13 +230,13 @@ function updatePassword(request, response) {
                   .exec()
                   .then(user => {
                       if (user === null) {
-                          validation.sendError(response, validation.Error.ResourceNotFound);
+                          sendError(response, Error.ResourceNotFound);
                           return Promise.resolve();
                       }
                       return bcrypt.compare(request.body.oldPassword, user.password)
                                    .then(areEqual => {
                                        if (!areEqual) {
-                                           validation.sendError(response, validation.Error.PasswordError);
+                                           sendError(response, Error.PasswordError);
                                            return Promise.resolve();
                                        }
                                        return User.findByIdAndUpdate(
@@ -247,7 +247,7 @@ function updatePassword(request, response) {
                                        .exec()
                                        .then(user => {
                                            if (user === null) {
-                                               validation.sendError(response, validation.Error.GeneralError);
+                                               sendError(response, Error.GeneralError);
                                            } else {
                                                response.json(createUserObject(user));
                                            }
@@ -258,33 +258,33 @@ function updatePassword(request, response) {
           )
           .catch(error => {
               console.log(error);
-              validation.sendError(response, validation.Error.GeneralError);
+              sendError(response, Error.GeneralError);
           });
 }
 
 function unregister(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, ["password"], [], true)) {
+    if (!validateRequest(request, response, ["password"], [], true)) {
         return;
     }
     User.findById(userId)
         .exec()
         .then(user => {
             if (user === null) {
-                validation.sendError(response, validation.Error.ResourceNotFound);
+                sendError(response, Error.ResourceNotFound);
                 return Promise.resolve();
             }
             return bcrypt.compare(request.body.password, user.password)
                          .then(areEqual => {
                              if (!areEqual) {
-                                 validation.sendError(response, validation.Error.PasswordError);
+                                 sendError(response, Error.PasswordError);
                                  return Promise.resolve();
                              }
                              return User.findByIdAndDelete(userId)
                                         .exec()
                                         .then(result => {
                                             if (result.deleteCount === 0) {
-                                                validation.sendError(response, validation.Error.GeneralError);
+                                                sendError(response, Error.GeneralError);
                                             } else if (user.profilePicturePath !== null) {
                                                 fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
                                                     if (error !==  null) {
@@ -301,25 +301,25 @@ function unregister(request, response) {
         })
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
 function login(request, response) {
-    if (!validation.validateRequest(request, response, ["email", "password"])) {
+    if (!validateRequest(request, response, ["email", "password"])) {
         return;
     }
     User.findOne({ email: request.body.email })
         .exec()
         .then(user => {
             if (user === null) {
-                validation.sendError(response, validation.Error.LoginError);
+                sendError(response, Error.LoginError);
                 return Promise.resolve();
             }
             return bcrypt.compare(request.body.password, user.password)
                          .then(areEqual => {
                              if (!areEqual) {
-                                 validation.sendError(response, validation.Error.LoginError);
+                                 sendError(response, Error.LoginError);
                              } else {
                                  request.session.userId = user._id;
                                  response.json(createUserObject(user));
@@ -329,14 +329,15 @@ function login(request, response) {
         })
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
 function logout(request, response) {
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
+    delete sockets[request.session.userId];
     request.session.destroy(_ => response.send());
 }
 

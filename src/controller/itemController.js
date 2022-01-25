@@ -2,16 +2,17 @@
 
 const List = require("../model/listModel").createListModel();
 const Item = require("../model/itemModel").createItemModel();
-const validation = require("../utils/validation");
+const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
+const { notifyRoomExceptSender } = require("./sockets");
 
 function createItem(request, response) {
-    if (!validation.validateRequest(request, response, ["title"], ["id"])) {
+    if (!validateRequest(request, response, ["title"], ["id"])) {
         return;
     }
     const userId = request.session.userId;
     if (userId === undefined && !request.body.anonymousId) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return;
     }
     List.startSession()
@@ -27,7 +28,7 @@ function createItem(request, response) {
             .exec()
             .then(list => {
                 if (list === null) {
-                    validation.sendError(response, validation.Error.RequestError);
+                    sendError(response, Error.RequestError);
                     return Promise.resolve();
                 }
                 return Item.create({
@@ -40,17 +41,26 @@ function createItem(request, response) {
                     count: request.body.count,
                     remainingCount: request.body.count
                 })
-                .then(item => response.json(item));
+                .then(item => {
+                    notifyRoomExceptSender(
+                        `list:${ list._id.toString() }`,
+                        request.session.userId,
+                        "itemUpdate",
+                        list._id.toString(),
+                        item._id.toString()
+                    );
+                    response.json(item);
+                });
             })
         ))
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
 function getUserItems(request, response) {
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
     List.aggregate([
@@ -64,13 +74,13 @@ function getUserItems(request, response) {
         items => response.json(items),
         error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         }
     );
 }
 
 function getListItems(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     List.aggregate([
@@ -94,7 +104,7 @@ function getListItems(request, response) {
         items => response.json(items),
         error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         }
     );
 }
@@ -102,7 +112,7 @@ function getListItems(request, response) {
 function updateItemProperty(request, response, updater) {
     const userId = request.session.userId;
     if (userId === undefined && !request.body.anonymousId) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return;
     }
     List.startSession()
@@ -123,15 +133,22 @@ function updateItemProperty(request, response, updater) {
                 { session }
             )
             .exec()
-            .then(list => {
-                if (list === []) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+            .then(lists => {
+                if (lists === []) {
+                    sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
                 return updater(session).then(item => {
                     if (item === null) {
-                        validation.sendError(response, validation.Error.ResourceNotFound);
+                        sendError(response, Error.ResourceNotFound);
                     } else {
+                        notifyRoomExceptSender(
+                            `list:${ lists[0]._id.toString() }`,
+                            request.session.userId,
+                            "itemUpdate",
+                            lists[0]._id.toString(),
+                            item._id.toString()
+                        );
                         response.json(item);
                     }
                     return Promise.resolve();
@@ -140,7 +157,7 @@ function updateItemProperty(request, response, updater) {
         ))
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
@@ -159,14 +176,14 @@ function updateItemAtomicProperty(request, response, updateObject) {
 }
 
 function updateTitle(request, response) {
-    if (!validation.validateRequest(request, response, ["title"], ["id"])) {
+    if (!validateRequest(request, response, ["title"], ["id"])) {
         return;
     }
     updateItemAtomicProperty(request, response, { $set: { title: request.body.title } });
 }
 
 function updateText(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
@@ -177,11 +194,11 @@ function updateText(request, response) {
 }
 
 function updateDate(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     if (request.body.dueDate !== undefined && request.body.reminderString !== undefined) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
     }
     updateItemAtomicProperty(
         request,
@@ -193,7 +210,7 @@ function updateDate(request, response) {
 }
 
 function updateCompletion(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
@@ -204,7 +221,7 @@ function updateCompletion(request, response) {
 }
 
 function addTags(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
@@ -215,7 +232,7 @@ function addTags(request, response) {
 }
 
 function removeTags(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id"])) {
+    if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
@@ -226,7 +243,7 @@ function removeTags(request, response) {
 }
 
 function updateCount(request, response) {
-    if (!validation.validateRequest(request, response, ["count"], ["id"])) {
+    if (!validateRequest(request, response, ["count"], ["id"])) {
         return;
     }
     updateItemProperty(
@@ -256,11 +273,11 @@ function updateCount(request, response) {
 
 function addAssignee(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, ["userId", "isAnonymous", "count"], ["id"])) {
+    if (!validateRequest(request, response, ["userId", "isAnonymous", "count"], ["id"])) {
         return;
     }
     if (userId === undefined && !request.body.anonymousId) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return;
     }
     List.startSession()
@@ -293,16 +310,16 @@ function addAssignee(request, response) {
                 { session }
             )
             .exec()
-            .then(list => {
-                if (list === []) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+            .then(lists => {
+                if (lists === []) {
+                    sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
                 return Item.findById(request.params.id, undefined, { session })
                            .exec()
                            .then(item => {
                                if (item === null || item.remainingCount < request.body.count) {
-                                   validation.sendError(response, validation.Error.ResourceNotFound);
+                                   sendError(response, Error.ResourceNotFound);
                                    return Promise.resolve();
                                }
                                return Item.findByIdAndUpdate(
@@ -321,8 +338,15 @@ function addAssignee(request, response) {
                                .exec()
                                .then(item => {
                                    if (item === null) {
-                                       validation.sendError(response, validation.Error.ResourceNotFound);
+                                       sendError(response, Error.ResourceNotFound);
                                    } else {
+                                       notifyRoomExceptSender(
+                                           `list:${ lists[0]._id.toString() }`,
+                                           request.session.userId,
+                                           "itemUpdate",
+                                           lists[0]._id.toString(),
+                                           item._id.toString()
+                                       );
                                        response.json(item);
                                    }
                                    return Promise.resolve();
@@ -332,12 +356,12 @@ function addAssignee(request, response) {
         ))
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
 function removeAssignee(request, response) {
-    if (!validation.validateRequest(request, response, [], ["id", "assigneeId"])) {
+    if (!validateRequest(request, response, [], ["id", "assigneeId"])) {
         return;
     }
     const assigneeId = request.params.assigneeId;

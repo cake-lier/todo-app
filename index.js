@@ -35,28 +35,6 @@ const validation = require("./src/utils/validation");
 app.use(
     (_, response) => validation.sendError(response, validation.Error.ResourceNotFound)
 );
-const server = app.listen(8080, () => console.log("Node API server started"));
-
-// socket.io + node-schedule
-const io = require('socket.io')(server);
-const schedule = require('node-schedule');
-
-io.on('connection', (socket) =>  {
-    console.log('a user connected');
-
-    socket.on('reminder', (data) => {
-        console.log('Reminder set for ' + data);
-        schedule.scheduleJob(data, function(){
-            console.log('Trigger reminder');
-            socket.emit('reminder');
-        });
-    });
-
-    socket.on("message", data => {  console.log("RECEIVED THIS MSG: " + data);});
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
-
-
+const schedule = require("node-schedule");
+const bcrypt = require("bcrypt");
+global.io = require("./src/controller/sockets").setupSockets(app.listen(8080, () => console.log("Node API server started")));
