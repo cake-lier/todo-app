@@ -87,7 +87,22 @@ function getUserLists(request, response) {
     if (!validation.validateRequest(request, response, [], [], true)) {
         return;
     }
-    List.find({ members: { $elemMatch: { userId: request.session.userId } } })
+    List.find({ members: { $elemMatch: { userId: request.session.userId, role: "owner" } } })
+        .exec()
+        .then(
+            lists => response.json(lists),
+            error => {
+                console.log(error);
+                validation.sendError(response, validation.Error.GeneralError);
+            }
+        );
+}
+
+function getUserSharedLists(request, response) {
+    if (!validation.validateRequest(request, response, [], [], true)) {
+        return;
+    }
+    List.find({ members: { $elemMatch: { userId: request.session.userId, role:"member" } } })
         .exec()
         .then(
             lists => response.json(lists),
@@ -261,6 +276,7 @@ module.exports = {
     deleteList,
     getList,
     getUserLists,
+    getUserSharedLists,
     updateTitle,
     updateVisibility,
     updateColorIndex,

@@ -6,8 +6,9 @@ import {useRef, useState} from "react";
 import CreationHeader from "../../components/creationHeader/CreationHeader";
 import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
+import JoinListHeader from "../../components/JoinListHeader";
 
-function MyLists(props) {
+function SharedWithMe(props) {
 
     const displayError = (lastErrorCode) => {
         props.errors.displayError(lastErrorCode);
@@ -34,14 +35,13 @@ function MyLists(props) {
             <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 flex-grow-1 hidden md:block">
                 <PageHeader
                     props={props}
-                    title="My Lists"
+                    title="Shared with me"
                     showDate={false}
                     isResponsive={false}
                     displayError={displayError}
                 />
-                <CreationHeader
-                    lists={lists}
-                    setLists={setLists}
+
+                <JoinListHeader
                 />
 
                 <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />
@@ -49,7 +49,7 @@ function MyLists(props) {
                 <ListItem
                     lists={lists}
                     setLists={setLists}
-                    ownership={true}
+                    ownership={false}
                 />
             </div>
 
@@ -63,15 +63,12 @@ function MyLists(props) {
                 <div id="myListsContainer" className="mx-0 p-0 w-full md:block">
                     <PageHeader
                         props={props}
-                        title="My Lists"
+                        title="Shared with me"
                         showDate={false}
                         isResponsive={true}
                         displayError={displayError}
                     />
-                    <CreationHeader
-                        lists={lists}
-                        setLists={setLists}
-                        ownership={true}
+                    <JoinListHeader
                     />
 
                     <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />
@@ -79,6 +76,7 @@ function MyLists(props) {
                     <ListItem
                         lists={lists}
                         setLists={setLists}
+                        ownership={false}
                     />
                 </div>
             </div>
@@ -87,5 +85,5 @@ function MyLists(props) {
 
 }
 
-export default MyLists;
+export default SharedWithMe;
 

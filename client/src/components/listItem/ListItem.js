@@ -8,7 +8,7 @@ import JoinCodeMessage from "../JoinCodeMessage";
 import EditListDialog from "../listDialogs/EditListDialog";
 import {TieredMenu} from "primereact/tieredmenu";
 
-export default function ListItem({lists, setLists}) {
+export default function ListItem({lists, setLists, ownership}) {
 
     const menu = useRef(null);
     const [list, setList] = useState();
@@ -48,7 +48,7 @@ export default function ListItem({lists, setLists}) {
 
     useEffect(() => {
         axios.get(
-            "/lists"
+            ownership ? "/lists" : "/lists/shared"
         ).then(
             lists => {
                 setLists(lists.data);

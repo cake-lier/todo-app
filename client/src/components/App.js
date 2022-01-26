@@ -7,6 +7,7 @@ import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import MyLists from "../pages/myLists/MyLists";
+import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
 
 class App extends Component {
 
@@ -81,6 +82,14 @@ class App extends Component {
                         element={
                             this.state.user !== null
                             ? <MyLists user={ this.state. user } unsetUser={ this.unsetUser } />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/shared-with-me"
+                        element={
+                            this.state.user !== null
+                            ? <SharedWithMe user={this.state.user} unsetUser={this.unsetUser }/>
                             : <Navigate to="/" />
                         }
                     />
