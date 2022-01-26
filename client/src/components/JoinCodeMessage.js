@@ -6,6 +6,8 @@ export default function JoinCodeMessage({joinCode}){
 
     const [buttonText, setButtonText] = useState("Copy code");
 
+    console.log(joinCode)
+
     const copyToClipboard = () => {
         copy(joinCode);
         setButtonText("Copied!");

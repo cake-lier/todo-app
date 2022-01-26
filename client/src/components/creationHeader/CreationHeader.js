@@ -1,20 +1,20 @@
 import { Button } from 'primereact/button';
 import "./CreationHeader.scss";
 import {useState} from "react";
-import CreateListDialog from "../createListDialog/CreateListDialog";
+import CreateListDialog from "../listDialogs/CreateListDialog";
 
-function CreationHeader({displayError, lists, setLists}) {
+function CreationHeader({lists, setLists}) {
 
     const [display, setDisplay] = useState(false);
 
     return (
         <div className="grid pb-5">
             <CreateListDialog
-                displayError={displayError}
                 display={display}
                 setDisplay={setDisplay}
                 lists={lists}
                 setLists={setLists}
+                creation={true}
             />
             <div className="col-6 m-0 p-0 pl-1 flex align-content-center">
                 <Button
