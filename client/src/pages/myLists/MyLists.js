@@ -49,7 +49,6 @@ function MyLists(props) {
                 <ListItem
                     lists={lists}
                     setLists={setLists}
-                    ownership={true}
                 />
             </div>
 
@@ -71,7 +70,6 @@ function MyLists(props) {
                     <CreationHeader
                         lists={lists}
                         setLists={setLists}
-                        ownership={true}
                     />
 
                     <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />

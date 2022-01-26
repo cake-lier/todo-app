@@ -3,7 +3,7 @@ import {InputText} from "primereact/inputtext";
 import {SelectButton} from "primereact/selectbutton";
 import "./ListDialog.scss"
 
-export default function ListDialog({dialogName, display, renderFooter, listName, setListName, state, color, setColor, isVisible, setVisibility, members}){
+export default function ListDialog({dialogName, display, renderFooter, listName, setListName, state, color, setColor, isVisible, setVisibility, members=[]}){
 
     const colorOptions = [
         {icon: 'pi pi-circle-fill', id: "pastel-red-option", value: 0},
@@ -67,7 +67,7 @@ export default function ListDialog({dialogName, display, renderFooter, listName,
                     />
                 </div>
 
-                <div className={"col-12 mt-1 " + (!members ? "hidden" : null)}>
+                <div className={"col-12 mt-1 " + (members && members.length <= 1? "hidden" : null)}>
                     <p>Mostrare i membri.</p>
                 </div>
             </div>

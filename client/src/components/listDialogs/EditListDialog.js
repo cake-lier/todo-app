@@ -9,11 +9,11 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
     const [listName, setListName] = useState(title);
     const [isVisible, setVisibility] = useState(joinCode ? true : false)
     const [color, setColor] = useState(colorIndex);
-    const [members, setMembers] = useState(listMembers);
+    const [members, setMembers] = useState(listMembers ? listMembers : []);
 
     useEffect(() => {
         setListName(title);
-        setVisibility(joinCode ? true : false);
+        setVisibility(isVisible);
         setColor(colorIndex);
         setMembers(listMembers);
     }, [title, joinCode, colorIndex, listMembers])
@@ -51,23 +51,21 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
 
     function updateLists(updatedList) {
         const oldLists = lists.filter((l) => l._id !== listId);
-        const newLists = [...oldLists, updatedList];
+        const newLists = [...oldLists, updatedList.data];
         setLists(newLists);
-        console.log(updatedList);
     }
 
     function editListTitle() {
         if (listName !== title) {
             axios.put(
-                "/lists/" + listId + "/" + listName
+                "/lists/" + listId + "/title",
+                {title: listName}
             ).then(
                 list => {
                     updateLists(list);
-                    console.log("UPDATE TITLE")
-                    console.log(list);
                 },
                 error => {
-                    // TODO
+                    //TODO
                 }
             )
         }
@@ -76,22 +74,18 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
     function editListVisibility() {
         if (isVisible !== (joinCode !== null)) {
             axios.put(
-                "/lists/" + listId,
-                {
-                 body: {isVisible: isVisible}
-                }
+                "/lists/" + listId + "/isVisible",
+                {isVisible: isVisible}
             ).then(
                 list => {
                     updateLists(list);
-                    console.log("UPDATE VISIBILITY")
-                    console.log(list);
                 },
                 error => {
-                    // TODO
+                    //TODO
                 }
             )
 
-            if (isVisible) {
+            if (!isVisible) {
                 members.filter(m => m.role === "member").forEach(m => {
                         axios.delete(
                             "/lists/" + listId + "/members/" + m.userId
@@ -101,7 +95,7 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
                                 setMembers(list.members);
                             },
                             error => {
-                                // TODO
+                                //TODO
                             }
                         )
                     }
@@ -111,19 +105,16 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
     }
 
     function editListColor() {
-        console.log("/lists/"+listId+"/"+color)
         if (color !== colorIndex) {
-            const body = {colorIndex: color};
             axios.put(
-                "/lists/"+listId, body
+                "/lists/"+listId+"/colorIndex",
+                {colorIndex: color}
             ).then(
                 list => {
                     updateLists(list);
-                    console.log("UPDATE COLOR")
-                    console.log(list);
                 },
                 error => {
-                    // TODO
+                    //TODO
                 }
             )
         }
@@ -135,6 +126,7 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
         editListTitle()
         editListVisibility()
         editListColor()
+        setDisplay(false)
     }
 
     return (

@@ -8,7 +8,7 @@ import JoinCodeMessage from "../JoinCodeMessage";
 import EditListDialog from "../listDialogs/EditListDialog";
 import {TieredMenu} from "primereact/tieredmenu";
 
-export default function ListItem({lists, setLists, ownership}) {
+export default function ListItem({lists, setLists, ownership= true}) {
 
     const menu = useRef(null);
     const [list, setList] = useState();
@@ -47,8 +47,9 @@ export default function ListItem({lists, setLists, ownership}) {
     ]
 
     useEffect(() => {
+
         axios.get(
-            ownership ? "/lists" : "/lists/shared"
+            ownership? "/lists" : "/lists/shared"
         ).then(
             lists => {
                 setLists(lists.data);
@@ -69,8 +70,6 @@ export default function ListItem({lists, setLists, ownership}) {
         const handleClick = (e, list) => {
             menu.current.toggle(e);
             setList(list);
-            console.log("SELECTED")
-            console.log(list)
         }
         return (
             <div className="col-12 m-0 p-0 flex flex-row align-items-center list-item" key={data._id}>
