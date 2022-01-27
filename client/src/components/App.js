@@ -27,10 +27,7 @@ class App extends Component {
     }
 
     setUser(user) {
-        this.setState({
-            user,
-            socket: this.state.socket !== null ? this.state.socket : io()
-        });
+        this.setState({ user });
     }
 
     unsetUser() {
@@ -39,17 +36,25 @@ class App extends Component {
         }
         this.setState({
             user: null,
-            socket: null
+            socket: io()
         });
     }
 
     componentDidMount() {
-       axios.get("/users/me")
+        const socket = io();
+        socket.on("connect", () =>
+            axios.post(
+                "/socket",
+                {
+                    socketId: socket.id
+                }
+            )
+            .catch(error => this.setState({ displayError: error.response.data.error }))
+            .then(_ => axios.get("/users/me"))
             .then(
                 response => {
                     this.setState({
                         user: response.data,
-                        socket: io(),
                         ready: true
                     });
                 },
@@ -57,21 +62,17 @@ class App extends Component {
                     displayError: error.response.data.error !== 3,
                     ready: true
                 })
-            );
-    }
-
-    componentDidUpdate(_, prevState) {
-        if (prevState.socket === null && this.state.socket !== null) {
-            this.state.socket.on('reminder', () => {
-                alert("Reminder!!!");
-            });
-        }
+            )
+        );
+        socket.on("joinRequest", (listTitle, socketId, username, completionCallback) => {
+            //TODO: insert dialog here for completionCallback(true, listId) or completionCallback(false, null)
+            //TODO: request should include (isAnonymous = true, socketId, username)
+        });
+        this.setState({ socket });
     }
 
     componentWillUnmount() {
-        if (this.state.socket !== null) {
-            this.state.socket.disconnect();
-        }
+        this.state.socket.disconnect();
     }
 
     render() {
@@ -151,7 +152,7 @@ class App extends Component {
                     />
                     <Route  // for testing
                         path="/list"
-                        element={<List name="School things" socket={this.state.socket}/>}
+                        element={<List name="School things" socket={ this.state.socket }/>}
                     />
                 </Routes>
             </>

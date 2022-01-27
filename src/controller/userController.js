@@ -3,6 +3,7 @@
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const uuid = require("uuid");
 const User = require("../model/userModel").createUserModel();
+const List = require("../model/listModel").createListModel();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const rounds = 12;
@@ -35,7 +36,9 @@ function createUser(request, response, path, hashedPassword) {
         profilePicturePath: path
     })
     .then(user => {
-        request.session.userId = user._id;
+        const userId = user._id.toString();
+        request.session.userId = userId;
+        io.in(request.session.socketId).socketsJoin(`user:${ userId }`);
         response.json(createUserObject(user));
     });
 }
@@ -282,18 +285,20 @@ function unregister(request, response) {
                              }
                              return User.findByIdAndDelete(userId)
                                         .exec()
-                                        .then(result => {
-                                            if (result.deleteCount === 0) {
+                                        .then(deletedUser => {
+                                            if (deletedUser === null) {
                                                 sendError(response, Error.GeneralError);
                                             } else if (user.profilePicturePath !== null) {
                                                 fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
                                                     if (error !==  null) {
                                                         console.log(error);
                                                     }
-                                                    request.session.destroy(_ => response.send());
+                                                    io.in(`user:${ userId }`).disconnectSockets();
+                                                    request.session.destroy(_ => response.send({}));
                                                 });
                                             } else {
-                                                request.session.destroy(_ => response.send());
+                                                io.in(`user:${ userId }`).disconnectSockets();
+                                                request.session.destroy(_ => response.send({}));
                                             }
                                             return Promise.resolve();
                                         });
@@ -309,24 +314,47 @@ function login(request, response) {
     if (!validateRequest(request, response, ["email", "password"])) {
         return;
     }
-    User.findOne({ email: request.body.email })
-        .exec()
-        .then(user => {
-            if (user === null) {
-                sendError(response, Error.LoginError);
-                return Promise.resolve();
-            }
-            return bcrypt.compare(request.body.password, user.password)
-                         .then(areEqual => {
-                             if (!areEqual) {
-                                 sendError(response, Error.LoginError);
-                             } else {
-                                 request.session.userId = user._id;
-                                 response.json(createUserObject(user));
-                             }
-                             return Promise.resolve();
-                         });
-        })
+    User.startSession()
+        .then(session => session.withTransaction(() =>
+            User.findOne({ email: request.body.email })
+                .exec()
+                .then(user => {
+                    if (user === null) {
+                        sendError(response, Error.LoginError);
+                        return Promise.resolve();
+                    }
+                    return bcrypt.compare(request.body.password, user.password)
+                                 .then(areEqual => {
+                                     if (!areEqual) {
+                                         sendError(response, Error.LoginError);
+                                         return Promise.resolve();
+                                     }
+                                     const userId = user._id.toString();
+                                     request.session.userId = userId;
+                                     io.in(request.session.socketId).join(`user:${ userId }`);
+                                     return List.find(
+                                         { members: { $elemMatch: { userId } } },
+                                         undefined,
+                                         { session }
+                                     )
+                                     .exec()
+                                     .then(lists => {
+                                         lists.forEach(l => {
+                                             io.in(request.session.socketId).join(`list:${ l._id.toString() }`);
+                                             if (
+                                                 l.members
+                                                  .filter(m => m.userId.toString() === userId)
+                                                  .every(m => m.role === "owner")
+                                             ) {
+                                                 io.in(request.session.socketId).join(`list:${ l._id.toString() }:owner`);
+                                             }
+                                         });
+                                         response.json(createUserObject(user));
+                                         return Promise.resolve();
+                                     });
+                                 });
+                })
+        ))
         .catch(error => {
             console.log(error);
             sendError(response, Error.GeneralError);
@@ -337,8 +365,8 @@ function logout(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    delete sockets[request.session.userId];
-    request.session.destroy(_ => response.send());
+    io.in(request.session.socketId).disconnectSockets();
+    request.session.destroy(_ => response.send({}));
 }
 
 module.exports = {

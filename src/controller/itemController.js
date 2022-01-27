@@ -2,9 +2,11 @@
 
 const List = require("../model/listModel").createListModel();
 const Item = require("../model/itemModel").createItemModel();
+const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
-const { notifyRoomExceptSender } = require("./sockets");
+const schedule = require("node-schedule");
+const { rrulestr } = require("rrule");
 
 function createItem(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {
@@ -36,20 +38,25 @@ function createItem(request, response) {
                     title: request.body.title,
                     text: request.body.text,
                     dueDate: request.body.dueDate,
-                    reminderDate: request.body.reminderDate,
+                    reminderString: request.body.reminderString,
                     tags: request.body.tags,
                     count: request.body.count,
                     remainingCount: request.body.count
                 })
                 .then(item => {
-                    notifyRoomExceptSender(
-                        `list:${ list._id.toString() }`,
-                        request.session.userId,
-                        "itemUpdate",
-                        list._id.toString(),
-                        item._id.toString()
-                    );
-                    response.json(item);
+                    const listId = list._id.toString();
+                    const text = `The item "${ item.title }" was added to the list "${ list.title }"`;
+                    Notification.create({
+                        users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                        text
+                    })
+                    .catch(error => console.log(error))
+                    .then(_ => {
+                        io.in(`list:${ listId }`)
+                          .except(`user:${ request.session.userId }`)
+                          .emit("itemCreated", listId, text);
+                        response.json(item);
+                    });
                 });
             })
         ))
@@ -109,7 +116,7 @@ function getListItems(request, response) {
     );
 }
 
-function updateItemProperty(request, response, updater) {
+function updateItemProperty(request, response, onSuccess) {
     const userId = request.session.userId;
     if (userId === undefined && !request.body.anonymousId) {
         sendError(response, Error.RequestError);
@@ -138,21 +145,7 @@ function updateItemProperty(request, response, updater) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
-                return updater(session).then(item => {
-                    if (item === null) {
-                        sendError(response, Error.ResourceNotFound);
-                    } else {
-                        notifyRoomExceptSender(
-                            `list:${ lists[0]._id.toString() }`,
-                            request.session.userId,
-                            "itemUpdate",
-                            lists[0]._id.toString(),
-                            item._id.toString()
-                        );
-                        response.json(item);
-                    }
-                    return Promise.resolve();
-                });
+                return onSuccess(session, lists[0]);
             })
         ))
         .catch(error => {
@@ -161,17 +154,25 @@ function updateItemProperty(request, response, updater) {
         });
 }
 
-function updateItemAtomicProperty(request, response, updateObject) {
+function updateItemAtomicProperty(request, response, updateObject, onSuccess, optionsObject = { new: true }) {
     updateItemProperty(
         request,
         response,
-        session =>
+        (session, list) =>
             Item.findByIdAndUpdate(
                 request.params.id,
                 updateObject,
-                { runValidators: true, new: true, context: "query", session }
+                Object.assign({ runValidators: true, context: "query", session }, optionsObject)
             )
             .exec()
+            .then(item => {
+                if (item === null) {
+                    sendError(response, Error.ResourceNotFound);
+                } else {
+                    onSuccess(list, item);
+                }
+                return Promise.resolve();
+            })
     );
 }
 
@@ -179,7 +180,29 @@ function updateTitle(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {
         return;
     }
-    updateItemAtomicProperty(request, response, { $set: { title: request.body.title } });
+    updateItemAtomicProperty(
+        request,
+        response,
+        { $set: { title: request.body.title } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text = `The item "${ item.title }" had its title changed to "${ request.body.title }"`;
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${ listId }`)
+                  .except(`user:${ request.session.userId }`)
+                  .emit("itemTitleChanged", listId, text);
+                const updatedItem = JSON.parse(JSON.stringify(item));
+                updatedItem.title = request.body.title;
+                response.json(updatedItem);
+            });
+        },
+        { new: false }
+    );
 }
 
 function updateText(request, response) {
@@ -189,8 +212,50 @@ function updateText(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        request.body.text ? { $set: { text: request.body.text } } : { $unset: { text: "" } }
+        request.body.text ? { $set: { text: request.body.text } } : { $unset: { text: "" } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text = `The item "${ item.title }" had its text changed`;
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${ listId }`)
+                  .except(`user:${ request.session.userId }`)
+                  .emit("itemTextChanged", listId, text);
+                response.json(item);
+            });
+        },
     );
+}
+
+const jobs = {};
+
+function scheduleNextReminder(listId, itemId, recurrenceRule) {
+    const nextRecurrence = recurrenceRule.after(Date.now());
+    jobs[itemId] = schedule.scheduleJob(nextRecurrence, () => {
+        List.findById(listId)
+            .exec()
+            .then(list => {
+                if (list !== null) {
+                    Item.findById(itemId)
+                        .exec()
+                        .then(item => {
+                            if (item !== null) {
+                                Notification.create({
+                                    users: list.members.filter(m => m.userId !== null),
+                                    title: item.title
+                                })
+                                .catch(error => console.log(error))
+                                .then(_ => io.in(`list:${ listId }`).emit("reminder", item.title));
+                                scheduleNextReminder(listId, itemId, recurrenceRule);
+                            }
+                        })
+                }
+            })
+    });
 }
 
 function updateDate(request, response) {
@@ -203,9 +268,49 @@ function updateDate(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        request.body.dueDate !== undefined
-        ? { $set: { dueDate: request.body.dueDate }, $unset: { reminderString: "" } }
-        : { $set: { reminderString: request.body.reminderString }, $unset: { dueDate: "" } }
+        request.body.dueDate === undefined && request.body.reminderString === undefined
+        ? { $unset: { dueDate: "", reminderString: "" } }
+        : (request.body.dueDate === undefined
+           ? { $set: { reminderString: request.body.reminderString }, $unset: { dueDate: "" } }
+           : { $set: { dueDate: request.body.dueDate }, $unset: { reminderString: "" } }),
+        (list, item) => {
+            const listId = list._id.toString();
+            const text =
+                request.body.dueDate !== undefined
+                ? `The item "${ item.title }" has now a due date, possible reminders have been cleared`
+                : (request.body.reminderString !== undefined
+                   ? `The item "${ item.title }" has now a reminder set, possible due dates have been cleared`
+                   : `The item "${ item.title }" has now neither a due date nor a reminder`);
+            const itemId = item._id.toString();
+            jobs[itemId]?.cancel();
+            if (request.body.dueDate !== undefined) {
+                jobs[itemId] = schedule.scheduleJob(request.body.dueDate, () => {
+                    Notification.create({
+                        users: list.members.filter(m => m.userId !== null),
+                        text
+                    })
+                    .catch(error => console.log(error))
+                    .then(_ => {
+                        io.in(`list:${ listId }`)
+                          .emit("dueDateElapsed", `The due date for the item "${ item.title }" has elapsed`);
+                    });
+                });
+            }
+            if (request.body.reminderString !== undefined) {
+                scheduleNextReminder(listId, itemId, rrulestr(request.body.reminderString));
+            }
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${ listId }`)
+                  .except(`user:${ request.session.userId }`)
+                  .emit("itemDateChanged", listId, text);
+                response.json(item);
+            });
+        }
     );
 }
 
@@ -216,7 +321,22 @@ function updateCompletion(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        request.body.isComplete ? { $set: { completionDate: Date.now() } } : { $unset: { completionDate: "" } }
+        request.body.isComplete ? { $set: { completionDate: Date.now() } } : { $unset: { completionDate: "" } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text = `The item "${item.title}" is now set as ${request.body.isComplete ? "" : "in"}complete`;
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${listId}`)
+                    .except(`user:${request.session.userId}`)
+                    .emit("itemCompletionChanged", listId, text);
+                response.json(item);
+            });
+        }
     );
 }
 
@@ -227,7 +347,22 @@ function addTags(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        { $addToSet: { tags: { $each: request.body.tags ? request.body.tags : [] } } }
+        { $addToSet: { tags: { $each: request.body.tags ? request.body.tags : [] } } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text = `Some tags have been added to the item "${item.title}"`;
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${listId}`)
+                  .except(`user:${request.session.userId}`)
+                  .emit("itemTagsAdded", listId, text);
+                response.json(item);
+            });
+        }
     );
 }
 
@@ -238,7 +373,22 @@ function removeTags(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        { $pullAll: { tags: request.body.tags ? request.body.tags : [] } }
+        { $pullAll: { tags: request.body.tags ? request.body.tags : [] } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text = `Some tags have been removed from the item "${item.title}"`;
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${listId}`)
+                  .except(`user:${request.session.userId}`)
+                  .emit("itemTagsRemoved", listId, text);
+                response.json(item);
+            });
+        }
     );
 }
 
@@ -249,7 +399,7 @@ function updateCount(request, response) {
     updateItemProperty(
         request,
         response,
-        session =>
+        (session, list) =>
             Item.findById(request.params.id, undefined, { session })
                 .exec()
                 .then(item => {
@@ -266,7 +416,27 @@ function updateCount(request, response) {
                         },
                         { runValidators: true, new: true, context: "query", session }
                     )
-                    .exec();
+                    .exec()
+                    .then(item => {
+                        if (item === null) {
+                            sendError(response, Error.ResourceNotFound);
+                        } else {
+                            const listId = list._id.toString();
+                            const text = `The item "${item.title}" had its count updated`;
+                            Notification.create({
+                                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                text
+                            })
+                            .catch(error => console.log(error))
+                            .then(_ => {
+                                io.in(`list:${listId}`)
+                                  .except(`user:${request.session.userId}`)
+                                  .emit("itemCountChanged", listId, text);
+                                response.json(item);
+                            });
+                        }
+                        return Promise.resolve();
+                    })
                 })
     );
 }
@@ -394,6 +564,10 @@ function removeAssignee(request, response) {
     );
 }
 
+function deleteItem(request, response) {
+
+}
+
 module.exports = {
     createItem,
     getUserItems,
@@ -406,5 +580,6 @@ module.exports = {
     removeTags,
     updateCount,
     addAssignee,
-    removeAssignee
+    removeAssignee,
+    deleteItem
 }

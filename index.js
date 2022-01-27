@@ -5,6 +5,7 @@ require("mongoose").connect("mongodb://localhost:27017,localhost:27018,localhost
 const app = express();
 app.use(express.json({ limit: 2097152 }));
 app.use("/static", express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname, "client/build")));
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const store = new MongoDBStore({
@@ -22,8 +23,7 @@ app.use(session({
         path: "/",
         httpOnly: true,
         sameSite: "strict",
-        secure: "auto",
-        maxAge: 1000 * 60 * 60 * 24
+        secure: "auto"
     }
 }));
 const routes = require("./src/routes/routes");
@@ -31,10 +31,9 @@ routes.initializeUserRoutes(app);
 routes.initializeListRoutes(app);
 routes.initializeItemRoutes(app);
 routes.initializeStaticRoutes(app);
-const validation = require("./src/utils/validation");
+const { sendError, Error } = require("./src/utils/validation");
 app.use(
-    (_, response) => validation.sendError(response, validation.Error.ResourceNotFound)
+    (_, response) => sendError(response, Error.ResourceNotFound)
 );
 const schedule = require("node-schedule");
-const bcrypt = require("bcrypt");
 global.io = require("./src/controller/sockets").setupSockets(app.listen(8080, () => console.log("Node API server started")));

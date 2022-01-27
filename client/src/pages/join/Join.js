@@ -17,6 +17,10 @@ class Join extends Component {
         this.handleOnSubmit = this.handleOnSubmit.bind(this);
     }
 
+    componentDidMount() {
+
+    }
+
     displayError(lastErrorCode) {
         this.errors.displayError(lastErrorCode);
     }

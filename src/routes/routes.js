@@ -40,7 +40,7 @@ function initializeItemRoutes(app) {
 }
 
 function initializeStaticRoutes(app) {
-    app.route("/").get(controller.showIndex);
+    app.route("/socket").post(controller.registerSocket);
 }
 
 module.exports = {
