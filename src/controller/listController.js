@@ -1,6 +1,7 @@
 "use strict";
 
 const List = require("../model/listModel").createListModel();
+const Item = require("../model/itemModel").createItemModel();
 const User = require("../model/userModel.js").createUserModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const uuid = require("uuid");
@@ -38,37 +39,44 @@ function deleteList(request, response) {
     if (!validateRequest(request, response, [], ["id"], true)) {
         return;
     }
-    List.findOneAndDelete(
-        { _id: request.params.id, members: { $elemMatch: { userId: request.session.userId, role: "owner" } } }
-    )
-    .exec()
-    .then(
-        list => {
-            if (list === null) {
-                sendError(response, Error.ResourceNotFound);
-                return;
-            }
-            const listId = list._id.toString();
-            const text = `The list "${ list.title }" has just been deleted`;
-            Notification.create({
-                users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
-                text
+    List.startSession()
+        .then(session => session.withTransaction(() =>
+            List.findOneAndDelete(
+                { _id: request.params.id, members: { $elemMatch: { userId: request.session.userId, role: "owner" } } },
+                { session }
+            )
+            .exec()
+            .then(list => {
+                if (list === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                return Item.deleteMany({ listId: list._id }, { session })
+                           .exec()
+                           .then(_ => {
+                               const listId = list._id.toString();
+                               const text = `The list "${ list.title }" has just been deleted`;
+                               Notification.create({
+                                   users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                   text
+                               })
+                               .catch(error => console.log(error))
+                               .then(_ => {
+                                   io.in(`list:${ listId }`)
+                                     .except(`user:${ request.session.userId }`)
+                                     .emit("listDeleted", listId, text);
+                                   io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
+                                   io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
+                                   response.send({});
+                               });
+                               return Promise.resolve();
+                           })
             })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ list._id.toString() }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("listDeleted", listId, text);
-                io.in(`list:${ list._id.toString() }`).socketsLeave(`list:${ list._id.toString() }`);
-                io.in(`list:${ list._id.toString() }:owner`).socketsLeave(`list:${ list._id.toString() }:owner`);
-                response.send({});
-            });
-        },
-        error => {
+        ))
+        .catch(error => {
             console.log(error);
             sendError(response, Error.GeneralError);
-        }
-    );
+        });
 }
 
 function getList(request, response) {

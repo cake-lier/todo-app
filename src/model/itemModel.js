@@ -50,7 +50,7 @@ const itemSchema = new mongoose.Schema({
     count: {
         type: Number,
         default: 1,
-        min: 1,
+        min: 0,
         validate: Number.isInteger
     },
     remainingCount: {

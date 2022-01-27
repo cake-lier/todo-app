@@ -5,7 +5,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
-const { scheduleDateTask, scheduleNextReminder, scheduleForDate} = require("../utils/schedule");
+const { scheduleNextReminder, scheduleForDate } = require("../utils/schedule");
 
 function createItem(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {

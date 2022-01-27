@@ -4,6 +4,8 @@ const { Error, validateRequest, sendError } = require("../utils/validation");
 const uuid = require("uuid");
 const User = require("../model/userModel").createUserModel();
 const List = require("../model/listModel").createListModel();
+const Item = require("../model/itemModel").createItemModel();
+const Notification = require("../model/notificationsModel").createNotificationModel();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const rounds = 12;
@@ -265,6 +267,105 @@ function updatePassword(request, response) {
           });
 }
 
+function sendNotification(userId, list, eventName, text) {
+    const listId = list._id.toString();
+    return Notification.create({
+        users: list.members.filter(m => m.userId !== null && m.userId !== userId),
+        text: text
+    })
+    .catch(error => console.log(error))
+    .then(_ => io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName, listId, text));
+}
+
+function deleteUserData(request, response, session, user) {
+    return List.find({ members: { $elemMatch: { userId: user._id, role: "owner" } } }, { session })
+               .exec()
+               .then(lists => {
+                   const listIds = lists.map(l => l._id);
+                   return List.deleteMany({ _id: { $in: listIds } }, { session })
+                              .exec()
+                              .then(_ => Item.deleteMany({ listId: { $in: listIds } }, { session }).exec())
+                              .then(_ => Promise.all(lists.map(list => {
+                                  const listId = list._id.toString();
+                                  const listText = `The list "${ list.title }" has just been deleted`;
+                                  return Notification.create({
+                                      users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                      text: listText
+                                  })
+                                  .catch(error => console.log(error))
+                                  .then(_ => {
+                                      io.in(`list:${ listId }`)
+                                        .except(`user:${ request.session.userId }`)
+                                        .emit("listDeleted", listId, listText);
+                                      return Item.find({ listId: list._id }, { session })
+                                                 .exec()
+                                                 .then(items => Promise.all(items.map(item => {
+                                                     jobs[item._id.toString()]?.cancel();
+                                                     return sendNotification(
+                                                         request.session.userId,
+                                                         list,
+                                                         "itemDeleted",
+                                                         `The item "${ item.title }" has just been deleted`
+                                                     );
+                                                 })));
+                                  })
+                                  .then(_ => {
+                                      io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
+                                      io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
+                                  });
+                              })));
+               })
+               .then(_ =>
+                   List.find({ members: { $elemMatch: { userId: user._id, role: "member" } } }, { session })
+                       .exec()
+                       .then(lists =>
+                           List.updateMany(
+                               { _id: lists.map(l => l._id) },
+                               { $pull: { members: { userId: user._id, role: "member" } } },
+                               { session }
+                           )
+                           .exec()
+                           .then(_ => Promise.all(lists.map(list => sendNotification(
+                               request.session.userId,
+                               list,
+                               "listMemberRemoved",
+                               `A member has left from the list "${ list.title }"`
+                           ))))
+                       )
+               )
+               .then(_ =>
+                   Item.find({ assignees: { $elemMatch: { userId: user._id } } }, { session })
+                       .exec()
+                       .then(items =>
+                           Item.updateMany(
+                               { _id: { $in: items.map(i => i._id) } },
+                               { $pull: { assignees: { userId: user._id } } },
+                               { session }
+                           )
+                           .exec()
+                           .then(_ => Promise.all(items.map(item =>
+                               List.findById(item.listId, undefined, { session })
+                                   .exec()
+                                   .then(list => {
+                                       if (list !== null) {
+                                           return sendNotification(
+                                               request.session.userId,
+                                               list,
+                                               "itemAssigneeRemoved",
+                                               `An assignee was removed from the item "${ item.title }"`
+                                           );
+                                       }
+                                       return Promise.resolve();
+                                   })
+                               )))
+                       )
+               )
+               .then(_ => {
+                   io.in(`user:${ user._id.toString() }`).disconnectSockets();
+                   request.session.destroy(_ => response.send({}));
+               });
+}
+
 function unregister(request, response) {
     const userId = request.session.userId;
     if (!validateRequest(request, response, ["password"], [], true)) {
@@ -283,25 +384,24 @@ function unregister(request, response) {
                                  sendError(response, Error.PasswordError);
                                  return Promise.resolve();
                              }
-                             return User.findByIdAndDelete(userId)
-                                        .exec()
-                                        .then(deletedUser => {
-                                            if (deletedUser === null) {
-                                                sendError(response, Error.GeneralError);
-                                            } else if (user.profilePicturePath !== null) {
-                                                fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
-                                                    if (error !==  null) {
-                                                        console.log(error);
-                                                    }
-                                                    io.in(`user:${ userId }`).disconnectSockets();
-                                                    request.session.destroy(_ => response.send({}));
-                                                });
-                                            } else {
-                                                io.in(`user:${ userId }`).disconnectSockets();
-                                                request.session.destroy(_ => response.send({}));
-                                            }
-                                            return Promise.resolve();
-                                        });
+                             return User.startSession(session => session.withTransaction(() =>
+                                 User.findByIdAndDelete(userId, { session })
+                                     .exec()
+                                     .then(deletedUser => {
+                                         if (deletedUser === null) {
+                                             sendError(response, Error.GeneralError);
+                                             return Promise.resolve();
+                                         }
+                                         if (user.profilePicturePath !== null) {
+                                             fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
+                                                 if (error !== null) {
+                                                     console.log(error);
+                                                 }
+                                             });
+                                         }
+                                         return deleteUserData(request, response, session, user);
+                                     })
+                             ));
                          });
         })
         .catch(error => {
