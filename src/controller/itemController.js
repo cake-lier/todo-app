@@ -5,8 +5,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
-const schedule = require("node-schedule");
-const { rrulestr } = require("rrule");
+const { scheduleDateTask, scheduleNextReminder, scheduleForDate} = require("../utils/schedule");
 
 function createItem(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {
@@ -231,33 +230,6 @@ function updateText(request, response) {
     );
 }
 
-const jobs = {};
-
-function scheduleNextReminder(listId, itemId, recurrenceRule) {
-    const nextRecurrence = recurrenceRule.after(Date.now());
-    jobs[itemId] = schedule.scheduleJob(nextRecurrence, () => {
-        List.findById(listId)
-            .exec()
-            .then(list => {
-                if (list !== null) {
-                    Item.findById(itemId)
-                        .exec()
-                        .then(item => {
-                            if (item !== null) {
-                                Notification.create({
-                                    users: list.members.filter(m => m.userId !== null),
-                                    title: item.title
-                                })
-                                .catch(error => console.log(error))
-                                .then(_ => io.in(`list:${ listId }`).emit("reminder", item.title));
-                                scheduleNextReminder(listId, itemId, recurrenceRule);
-                            }
-                        })
-                }
-            })
-    });
-}
-
 function updateDate(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
@@ -284,20 +256,10 @@ function updateDate(request, response) {
             const itemId = item._id.toString();
             jobs[itemId]?.cancel();
             if (request.body.dueDate !== undefined) {
-                jobs[itemId] = schedule.scheduleJob(request.body.dueDate, () => {
-                    Notification.create({
-                        users: list.members.filter(m => m.userId !== null),
-                        text
-                    })
-                    .catch(error => console.log(error))
-                    .then(_ => {
-                        io.in(`list:${ listId }`)
-                          .emit("dueDateElapsed", `The due date for the item "${ item.title }" has elapsed`);
-                    });
-                });
+                scheduleForDate(itemId, request.body.dueDate);
             }
             if (request.body.reminderString !== undefined) {
-                scheduleNextReminder(listId, itemId, rrulestr(request.body.reminderString));
+                scheduleNextReminder(listId, itemId, request.body.reminderString);
             }
             Notification.create({
                 users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
@@ -605,6 +567,7 @@ function deleteItem(request, response) {
                     if (item === null) {
                         sendError(response, Error.ResourceNotFound);
                     } else {
+                        jobs[item._id.toString()]?.cancel();
                         const listId = list._id.toString();
                         const text = `The item "${item.title}" was deleted`;
                         Notification.create({
@@ -613,7 +576,7 @@ function deleteItem(request, response) {
                         })
                         .catch(error => console.log(error))
                         .then(_ => {
-                            io.in(`list:${listId}`)
+                            io.in(`list:${ listId }`)
                               .except(`user:${ request.session.userId }`)
                               .emit("itemDeleted", listId, text);
                             response.json(item);

@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, "client/build")));
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const store = new MongoDBStore({
-    uri: "mongodb://localhost/todo",
+    uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/todo?replicaSet=rs",
     collection: "sessions"
 });
 app.use(session({
@@ -35,5 +35,5 @@ const { sendError, Error } = require("./src/utils/validation");
 app.use(
     (_, response) => sendError(response, Error.ResourceNotFound)
 );
-const schedule = require("node-schedule");
-global.io = require("./src/controller/sockets").setupSockets(app.listen(8080, () => console.log("Node API server started")));
+require("./src/utils/schedule").scheduleTasks();
+global.io = require("./src/utils/sockets").setupSockets(app.listen(8080, () => console.log("Node API server started")));

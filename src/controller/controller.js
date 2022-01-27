@@ -17,5 +17,6 @@ module.exports = {
     registerSocket,
     user: require("./userController"),
     list: require("./listController"),
-    item: require("./itemController")
+    item: require("./itemController"),
+    notification: require("./notificationController")
 }

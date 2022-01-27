@@ -10,6 +10,8 @@ function initializeUserRoutes(app) {
                                   .delete(controller.user.logout);
     app.route("/users/me/account").put(controller.user.updateAccount);
     app.route("/users/me/password").put(controller.user.updatePassword);
+    app.route("/users/me/notifications").get(controller.notification.getUserNotifications);
+    app.route("/users/me/notifications/:id").delete(controller.notification.deleteNotification);
 }
 
 function initializeListRoutes(app) {
