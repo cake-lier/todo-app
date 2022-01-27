@@ -28,6 +28,7 @@ function initializeListRoutes(app) {
 
 function initializeItemRoutes(app) {
     app.route("/items").get(controller.item.getUserItems);
+    app.route("/lists/:id").delete(controller.item.deleteItem);
     app.route("/items/:id/title").put(controller.item.updateTitle);
     app.route("/items/:id/text").put(controller.item.updateText);
     app.route("/items/:id/date").put(controller.item.updateDate);

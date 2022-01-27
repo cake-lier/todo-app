@@ -404,7 +404,8 @@ function updateCount(request, response) {
                 .exec()
                 .then(item => {
                     if (item === null || item.count - request.body.count > item.remainingCount) {
-                        return Promise.resolve(null);
+                        sendError(response, Error.RequestError);
+                        return Promise.resolve();
                     }
                     return Item.findByIdAndUpdate(
                         request.params.id,
@@ -510,14 +511,20 @@ function addAssignee(request, response) {
                                    if (item === null) {
                                        sendError(response, Error.ResourceNotFound);
                                    } else {
-                                       notifyRoomExceptSender(
-                                           `list:${ lists[0]._id.toString() }`,
-                                           request.session.userId,
-                                           "itemUpdate",
-                                           lists[0]._id.toString(),
-                                           item._id.toString()
-                                       );
-                                       response.json(item);
+                                       const listId = lists[0]._id.toString();
+                                       const text = `An assignee was added to the item "${item.title}"`;
+                                       Notification.create({
+                                           users: lists[0].members
+                                                          .filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                           text
+                                       })
+                                       .catch(error => console.log(error))
+                                       .then(_ => {
+                                           io.in(`list:${listId}`)
+                                             .except(`user:${ request.session.userId }`)
+                                             .emit("itemAssigneeAdded", listId, text);
+                                           response.json(item);
+                                       });
                                    }
                                    return Promise.resolve();
                                });
@@ -538,7 +545,7 @@ function removeAssignee(request, response) {
     updateItemProperty(
         request,
         response,
-        session =>
+        (session, list) =>
             Item.findOne(
                 { _id: request.params.id, assignees: { $elemMatch: { _id: assigneeId } } },
                 undefined,
@@ -559,13 +566,62 @@ function removeAssignee(request, response) {
                     },
                     { runValidators: true, new: true, session, context: "query" }
                 )
-                .exec();
+                .exec()
+                .then(item => {
+                    if (item === null) {
+                        sendError(response, Error.ResourceNotFound);
+                    } else {
+                        const listId = list._id.toString();
+                        const text = `An assignee was removed from the item "${ item.title }"`;
+                        Notification.create({
+                            users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                            text
+                        })
+                        .catch(error => console.log(error))
+                        .then(_ => {
+                            io.in(`list:${listId}`)
+                              .except(`user:${request.session.userId}`)
+                              .emit("itemAssigneeRemoved", listId, text);
+                            response.json(item);
+                        });
+                    }
+                    return Promise.resolve();
+                })
             })
     );
 }
 
 function deleteItem(request, response) {
-
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    updateItemProperty(
+        request,
+        response,
+        (session, list) =>
+            Item.findByIdAndDelete(request.params.id, { session })
+                .exec()
+                .then(item => {
+                    if (item === null) {
+                        sendError(response, Error.ResourceNotFound);
+                    } else {
+                        const listId = list._id.toString();
+                        const text = `The item "${item.title}" was deleted`;
+                        Notification.create({
+                            users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                            text
+                        })
+                        .catch(error => console.log(error))
+                        .then(_ => {
+                            io.in(`list:${listId}`)
+                              .except(`user:${ request.session.userId }`)
+                              .emit("itemDeleted", listId, text);
+                            response.json(item);
+                        });
+                    }
+                    return Promise.resolve();
+                })
+    );
 }
 
 module.exports = {
