@@ -3,7 +3,7 @@ import {MainMenu} from "../../components/mainMenu/MainMenu";
 import BurgerMenu from "../../components/BurgerMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import {useRef, useState} from "react";
-import CreationHeader from "../../components/creationHeader/CreationHeader";
+import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
 
@@ -39,7 +39,7 @@ function MyLists(props) {
                     isResponsive={false}
                     displayError={displayError}
                 />
-                <CreationHeader
+                <MyListsHeader
                     lists={lists}
                     setLists={setLists}
                 />
@@ -67,7 +67,7 @@ function MyLists(props) {
                         isResponsive={true}
                         displayError={displayError}
                     />
-                    <CreationHeader
+                    <MyListsHeader
                         lists={lists}
                         setLists={setLists}
                     />

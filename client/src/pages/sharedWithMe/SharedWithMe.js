@@ -3,10 +3,10 @@ import {MainMenu} from "../../components/mainMenu/MainMenu";
 import BurgerMenu from "../../components/BurgerMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import {useRef, useState} from "react";
-import CreationHeader from "../../components/creationHeader/CreationHeader";
+import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
-import JoinListHeader from "../../components/JoinListHeader";
+import SharedWithMeHeader from "../../components/SharedWithMeHeader";
 
 function SharedWithMe(props) {
 
@@ -41,7 +41,7 @@ function SharedWithMe(props) {
                     displayError={displayError}
                 />
 
-                <JoinListHeader
+                <SharedWithMeHeader
                 />
 
                 <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />
@@ -68,7 +68,7 @@ function SharedWithMe(props) {
                         isResponsive={true}
                         displayError={displayError}
                     />
-                    <JoinListHeader
+                    <SharedWithMeHeader
                     />
 
                     <Divider className={!lists || lists.length === 0? "hidden" : "m-0 p-0"} />

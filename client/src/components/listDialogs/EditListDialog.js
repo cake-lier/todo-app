@@ -3,20 +3,18 @@ import {Button} from "primereact/button";
 import ListDialog from "./ListDialog";
 import axios from "axios";
 
-export default function EditListDialog({display, setDisplay, lists, setLists, listId, title, joinCode, colorIndex, listMembers}) {
+export default function EditListDialog({display, setDisplay, lists, setLists, listId, title, joinCode, colorIndex}) {
     const [state, setState] = useState("true");
     const [isSubmitting, setSubmitting] = useState("false");
     const [listName, setListName] = useState(title);
     const [isVisible, setVisibility] = useState(joinCode ? true : false)
     const [color, setColor] = useState(colorIndex);
-    const [members, setMembers] = useState(listMembers ? listMembers : []);
 
     useEffect(() => {
         setListName(title);
-        setVisibility(isVisible);
+        setVisibility(joinCode ? true : false);
         setColor(colorIndex);
-        setMembers(listMembers);
-    }, [title, joinCode, colorIndex, listMembers])
+    }, [title, joinCode, colorIndex])
 
     const cancel = () => {
         setSubmitting(false);
@@ -25,7 +23,6 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
         setListName(title);
         setVisibility(joinCode ? true : false);
         setColor(colorIndex);
-        setMembers(listMembers);
     }
 
     const renderFooter = () => {
@@ -84,23 +81,6 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
                     //TODO
                 }
             )
-
-            if (!isVisible) {
-                members.filter(m => m.role === "member").forEach(m => {
-                        axios.delete(
-                            "/lists/" + listId + "/members/" + m.userId
-                        ).then(
-                            list => {
-                                updateLists(list);
-                                setMembers(list.members);
-                            },
-                            error => {
-                                //TODO
-                            }
-                        )
-                    }
-                )
-            }
         }
     }
 
@@ -141,7 +121,6 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
             setColor={setColor}
             isVisible={isVisible}
             setVisibility={setVisibility}
-            members={members}
         />
     );
 }

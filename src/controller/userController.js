@@ -96,6 +96,28 @@ function getUser(request, response) {
         );
 }
 
+function getProfilePicture(request, response) {
+    if (!validation.validateRequest(request, response, [], [], true)) {
+        return;
+    }
+    User.findById(request.params.id)
+        .select('username profilePicturePath')
+        .exec()
+        .then(
+            user => {
+                if (user === null) {
+                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    return;
+                }
+                response.json(user)
+            },
+            error => {
+                console.log(error);
+                validation.sendError(response, validation.Error.GeneralError);
+            }
+        )
+}
+
 function updateUsername(request, response) {
     if (!validation.validateRequest(request, response, ["username"], [], true)) {
         return;
@@ -335,6 +357,7 @@ function logout(request, response) {
 module.exports = {
     signup,
     getUser,
+    getProfilePicture,
     updateUsername,
     updatePassword,
     updateProfilePicture,

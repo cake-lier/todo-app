@@ -1,9 +1,9 @@
 import { Button } from 'primereact/button';
-import "./CreationHeader.scss";
+import "./MyListsHeader.scss";
 import {useState} from "react";
 import CreateListDialog from "../listDialogs/CreateListDialog";
 
-function CreationHeader({lists, setLists}) {
+function MyListsHeader({lists, setLists}) {
 
     const [display, setDisplay] = useState(false);
 
@@ -33,4 +33,4 @@ function CreationHeader({lists, setLists}) {
     );
 }
 
-export default CreationHeader;
+export default MyListsHeader;

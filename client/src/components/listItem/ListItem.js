@@ -4,9 +4,10 @@ import { DataView} from 'primereact/dataview';
 import axios from "axios";
 import "./ListItem.scss";
 import {Dialog} from "primereact/dialog";
-import JoinCodeMessage from "../JoinCodeMessage";
+import JoinCodeMessage from "../listDialogs/JoinCodeMessage";
 import EditListDialog from "../listDialogs/EditListDialog";
 import {TieredMenu} from "primereact/tieredmenu";
+import MembersDialog from "../listDialogs/MembersDialog";
 
 export default function ListItem({lists, setLists, ownership= true}) {
 
@@ -14,6 +15,7 @@ export default function ListItem({lists, setLists, ownership= true}) {
     const [list, setList] = useState();
     const [displayJoinCodeDialog, setDisplayJoinCodeDialog] = useState(false);
     const [displayEditDialog, setDisplayEditDialog] = useState(false);
+    const [displayMembersDialog, setDisplayMemberDialog] = useState(false);
     const listColor = ["red-list", "purple-list", "blue-list", "green-list", "yellow-list"];
 
     const openEditDialog = () => {
@@ -22,6 +24,10 @@ export default function ListItem({lists, setLists, ownership= true}) {
 
     const openShareDialog = () => {
         setDisplayJoinCodeDialog(true);
+    }
+
+    const openMembersDialog = () => {
+        setDisplayMemberDialog(true);
     }
 
     const deleteList = () => {
@@ -42,18 +48,17 @@ export default function ListItem({lists, setLists, ownership= true}) {
     }
     const items = [
         {label: "Edit", icon: PrimeIcons.PENCIL, command: openEditDialog},
-        {label: "Share", icon: PrimeIcons.USER_PLUS, command: openShareDialog},
+        {label: "Modify members", icon: PrimeIcons.USER_EDIT, command: openMembersDialog},
+        {label: "Share", icon: PrimeIcons.USER_PLUS, className: (list?.joinCode ? null :"hidden"), command: openShareDialog},
         {label: "Delete", icon: PrimeIcons.TRASH, command: deleteList}
     ]
 
     useEffect(() => {
-
         axios.get(
             ownership? "/lists" : "/lists/shared"
         ).then(
             lists => {
                 setLists(lists.data);
-                console.log(lists.data);
             },
             error => {
                 //TODO
@@ -72,7 +77,7 @@ export default function ListItem({lists, setLists, ownership= true}) {
             setList(list);
         }
         return (
-            <div className="col-12 m-0 p-0 flex flex-row align-items-center list-item" key={data._id}>
+            <div className="col-12 m-0 p-0 flex flex-row align-items-center list-item">
                 <div className="col-6 flex align-items-center" id="list-icon">
                     <i className={"pi pi-circle-fill " + (listColor[data.colorIndex])}></i>
                     <i className="pi pi-list ml-2"></i>
@@ -114,7 +119,13 @@ export default function ListItem({lists, setLists, ownership= true}) {
                 title={list?.title}
                 joinCode={list?.joinCode}
                 colorIndex={list?.colorIndex}
-                listMembers={list?.members}
+            />
+
+            <MembersDialog
+                display={displayMembersDialog}
+                setDisplay={setDisplayMemberDialog}
+                members={list?.members}
+                ownership
             />
             <DataView
                 value={lists}
