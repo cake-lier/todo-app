@@ -18,14 +18,16 @@ export function List(props) {
     const [itemName, setItemName] = useState('');
     const [itemNum, setItemNum] = useState(1);
     const onNewItem = () => {
-        setDisplayDialog(true);
+        console.log("onNewItem; name: " + itemName + "; itemNum: " + itemNum);
+        setDisplayDialog(false);
+        // TODO: axios post after list creation
     }
 
     const [displayDialog, setDisplayDialog] = useState(false);
     const renderFooter = () => {
         return (
             <div  className="flex justify-content-center">
-                <Button label='Create' onClick={() => {setDisplayDialog(false)}}/>
+                <Button label='Create' onClick={onNewItem}/>
             </div>
         )
     }
@@ -34,7 +36,7 @@ export function List(props) {
         <>
         <div>
             <h2 className="font-medium text-3xl text-900">{listName}</h2>
-            <Button label="New Task" icon="pi pi-plus" onClick={onNewItem}/>
+            <Button label="New Task" icon="pi pi-plus" onClick={ () => setDisplayDialog(true)}/>
             {
                 items.map((item) => {
                     return( <Item item={item} />)
