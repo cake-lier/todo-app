@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import {Navigate, Route, Routes, useParams} from "react-router-dom";
 import { Dialog } from "primereact/dialog";
 import axios from "axios";
 import Home from "../pages/home/Home";
@@ -8,6 +8,7 @@ import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import MyLists from "../pages/myLists/MyLists";
 import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
+import List from "../pages/list/List";
 
 class App extends Component {
 
@@ -78,7 +79,7 @@ class App extends Component {
                         }
                     />
                     <Route
-                        path="/my-lists"
+                        exact path="/my-lists"
                         element={
                             this.state.user !== null
                             ? <MyLists user={ this.state. user } unsetUser={ this.unsetUser } />
@@ -86,11 +87,19 @@ class App extends Component {
                         }
                     />
                     <Route
-                        path="/shared-with-me"
+                        exact path="/shared-with-me"
                         element={
                             this.state.user !== null
                             ? <SharedWithMe user={this.state.user} unsetUser={this.unsetUser }/>
                             : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/my-lists/:id"
+                        element={
+                            this.state.user !== null
+                            ? <List user={this.state.user} unsetUser={ this.unsetUser }/>
+                            : <Navigate to="/"/>
                         }
                     />
                 </Routes>

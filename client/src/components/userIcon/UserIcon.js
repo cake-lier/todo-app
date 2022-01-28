@@ -33,7 +33,7 @@ export function UserIcon(props) {
                 id="profilePicture"
                 src={
                     props.user.profilePicturePath === null
-                    ? "images/default_profile_picture.jpg"
+                    ? "/images/default_profile_picture.jpg"
                     : props.user.profilePicturePath
                 }
                 onClick={ e => menu.current.toggle(e) }

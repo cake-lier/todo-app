@@ -1,4 +1,5 @@
-import {useEffect, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { PrimeIcons } from 'primereact/api';
 import { DataView} from 'primereact/dataview';
 import axios from "axios";
@@ -74,7 +75,6 @@ export default function ListItem({lists, setLists, userId, ownership= true}) {
         ).then(
             lists => {
                 setLists(lists.data);
-                console.log(lists.data)
             },
             error => {
                 //TODO
@@ -86,6 +86,10 @@ export default function ListItem({lists, setLists, userId, ownership= true}) {
         setList(list)
     }, [list]);
 
+    const navigate = useNavigate();
+    const onTitleClick = useCallback(
+            (id) => navigate(`/my-lists/${id}`), [navigate])
+
     const renderListItem = (data) => {
 
         const handleClick = (e, list) => {
@@ -94,12 +98,12 @@ export default function ListItem({lists, setLists, userId, ownership= true}) {
         }
         return (
             <div className="col-12 m-0 p-0 flex flex-row align-items-center list-item">
-                <div className="col-6 flex align-items-center" id="list-icon">
+                <div className="col-11 flex align-items-center" id="list-icon">
                     <i className={"pi pi-circle-fill " + (listColor[data.colorIndex])}></i>
                     <i className="pi pi-list ml-2"></i>
-                    <h1 className="ml-2">{data.title}</h1>
+                    <h1 className="ml-2 cursor-pointer" onClick={() => onTitleClick(data._id)}>{data.title}</h1>
                 </div>
-                <div className="col-6 flex flex-row-reverse align-items-center">
+                <div className="col-1 flex flex-row-reverse align-items-center">
                     <i className="pi pi-ellipsis-h mr-2" onClick={(e) => handleClick(e, data)}></i>
                 </div>
             </div>
