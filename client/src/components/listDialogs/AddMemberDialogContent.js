@@ -1,13 +1,24 @@
 import {InputText} from "primereact/inputtext";
 import {useState} from "react";
 import {Button} from "primereact/button";
+import axios from "axios";
 
-export default function AddMemberDialogContent(){
+export default function AddMemberDialogContent({listId, setDisplay, lists, setLists, membersProfile, setMembersProfile}){
 
     const [email, setEmail] = useState("");
 
     const joinListHandler = () => {
+        //TODO
         console.log("JOINED! :D")
+        axios.post(
+            /lists/ + listId + "/members",
+            {userId: email}
+        ).then( r => {
+            setDisplay(false)
+            const newList = lists.filter(l => l._id !== listId)
+            setLists([...newList, r.data])
+            //setMembersProfile([...membersProfile, r.data.members[r.data.members.length-1]])
+        })
     }
 
     return(

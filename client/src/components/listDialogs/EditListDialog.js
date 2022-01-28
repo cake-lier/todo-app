@@ -3,7 +3,7 @@ import {Button} from "primereact/button";
 import ListDialog from "./ListDialog";
 import axios from "axios";
 
-export default function EditListDialog({display, setDisplay, lists, setLists, listId, title, joinCode, colorIndex}) {
+export default function EditListDialog({display, setDisplay, lists, setLists, listId, title, joinCode, colorIndex, ownership=true}) {
     const [state, setState] = useState("true");
     const [isSubmitting, setSubmitting] = useState("false");
     const [listName, setListName] = useState(title);
@@ -121,6 +121,7 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
             setColor={setColor}
             isVisible={isVisible}
             setVisibility={setVisibility}
+            ownership={ownership}
         />
     );
 }

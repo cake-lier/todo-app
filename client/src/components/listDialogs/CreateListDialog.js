@@ -81,6 +81,7 @@ export default function CreateListDialog({display, setDisplay, lists, setLists, 
             setColor={setColor}
             isVisible={isVisible}
             setVisibility={setVisibility}
+            ownership
         />
     );
 }

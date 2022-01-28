@@ -59,6 +59,7 @@ export default function ListItem({lists, setLists, ownership= true}) {
         ).then(
             lists => {
                 setLists(lists.data);
+                console.log(lists.data)
             },
             error => {
                 //TODO
@@ -98,7 +99,6 @@ export default function ListItem({lists, setLists, ownership= true}) {
         return renderListItem(list);
     }
 
-
     return (
         <div className="card">
             <Dialog className="w-27rem m-3"
@@ -119,13 +119,17 @@ export default function ListItem({lists, setLists, ownership= true}) {
                 title={list?.title}
                 joinCode={list?.joinCode}
                 colorIndex={list?.colorIndex}
+                ownership={ownership}
             />
 
             <MembersDialog
                 display={displayMembersDialog}
                 setDisplay={setDisplayMemberDialog}
+                listId={list?._id}
+                lists={lists}
+                setLists={setLists}
                 members={list?.members}
-                ownership
+                ownership={ownership}
             />
             <DataView
                 value={lists}

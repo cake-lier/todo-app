@@ -2,17 +2,14 @@ import {Dialog} from "primereact/dialog";
 import { DataView} from 'primereact/dataview';
 import { Avatar } from 'primereact/avatar';
 import axios from "axios";
-import {useEffect, useRef, useState} from "react";
-import {TieredMenu} from "primereact/tieredmenu";
-import {PrimeIcons} from "primereact/api";
+import {useEffect, useState} from "react";
 import {Button} from "primereact/button";
 import AddMemberDialogContent from "./AddMemberDialogContent";
 
-export default function MembersDialog({display, setDisplay, members=[], ownership}){
+export default function MembersDialog({display, setDisplay, listId, lists, setLists, members=[], ownership}){
 
-    const menu = useRef(null);
-    const [displayAddMember, setDisplayAddMember] = useState(false);
-    const [membersProfile, setMemberProfile] = useState([]);
+    const [displayAddMember, setDisplayAddMember] = useState();
+    const [membersProfile, setMembersProfile] = useState([]);
 
     useEffect(() => {
         let array = [];
@@ -20,8 +17,8 @@ export default function MembersDialog({display, setDisplay, members=[], ownershi
             axios.get("/lists/member/" + m.userId)
                 .then(
                     result => {
-                        array = [...array, {...result.data, role: m.role}]
-                        setMemberProfile(array)
+                        array = [...array, {...result.data, role: m.role, memberId: m._id}]
+                        setMembersProfile(array)
                     },
                     error => {
 
@@ -29,8 +26,19 @@ export default function MembersDialog({display, setDisplay, members=[], ownershi
             })
     }, [members]);
 
-    const removeMember = (e, item) => {
-        console.log(item._id)
+    const removeMember = (item) => {
+        //TODO
+        console.log(item.memberId)
+        axios.delete(
+            "/lists/" + listId + "/members/" + item.memberId
+        ).then(
+            r => {
+                const newMembers = membersProfile.filter(m => m.memberId !== item.memberId)
+                setMembersProfile(newMembers)
+                const newList = lists.filter(l => l._id !== listId)
+                setLists([...newList, r.data])
+            }
+        )
     }
 
     const renderHeader = () => {
@@ -67,15 +75,13 @@ export default function MembersDialog({display, setDisplay, members=[], ownershi
                 <div className={"col-2 flex justify-content-end"}>
                     <h1 className={(item.role === "owner") ? null : "hidden"}>Admin</h1>
                     <i
-                        className={"pi pi-times mr-1 " }
-                        onClick={(e) => removeMember(e, item)}>
+                        className={"pi pi-times mr-1 " + (item.role !== "owner" && ownership ? null : "hidden")}
+                        onClick={() => removeMember(item)}>
                     </i>
                 </div>
             </div>
         );
     }
-
-    // + (item.role !== "owner" && ownership ? null : "hidden")
 
     return (
         <Dialog className="w-27rem m-3" visible={display} header={renderHeader()} onHide={() => setDisplay(false)}>
@@ -84,7 +90,14 @@ export default function MembersDialog({display, setDisplay, members=[], ownershi
                     header="Add a member"
                     visible={displayAddMember}
                     onHide={() => setDisplayAddMember(false)}>
-                <AddMemberDialogContent/>
+                <AddMemberDialogContent
+                    listId={listId}
+                    setDisplay={setDisplayAddMember}
+                    lists={lists}
+                    setLists={setLists}
+                    membersProfile={membersProfile}
+                    setMembersProfile={setMembersProfile}
+                />
             </Dialog>
 
             <DataView
