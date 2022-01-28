@@ -3,7 +3,6 @@ import {MainMenu} from "../../components/mainMenu/MainMenu";
 import BurgerMenu from "../../components/BurgerMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import {useRef, useState} from "react";
-import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
 import SharedWithMeHeader from "../../components/SharedWithMeHeader";
@@ -49,6 +48,7 @@ function SharedWithMe(props) {
                 <ListItem
                     lists={lists}
                     setLists={setLists}
+                    userId={props.user._id}
                     ownership={false}
                 />
             </div>
@@ -76,6 +76,7 @@ function SharedWithMe(props) {
                     <ListItem
                         lists={lists}
                         setLists={setLists}
+                        userId={props.user._id}
                         ownership={false}
                     />
                 </div>

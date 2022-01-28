@@ -35,8 +35,10 @@ export default function MembersDialog({display, setDisplay, listId, lists, setLi
             r => {
                 const newMembers = membersProfile.filter(m => m.memberId !== item.memberId)
                 setMembersProfile(newMembers)
-                const newList = lists.filter(l => l._id !== listId)
-                setLists([...newList, r.data])
+                const oldListIdx = lists.indexOf(lists.filter(l => l._id === listId)[0])
+                let newLists = lists
+                newLists[oldListIdx] = r.data
+                setLists(newLists)
             }
         )
     }

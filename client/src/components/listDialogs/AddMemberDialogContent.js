@@ -15,8 +15,10 @@ export default function AddMemberDialogContent({listId, setDisplay, lists, setLi
             {userId: email}
         ).then( r => {
             setDisplay(false)
-            const newList = lists.filter(l => l._id !== listId)
-            setLists([...newList, r.data])
+            const oldListIdx = lists.indexOf(lists.filter(l => l._id === listId)[0])
+            let newLists = lists
+            newLists[oldListIdx] = r.data
+            setLists(newLists)
             //setMembersProfile([...membersProfile, r.data.members[r.data.members.length-1]])
         })
     }

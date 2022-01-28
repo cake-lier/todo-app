@@ -9,7 +9,7 @@ import EditListDialog from "../listDialogs/EditListDialog";
 import {TieredMenu} from "primereact/tieredmenu";
 import MembersDialog from "../listDialogs/MembersDialog";
 
-export default function ListItem({lists, setLists, ownership= true}) {
+export default function ListItem({lists, setLists, userId, ownership= true}) {
 
     const menu = useRef(null);
     const [list, setList] = useState();
@@ -38,8 +38,6 @@ export default function ListItem({lists, setLists, ownership= true}) {
                 const newLists = lists.filter((l) => l._id !== list._id)
                 setLists(newLists);
                 menu.current.toggle();
-                console.log("DELETE");
-                console.log(newLists);
             },
             error => {
                 // TODO
@@ -48,7 +46,18 @@ export default function ListItem({lists, setLists, ownership= true}) {
     }
 
     const leaveList = () => {
-
+        const member = list?.members.filter(m => m.userId === userId)[0]
+        console.log(member)
+        console.log(member._id)
+        axios.delete(
+            "/lists/" + list?._id + "/members/" + member._id
+        ).then(
+            r => {
+                const newList = lists.filter(l => l._id !== list?._id)
+                setLists(newList)
+                menu.current.toggle();
+            }
+        )
     }
 
     const items = [
