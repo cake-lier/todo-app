@@ -21,6 +21,12 @@
   align-content: center !important;
 }
 
+.red-color {
+  & .p-menuitem-icon, .p-menuitem-text {
+    color: $primary-color !important;
+  }
+}
+
 .green-list {
   color: $pastel-green !important;
 }

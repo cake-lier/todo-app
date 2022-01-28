@@ -46,11 +46,17 @@ export default function ListItem({lists, setLists, ownership= true}) {
             }
         )
     }
+
+    const leaveList = () => {
+
+    }
+
     const items = [
         {label: "Edit", icon: PrimeIcons.PENCIL, command: openEditDialog},
-        {label: "Modify members", icon: PrimeIcons.USER_EDIT, command: openMembersDialog},
+        {label: (ownership ? "Modify members" : "Show members"), icon: PrimeIcons.USER_EDIT, command: openMembersDialog},
         {label: "Share", icon: PrimeIcons.USER_PLUS, className: (list?.joinCode ? null :"hidden"), command: openShareDialog},
-        {label: "Delete", icon: PrimeIcons.TRASH, command: deleteList}
+        {label: "Delete", icon: PrimeIcons.TRASH, className:"red-color " + (ownership? null: "hidden"),command: deleteList},
+        {label: "Leave list", icon: PrimeIcons.SIGN_OUT, className:"red-color " + (ownership? "hidden": null),command: leaveList}
     ]
 
     useEffect(() => {
