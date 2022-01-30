@@ -58,6 +58,7 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
             color: $primary-color;
         }
     }
+    position: static !important;
 }
 
 .p-inputtext:enabled:focus {
@@ -115,4 +116,9 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
 .grid {
     margin: 0;
+}
+
+.black-overlay {
+    background-color: black;
+    opacity: 50%;
 }

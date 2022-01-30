@@ -55,13 +55,18 @@ function MyLists(props) {
             </div>
 
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
+
                 <div className="col-1 p-0 h-full absolute justify-content-center">
                     <div className="h-full w-full" ref={node} style={divStyle}>
                         <BurgerMenu open={open} setOpen={setOpen} />
                         <MainMenu selected={ "My day" } open={open}/>
                     </div>
                 </div>
-                <div id="myListsContainer-mobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex">
+                <div id="myListsContainer-mobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                     style={{backgroundColor: "white"}}>
+                    <div
+                        className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")}
+                    />
                     <PageHeader
                         props={props}
                         title="My Lists"
