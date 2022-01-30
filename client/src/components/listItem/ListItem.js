@@ -119,7 +119,7 @@ export default function ListItem({lists, setLists, userId, ownership= true}) {
     }
 
     return (
-        <div className="card">
+        <div className="card flex flex-grow-1 justify-content-center align-items-center">
             <Dialog className="w-27rem m-3"
                     header="Join code"
                     visible={displayJoinCodeDialog}

@@ -8,17 +8,19 @@
   position: absolute;
 }
 
+
 .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
   border: none !important;
 }
-.p-dataview .p-dataview-content {
-  padding: 0 !important;
+
+#myListsContainer-mobile {
+  & .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
+    padding-top: 35vh;
+  }
 }
 
-.p-grid p-nogutter grid grid-nogutter {
-  justify-content: center !important;
-  align-items: center !important;
-  align-content: center !important;
+.p-dataview .p-dataview-content {
+  padding: 0 !important;
 }
 
 .red-color {

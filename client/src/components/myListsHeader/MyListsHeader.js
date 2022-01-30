@@ -8,7 +8,7 @@ function MyListsHeader({lists, setLists}) {
     const [display, setDisplay] = useState(false);
 
     return (
-        <div className="grid pb-5">
+        <div className="grid pb-4">
             <CreateListDialog
                 display={display}
                 setDisplay={setDisplay}

@@ -6,6 +6,7 @@ import {useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
+import {useOnClickOutside} from "../../components/ClickOutsideHook";
 
 function MyLists(props) {
 
@@ -16,6 +17,7 @@ function MyLists(props) {
     const [open, setOpen] = useState(false);
     const [lists, setLists] = useState([]);
     const node = useRef();
+    useOnClickOutside(node, () => setOpen(false));
 
     const divStyle = {
         zIndex: "10",
@@ -31,7 +33,7 @@ function MyLists(props) {
                 <MainMenu selected={ "My day" } open={true}/>
             </div>
 
-            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 flex-grow-1 hidden md:block">
+            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex">
                 <PageHeader
                     props={props}
                     title="My Lists"
@@ -59,7 +61,7 @@ function MyLists(props) {
                         <MainMenu selected={ "My day" } open={open}/>
                     </div>
                 </div>
-                <div id="myListsContainer" className="mx-0 p-0 w-full md:block">
+                <div id="myListsContainer-mobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex">
                     <PageHeader
                         props={props}
                         title="My Lists"
