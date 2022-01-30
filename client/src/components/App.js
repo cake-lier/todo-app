@@ -18,12 +18,14 @@ class App extends Component {
         super(props);
         this.state = {
             user: null,
+            notifications: [],
             displayError: false,
             ready: false,
             socket: null
         };
         this.setUser = this.setUser.bind(this);
         this.unsetUser = this.unsetUser.bind(this);
+        this.setNotifications = this.setNotifications.bind(this);
     }
 
     setUser(user) {
@@ -34,10 +36,26 @@ class App extends Component {
         if (this.state.socket !== null) {
             this.state.socket.disconnect();
         }
-        this.setState({
-            user: null,
-            socket: io()
-        });
+        const socket = io();
+        socket.on("connect", () =>
+            axios.post(
+                "/socket",
+                {
+                    socketId: socket.id
+                }
+            )
+            .then(
+                _ => this.setState({
+                    user: null,
+                    socket
+                }),
+                _ => this.setState({ displayError: true })
+            )
+        );
+    }
+
+    setNotifications(notifications) {
+        this.setState({ notifications });
     }
 
     componentDidMount() {
@@ -49,30 +67,37 @@ class App extends Component {
                     socketId: socket.id
                 }
             )
-            .catch(error => this.setState({ displayError: error.response.data.error }))
             .then(_ => axios.get("/users/me"))
-            .then(
-                response => {
-                    this.setState({
-                        user: response.data,
-                        ready: true
-                    });
-                },
-                error => this.setState({
-                    displayError: error.response.data.error !== 3,
-                    ready: true
-                })
-            )
-        );
-        socket.on("joinRequest", (listTitle, socketId, username, completionCallback) => {
-            //TODO: insert dialog here for completionCallback(true, listId) or completionCallback(false, null)
-            //TODO: request should include (isAnonymous = true, socketId, username)
-        });
-        this.setState({ socket });
+            .then(userResponse => {
+                const user = userResponse.data;
+                axios.get("/users/me/notifications")
+                     .then(
+                         notificationsResponse => this.setState({
+                             socket,
+                             user,
+                             notifications: notificationsResponse.data,
+                             ready: true
+                         }),
+                         _ => this.setState({
+                             socket,
+                             user,
+                             displayError: true,
+                             ready: true
+                         })
+                     );
+            })
+            .catch(error => this.setState({
+                socket,
+                displayError: error.response.data.error !== 3,
+                ready: true
+            })
+        ));
     }
 
     componentWillUnmount() {
-        this.state.socket.disconnect();
+        if (this.state.socket !== null) {
+            this.state.socket.disconnect();
+        }
     }
 
     render() {
@@ -101,10 +126,20 @@ class App extends Component {
                         element={ this.state.user === null ? <Signup setUser={ this.setUser } /> : <Navigate to="/my-day" /> }
                     />
                     <Route
+                        path="/join"
+                        element={ this.state.user === null ? <Join socket={ this.state.socket } /> : <Navigate to="/my-day" /> }
+                    />
+                    <Route
                         path="/my-day"
                         element={
                             this.state.user !== null
-                            ? <MyDay user={ this.state.user } unsetUser={ this.unsetUser } />
+                            ? <MyDay
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                                />
                             : <Navigate to="/" />
                         }
                     />
@@ -117,6 +152,9 @@ class App extends Component {
                                     user={ this.state.user }
                                     unsetUser={ this.unsetUser }
                                     setUser={ this.setUser }
+                                    notifications={ this.state.notifications }
+                                    setNotifications={ this.setNotifications }
+                                    socket={ this.state.socket }
                                     tab="account"
                               />
                             : <Navigate to="/" />
@@ -126,7 +164,13 @@ class App extends Component {
                         path="/settings/password"
                         element={
                             this.state.user !== null
-                            ? <Settings user={ this.state.user } tab="password" />
+                            ? <Settings
+                                  user={ this.state.user }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                                  tab="password"
+                              />
                             : <Navigate to="/" />
                         }
                     />
@@ -134,7 +178,14 @@ class App extends Component {
                         path="/settings/notifications"
                         element={
                             this.state.user !== null
-                            ? <Settings user={ this.state.user } setUser={ this.setUser } tab="notifications" />
+                            ? <Settings
+                                  user={ this.state.user }
+                                  setUser={ this.setUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                                  tab="notifications"
+                              />
                             : <Navigate to="/" />
                         }
                     />
@@ -142,13 +193,15 @@ class App extends Component {
                         path="/calendar"
                         element={
                             this.state.user !== null
-                                ? <Calendar user={ this.state.user } unsetUser={ this.unsetUser } />
-                                : <Navigate to="/" />
+                            ? <Calendar
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                              />
+                            : <Navigate to="/" />
                         }
-                    />
-                    <Route
-                        path="/join"
-                        element={ this.state.user === null ? <Join /> : <Navigate to="/my-day" /> }
                     />
                     <Route  // for testing
                         path="/list"

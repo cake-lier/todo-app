@@ -3,6 +3,7 @@ import { useCallback, useRef } from "react";
 import { Menu } from 'primereact/menu';
 import { PrimeIcons } from "primereact/api";
 import { useNavigate } from "react-router-dom";
+import { Avatar } from 'primereact/avatar';
 import "./UserIcon.scss";
 
 export function UserIcon(props) {
@@ -29,15 +30,11 @@ export function UserIcon(props) {
     return (
         <>
             <Menu id="profilePictureMenu" model={ items } popup ref={ menu } />
-            <img
-                id="profilePicture"
-                src={
-                    props.user.profilePicturePath === null
-                    ? "images/default_profile_picture.jpg"
-                    : props.user.profilePicturePath
-                }
+            <Avatar
+                image={ props.user.profilePicturePath !== null ? props.user.profilePicturePath : "" }
+                icon={ props.user.profilePicturePath === null ? "pi pi-user" : "" }
                 onClick={ e => menu.current.toggle(e) }
-                alt="Profile avatar"
+                shape="circle"
                 className="w-4rem h-4rem"
             />
         </>

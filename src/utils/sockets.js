@@ -14,19 +14,32 @@ function setupSockets(server) {
                             completionCallback({ success: false });
                         } else {
                             const listId = list._id.toString();
-                            io.in(`list:${ listId }:owner`).emit("joinRequest", list.title, socket.id, username, isApproved => {
-                                if (isApproved) {
-                                    completionCallback({
-                                        success: true,
-                                        listId
-                                    });
-                                    return;
-                                }
-                                completionCallback({
-                                    success: true,
-                                    listId: null
-                                });
-                            });
+                            io.in(`list:${ listId }:owner`)
+                              .fetchSockets()
+                              .then(sockets => {
+                                  if (sockets.length === 0) {
+                                      completionCallback({
+                                          success: true,
+                                          listId: null
+                                      });
+                                      return;
+                                  }
+                                  sockets.forEach(
+                                      socket => socket.emit("joinRequest", list.title, socket.id, username, result => {
+                                          if (result.isApproved) {
+                                              completionCallback({
+                                                  success: true,
+                                                  listId
+                                              });
+                                              return;
+                                          }
+                                          completionCallback({
+                                              success: true,
+                                              listId: null
+                                          });
+                                      })
+                                  )
+                              });
                         }
                     },
                     error => {

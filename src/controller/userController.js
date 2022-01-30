@@ -431,7 +431,7 @@ function login(request, response) {
                                      }
                                      const userId = user._id.toString();
                                      request.session.userId = userId;
-                                     io.in(request.session.socketId).join(`user:${ userId }`);
+                                     io.in(request.session.socketId).socketsJoin(`user:${ userId }`);
                                      return List.find(
                                          { members: { $elemMatch: { userId } } },
                                          undefined,
@@ -440,13 +440,13 @@ function login(request, response) {
                                      .exec()
                                      .then(lists => {
                                          lists.forEach(l => {
-                                             io.in(request.session.socketId).join(`list:${ l._id.toString() }`);
+                                             io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }`);
                                              if (
                                                  l.members
                                                   .filter(m => m.userId.toString() === userId)
                                                   .every(m => m.role === "owner")
                                              ) {
-                                                 io.in(request.session.socketId).join(`list:${ l._id.toString() }:owner`);
+                                                 io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }:owner`);
                                              }
                                          });
                                          response.json(createUserObject(user));

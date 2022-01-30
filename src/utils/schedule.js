@@ -46,7 +46,7 @@ function scheduleForDate(listId, itemId, date) {
 }
 
 function scheduleNextReminder(listId, itemId, recurrenceRuleString) {
-    const nextRecurrence = rrulestr(recurrenceRuleString).after(Date.now());
+    const nextRecurrence = rrulestr(recurrenceRuleString).after(new Date());
     if (nextRecurrence) {
         jobs[itemId] = schedule.scheduleJob(nextRecurrence, () => {
             List.findById(listId)
@@ -61,8 +61,8 @@ function scheduleNextReminder(listId, itemId, recurrenceRuleString) {
                                         users: list.members.filter(m => m.userId !== null),
                                         title: item.title
                                     })
-                                        .catch(error => console.log(error))
-                                        .then(_ => io.in(`list:${ listId }`).emit("reminder", item.title));
+                                    .catch(error => console.log(error))
+                                    .then(_ => io.in(`list:${ listId }`).emit("reminder", item.title));
                                     scheduleNextReminder(listId, itemId, recurrenceRuleString);
                                 }
                             })

@@ -4,6 +4,7 @@ import { FileUpload } from "primereact/fileupload";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { useRef, useState } from "react";
+import {Avatar} from "primereact/avatar";
 
 export function ChangeAccountDataForm(props) {
     const [profilePicture, setProfilePicture] = useState(props.user.profilePicturePath);
@@ -80,11 +81,10 @@ export function ChangeAccountDataForm(props) {
                     <h2 className="font-bold text-lg">Update your account data</h2>
                 </div>
                 <div className="col-5 md:col-4 mt-3 flex justify-content-center">
-                    <img
-                        id="chosenProfilePicture"
+                    <Avatar
+                        image={ profilePicture }
+                        shape="circle"
                         className="w-6rem h-6rem"
-                        src={ profilePicture }
-                        alt="Chosen profile avatar"
                     />
                 </div>
                 <div className="col-7 md:col-8">

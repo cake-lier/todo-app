@@ -69,7 +69,7 @@ class LoginForm extends Component {
                             />
                             <label htmlFor="email" className={ this.state.loginFailed ? "p-error" : "" }>E-mail</label>
                         </span>
-                            <span className="p-float-label mt-2">
+                        <span className="p-float-label mt-2">
                             <Password
                                 id="password"
                                 name="password"
