@@ -62,9 +62,7 @@ function deleteList(request, response) {
                                })
                                .catch(error => console.log(error))
                                .then(_ => {
-                                   io.in(`list:${ listId }`)
-                                     .except(`user:${ request.session.userId }`)
-                                     .emit("listDeleted", listId, text);
+                                   io.in(`list:${ listId }`).emit("listDeleted", listId, text);
                                    io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
                                    io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
                                    response.send({});
@@ -203,9 +201,7 @@ function updateTitle(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("listTitleChanged", listId, text);
+                io.in(`list:${ listId }`).emit("listTitleChanged", listId, text);
                 const updatedList = JSON.parse(JSON.stringify(list));
                 updatedList.title = request.body.title;
                 response.json(updatedList);
@@ -234,9 +230,7 @@ function updateVisibility(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("listVisibilityChanged", listId, text);
+                io.in(`list:${ listId }`).emit("listVisibilityChanged", listId, text);
                 response.json(list);
             });
         }
@@ -297,9 +291,7 @@ function addMember(request, response) {
                                 })
                                 .catch(error => console.log(error))
                                 .then(_ => {
-                                    io.in(`list:${ listId }`)
-                                      .except(`user:${ request.session.userId }`)
-                                      .emit("listMemberAdded", listId, text);
+                                    io.in(`list:${ listId }`).emit("listMemberAdded", listId, text);
                                     response.json(list);
                                 });
                             }
@@ -332,9 +324,7 @@ function addMember(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("listMemberAdded", listId, text);
+                io.in(`list:${ listId }`).emit("listMemberAdded", listId, text);
                 io.in(request.body.socketId).socketsJoin(`list:${ list._id.toString() }`);
                 response.json(list);
             });
@@ -405,9 +395,7 @@ function removeMember(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("listMemberRemoved", listId, text);
+                io.in(`list:${ listId }`).emit("listMemberRemoved", listId, text);
                 const updatedList = JSON.parse(JSON.stringify(list));
                 updatedList.members.splice(memberIndex, 1);
                 response.json(updatedList);

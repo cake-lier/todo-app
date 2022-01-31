@@ -51,9 +51,7 @@ function createItem(request, response) {
                     })
                     .catch(error => console.log(error))
                     .then(_ => {
-                        io.in(`list:${ listId }`)
-                          .except(`user:${ request.session.userId }`)
-                          .emit("itemCreated", listId, text);
+                        io.in(`list:${ listId }`).emit("itemCreated", listId, text);
                         response.json(item);
                     });
                 });
@@ -70,7 +68,7 @@ function getUserItems(request, response) {
         return;
     }
     List.aggregate([
-        { $match: { members: { $elemMatch: { userId: request.session.userId } } } },
+        { $match: { members: { $elemMatch: { userId: mongoose.Types.ObjectId(request.session.userId) } } } },
         { $lookup: { from: "items", localField: "_id", foreignField: "listId", as: "items" } },
         { $unwind: "$items" },
         { $replaceRoot: { newRoot: "$items" } }
@@ -131,7 +129,10 @@ function updateItemProperty(request, response, onSuccess) {
                     {
                         $match: {
                             members: {
-                                $elemMatch: userId !== undefined ? { userId } : { anonymousId: request.body.anonymousId }
+                                $elemMatch:
+                                    userId !== undefined
+                                    ? { userId: mongoose.Types.ObjectId(userId) }
+                                    : { anonymousId: request.body.anonymousId }
                             }
                         }
                     }
@@ -140,7 +141,7 @@ function updateItemProperty(request, response, onSuccess) {
             )
             .exec()
             .then(lists => {
-                if (lists === []) {
+                if (lists.length === 0) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
@@ -192,9 +193,7 @@ function updateTitle(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("itemTitleChanged", listId, text);
+                io.in(`list:${ listId }`).emit("itemTitleChanged", listId, text);
                 const updatedItem = JSON.parse(JSON.stringify(item));
                 updatedItem.title = request.body.title;
                 response.json(updatedItem);
@@ -221,9 +220,7 @@ function updateText(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("itemTextChanged", listId, text);
+                io.in(`list:${ listId }`).emit("itemTextChanged", listId, text);
                 response.json(item);
             });
         },
@@ -267,9 +264,7 @@ function updateDate(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`)
-                  .except(`user:${ request.session.userId }`)
-                  .emit("itemDateChanged", listId, text);
+                io.in(`list:${ listId }`).emit("itemDateChanged", listId, text);
                 response.json(item);
             });
         }
@@ -293,9 +288,7 @@ function updateCompletion(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${listId}`)
-                    .except(`user:${request.session.userId}`)
-                    .emit("itemCompletionChanged", listId, text);
+                io.in(`list:${listId}`).emit("itemCompletionChanged", listId, text);
                 response.json(item);
             });
         }
@@ -319,9 +312,7 @@ function addTags(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${listId}`)
-                  .except(`user:${request.session.userId}`)
-                  .emit("itemTagsAdded", listId, text);
+                io.in(`list:${listId}`).emit("itemTagsAdded", listId, text);
                 response.json(item);
             });
         }
@@ -345,9 +336,7 @@ function removeTags(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${listId}`)
-                  .except(`user:${request.session.userId}`)
-                  .emit("itemTagsRemoved", listId, text);
+                io.in(`list:${listId}`).emit("itemTagsRemoved", listId, text);
                 response.json(item);
             });
         }
@@ -392,9 +381,7 @@ function updateCount(request, response) {
                             })
                             .catch(error => console.log(error))
                             .then(_ => {
-                                io.in(`list:${listId}`)
-                                  .except(`user:${request.session.userId}`)
-                                  .emit("itemCountChanged", listId, text);
+                                io.in(`list:${listId}`).emit("itemCountChanged", listId, text);
                                 response.json(item);
                             });
                         }
@@ -444,7 +431,7 @@ function addAssignee(request, response) {
             )
             .exec()
             .then(lists => {
-                if (lists === []) {
+                if (lists.length === 0) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
@@ -482,9 +469,7 @@ function addAssignee(request, response) {
                                        })
                                        .catch(error => console.log(error))
                                        .then(_ => {
-                                           io.in(`list:${listId}`)
-                                             .except(`user:${ request.session.userId }`)
-                                             .emit("itemAssigneeAdded", listId, text);
+                                           io.in(`list:${listId}`).emit("itemAssigneeAdded", listId, text);
                                            response.json(item);
                                        });
                                    }
@@ -541,9 +526,7 @@ function removeAssignee(request, response) {
                         })
                         .catch(error => console.log(error))
                         .then(_ => {
-                            io.in(`list:${listId}`)
-                              .except(`user:${request.session.userId}`)
-                              .emit("itemAssigneeRemoved", listId, text);
+                            io.in(`list:${listId}`).emit("itemAssigneeRemoved", listId, text);
                             response.json(item);
                         });
                     }
@@ -576,9 +559,7 @@ function deleteItem(request, response) {
                         })
                         .catch(error => console.log(error))
                         .then(_ => {
-                            io.in(`list:${ listId }`)
-                              .except(`user:${ request.session.userId }`)
-                              .emit("itemDeleted", listId, text);
+                            io.in(`list:${ listId }`).emit("itemDeleted", listId, text);
                             response.json(item);
                         });
                     }

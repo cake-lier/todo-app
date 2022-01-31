@@ -138,8 +138,9 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     margin: 0;
 }
 
-.p-avatar {
+.p-avatar img {
     border: 0.15rem solid $text-color;
+    width: auto;
 }
 
 @keyframes ui-progress-spinner-color {

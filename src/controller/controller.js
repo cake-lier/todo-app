@@ -1,5 +1,6 @@
 "use strict";
 
+const List = require("../model/listModel").createListModel();
 const { validateRequest } = require("../utils/validation");
 
 function registerSocket(request, response) {
@@ -7,10 +8,25 @@ function registerSocket(request, response) {
         return;
     }
     request.session.socketId = request.body.socketId;
-    if (request.session.userId !== undefined) {
-        io.in(request.session.socketId).socketsJoin(`user:${ request.session.userId }`);
+    const userId = request.session.userId;
+    if (userId !== undefined) {
+        io.in(request.session.socketId).socketsJoin(`user:${ userId }`);
+        List.find({ members: { $elemMatch: { userId } } })
+            .exec()
+            .then(lists => {
+                lists.forEach(l => {
+                    io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }`);
+                    if (
+                        l.members
+                         .filter(m => m.userId.toString() === userId)
+                         .every(m => m.role === "owner")
+                    ) {
+                        io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }:owner`);
+                    }
+                });
+                response.send({});
+            });
     }
-    response.send({});
 }
 
 module.exports = {

@@ -1,4 +1,4 @@
-import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BurgerMenu from "../../components/BurgerMenu";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
@@ -14,6 +14,7 @@ import axios from "axios";
 import "./Calendar.scss";
 
 export default function Calendar(props) {
+    const { user, unsetUser, socket } = props;
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -27,35 +28,46 @@ export default function Calendar(props) {
         visible: "false"
     }
     const [events, setEvents] = useState([]);
-    useEffect(() => {
+    const updateEvents = useCallback(() => {
         axios.get("/items")
-            .then(
-                items => setEvents(items.data.filter(item => item.dueDate !== null || item.reminderString !== null).map(item => {
-                    if (item.dueDate !== null) {
-                        return {
-                            id: item._id,
-                            allDay: true,
-                            backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
-                            borderColor: item.completionDate === null ? "#E61950" : "#555661",
-                            start: item.dueDate,
-                            title: item.title,
-                            url: "/lists/" + item.listId
-                        };
-                    }
-                    return {
-                        id: item._id,
-                        title: item.title,
-                        allDay: !item.reminderString.includes("FREQ=HOURLY"),
-                        backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
-                        borderColor: item.completionDate === null ? "#E61950" : "#555661",
-                        rrule: item.reminderString,
-                        url: "/lists/" + item.listId
-                    };
-                })),
-                error => displayError(error.response.data.error))
+             .then(
+                 items => setEvents(items.data.filter(item => item.dueDate !== null || item.reminderString !== null).map(item => {
+                     if (item.dueDate !== null) {
+                         return {
+                             id: item._id,
+                             allDay: true,
+                             backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
+                             borderColor: item.completionDate === null ? "#E61950" : "#555661",
+                             start: item.dueDate,
+                             title: item.title,
+                             url: "/lists/" + item.listId
+                         };
+                     }
+                     return {
+                         id: item._id,
+                         title: item.title,
+                         allDay: !item.reminderString.includes("FREQ=HOURLY"),
+                         backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
+                         borderColor: item.completionDate === null ? "#E61950" : "#555661",
+                         rrule: item.reminderString,
+                         url: "/lists/" + item.listId
+                     };
+                 })),
+                 error => displayError(error.response.data.error)
+             )
     }, [displayError]);
-    const mobileCalendar = createRef();
-    const desktopCalendar = createRef();
+    useEffect(updateEvents, [updateEvents]);
+    useEffect(() => {
+        function handleUpdates(event) {
+            if (["itemCreated", "itemTitleChanged", "itemDateChanged", "itemCompletionChanged", "itemDeleted"].includes(event)) {
+                updateEvents();
+            }
+        }
+        socket.onAny(handleUpdates);
+        return () => socket.offAny(handleUpdates)
+    }, [socket, updateEvents]);
+    const mobileCalendar = useRef();
+    const desktopCalendar = useRef();
     const handleDateClick = info => {
         mobileCalendar.current.getApi().changeView("dayGridDay", info.dateStr);
         desktopCalendar.current.getApi().changeView("dayGridDay", info.dateStr);
@@ -63,13 +75,13 @@ export default function Calendar(props) {
     return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
-            <div id="calendarMainMenuContainer" className="mx-0 p-0 hidden md:block">
+            <div id="calendarMainMenuContainer" className="h-screen mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "Calendar" } open={ true } />
             </div>
-            <div id="calendarPageContainer" className="h-screen mx-0 p-0 hidden md:block m-0">
+            <div id="calendarPageContainer" className="h-screen p-0 hidden md:inline-block m-0">
                 <PageHeader
-                    user={ props.user }
-                    unsetUser={ props.unsetUser }
+                    user={ user }
+                    unsetUser={ unsetUser }
                     title="Calendar"
                     isResponsive={ false }
                     displayError={ displayError }
@@ -78,7 +90,7 @@ export default function Calendar(props) {
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>
-                    <div className="col-6 ml-8 mt-3">
+                    <div className="ml-8 col-10 lg:col-8 xl:col-6 mt-3">
                         <FullCalendar
                             plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
                             buttonText={ {
@@ -137,8 +149,8 @@ export default function Calendar(props) {
                 </div>
                 <div id="calendarPageContainer" className="mx-0 p-0 w-full md:block">
                     <PageHeader
-                        user={ props.user }
-                        unsetUser={ props.unsetUser }
+                        user={ user }
+                        unsetUser={ unsetUser }
                         title="Calendar"
                         isResponsive={ true }
                         displayError={ displayError }
