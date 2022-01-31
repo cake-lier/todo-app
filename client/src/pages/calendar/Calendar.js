@@ -78,7 +78,7 @@ export default function Calendar(props) {
             <div id="calendarMainMenuContainer" className="h-screen mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "Calendar" } open={ true } />
             </div>
-            <div id="calendarPageContainer" className="h-screen p-0 hidden md:inline-block m-0">
+            <div id="calendarPageContainer" className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex">
                 <PageHeader
                     user={ user }
                     unsetUser={ unsetUser }
@@ -86,11 +86,11 @@ export default function Calendar(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
-                <div className="grid">
+                <div className="grid overflow-scroll">
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>
-                    <div className="ml-8 col-10 lg:col-8 xl:col-6 mt-3">
+                    <div className="col-6 ml-8 mt-3 flex flex-grow-1">
                         <FullCalendar
                             plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
                             buttonText={ {
