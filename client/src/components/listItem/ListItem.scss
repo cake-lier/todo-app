@@ -1,0 +1,54 @@
+@import "../../colors";
+
+.pi-circle-fill {
+  font-size: xx-large !important;
+}
+
+#list-icon .pi-list {
+  position: absolute;
+}
+
+
+.p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
+  border: none !important;
+}
+
+#myListsContainer-mobile {
+  & .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
+    padding-top: 35vh;
+  }
+}
+
+.p-dataview .p-dataview-content {
+  padding: 0 !important;
+}
+
+.red-color {
+  & .p-menuitem-icon, .p-menuitem-text {
+    color: $primary-color !important;
+  }
+}
+
+.green-list {
+  color: $pastel-green !important;
+}
+
+.yellow-list {
+  color: $pastel-yellow;
+}
+
+.green-list {
+    color: $pastel-green !important;
+}
+
+.blue-list {
+  color: $pastel-blue;
+}
+
+.purple-list {
+  color: $pastel-purple;
+}
+
+.red-list {
+  color: $pastel-red;
+}

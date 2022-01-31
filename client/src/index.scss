@@ -55,6 +55,7 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
             color: $primary-color;
         }
     }
+    position: static !important;
 }
 
 .p-inputtext:enabled:focus {
@@ -140,6 +141,11 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
 .p-avatar {
     border: 0.15rem solid $text-color;
+}
+
+.black-overlay {
+    background-color: black;
+    opacity: 50%;
 }
 
 @keyframes ui-progress-spinner-color {

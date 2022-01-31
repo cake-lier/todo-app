@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import {Navigate, Route, Routes, useParams} from "react-router-dom";
 import { Dialog } from "primereact/dialog";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -9,8 +9,11 @@ import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import Settings from "../pages/settings/Settings";
 import Calendar from "../pages/calendar/Calendar";
-import { List } from "./list/List";
+import { TestList } from "./list/TestList";
 import Join from "../pages/join/Join";
+import MyLists from "../pages/myLists/MyLists";
+import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
+import List from "../pages/list/List";
 
 class App extends Component {
 
@@ -204,8 +207,33 @@ class App extends Component {
                         }
                     />
                     <Route  // for testing
-                        path="/list"
-                        element={<List name="School things" socket={ this.state.socket }/>}
+                        path="/test-list"
+                        element={<TestList name="School things" socket={ this.state.socket }/>}
+                    />
+
+                    <Route
+                        exact path="/my-lists"
+                        element={
+                            this.state.user !== null
+                                ? <MyLists user={ this.state. user } unsetUser={ this.unsetUser } />
+                                : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        exact path="/shared-with-me"
+                        element={
+                            this.state.user !== null
+                                ? <SharedWithMe user={this.state.user} unsetUser={this.unsetUser }/>
+                                : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/my-lists/:id"
+                        element={
+                            this.state.user !== null
+                                ? <List user={this.state.user} unsetUser={ this.unsetUser }/>
+                                : <Navigate to="/"/>
+                        }
                     />
                 </Routes>
             </>
