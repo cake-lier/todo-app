@@ -117,6 +117,29 @@ function createUpdatedUserDocument(user, username, email, profilePicturePath) {
     return clone;
 }
 
+function getProfilePicture(request, response) {
+    if (!validateRequest(request, response, [], [], true)) {
+            return;
+    }
+
+    User.findById(request.params.id)
+        .select('username profilePicturePath')
+        .exec()
+        .then(
+            user => {
+                if (user === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return;
+                }
+                response.json(user)
+            },
+            error => {
+                console.log(error);
+                sendError(response, Error.GeneralError);
+            }
+        )
+}
+
 function updateAccount(request, response) {
     const userId = request.session.userId;
     if (!validateRequest(request, response, [], [], true)) {
@@ -473,6 +496,7 @@ module.exports = {
     signup,
     getUser,
     updateAccount,
+    getProfilePicture,
     updatePassword,
     unregister,
     login,

@@ -36,6 +36,9 @@ export default function MyDay(props) {
                 />
             </div>
             <div className="w-full p-0 md:hidden">
+                <div
+                    className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")}
+                />
                 <div className="col-1 p-0 h-full absolute justify-content-center">
                     <div className="h-full w-full" ref={ node } style={ divStyle }>
                         <BurgerMenu open={ open } setOpen={ setOpen } />

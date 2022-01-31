@@ -17,6 +17,8 @@ function initializeUserRoutes(app) {
 function initializeListRoutes(app) {
     app.route("/lists").post(controller.list.createList)
                        .get(controller.list.getUserLists);
+    app.route("/lists/shared").get(controller.list.getUserSharedLists);
+    app.route("/lists/member/:id").get(controller.user.getProfilePicture);
     app.route("/lists/:id").delete(controller.list.deleteList)
                            .get(controller.list.getList);
     app.route("/lists/:id/title").put(controller.list.updateTitle);

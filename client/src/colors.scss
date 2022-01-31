@@ -9,3 +9,9 @@ $hover-color: #e9ecef;
 @function getPrimaryColorWithAlpha($alpha) {
   @return rgba(232, 45, 95, $alpha);
 }
+
+$pastel-yellow: #FFF599;
+$pastel-green: #E9F5A3;
+$pastel-blue: #9FD7F9;
+$pastel-purple: #B5A9EF;
+$pastel-red: #FB9DB1;
