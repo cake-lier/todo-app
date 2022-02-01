@@ -5,8 +5,9 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import "./ItemsContainer.scss";
 import {Item} from "../Item";
+import axios from "axios";
 
-export function ItemsContainer({listName}) {
+export function ItemsContainer({listId, listTitle}) {
     // checklist
     const items = [{name: 'Take a picture', key: '00', count: 5},
         {name: 'Write report', key: '01', count: 6},
@@ -36,9 +37,18 @@ export function ItemsContainer({listName}) {
     const [itemName, setItemName] = useState('');
     const [itemNum, setItemNum] = useState(1);
     const onNewItem = () => {
-        console.log("onNewItem; name: " + itemName + "; itemNum: " + itemNum);
         setDisplayDialog(false);
-        // TODO: axios post
+        axios.post(
+            "/lists/" + listId + "/items",
+            {
+                listId: listId,
+                title: listTitle,
+                count: setItemNum,
+                assignees: []
+            }
+        ).then(item => {
+            console.log("created item titled " + item.data.title)
+        });
     }
 
     const [displayDialog, setDisplayDialog] = useState(false);

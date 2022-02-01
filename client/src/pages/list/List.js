@@ -45,7 +45,7 @@ export default function List(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
-                <ItemsContainer listName={title}/>
+                <ItemsContainer listId={id} listTitle={title} />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
                 <div className="col-1 p-0 h-full absolute justify-content-center">
