@@ -7,7 +7,7 @@ import {Dialog} from "primereact/dialog";
 import {Calendar} from "primereact/calendar";
 import {ItemCount} from "./ItemCount";
 
-export function Item({socket, item, onItemChange, selectedItems}){
+export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
     // item dot menu
     const menu = useRef(null);
     let menuItems = [
@@ -17,13 +17,8 @@ export function Item({socket, item, onItemChange, selectedItems}){
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
         {label: 'Add tags', icon: 'pi pi-tag' },
         {label: 'Add priority', icon: 'pi pi-star' },
-        {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem()}}
+        {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem(item)}}
     ];
-
-    // delete item
-    const deleteItem = () => {
-        console.log("id: " + item.id + "| _id: " + item._id);
-    }
 
     // calendar
     const [displayCalendar1, setDisplayCalendar1] = useState(false);

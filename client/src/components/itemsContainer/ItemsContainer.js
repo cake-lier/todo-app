@@ -36,7 +36,7 @@ export function ItemsContainer({listId}) {
                 .then(r => {
                         console.log("task " + e.value._id + " marked as completed.");
                     },
-                    // TODO error
+                    // TODO error msg
                  );
         } else {
             axios.put("/items/" + e.value._id + "/complete", {
@@ -45,7 +45,7 @@ export function ItemsContainer({listId}) {
                 .then(r => {
                         console.log("task " + e.value._id + " marked as incomplete.");
                     },
-                    // TODO error
+                    // TODO error msg
                 );
             for (let i = 0; i < _selectedItems.length; i++) {
                 const selectedItem = _selectedItems[i];
@@ -78,6 +78,25 @@ export function ItemsContainer({listId}) {
         });
     }
 
+    // delete item
+    const deleteItem = (item) => {
+        axios.delete("/items/" + item._id).then(r => {
+                console.log("item deleted");
+                // update items array
+                let _items = [...items];
+                for (let i = 0; i < _items.length; i++) {
+                    const selectedItem = _items[i];
+
+                    if (selectedItem._id === item._id) {
+                        _items.splice(i, 1);
+                        break;
+                    }
+                }
+            },
+            // TODO error msg
+        );
+    }
+
     const [displayDialog, setDisplayDialog] = useState(false);
     const renderFooter = () => {
         return (
@@ -94,7 +113,7 @@ export function ItemsContainer({listId}) {
                 {
                     items.map((item) => {
                         return (<Item key={item._id} item={item} onItemChange={onItemChange}
-                                      selectedItems={selectedItems}/>)
+                                      selectedItems={selectedItems} deleteItem={deleteItem}/>)
                     })
                 }
             </div>
