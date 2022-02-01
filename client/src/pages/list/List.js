@@ -5,6 +5,7 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import {ItemsContainer} from "../../components/itemsContainer/ItemsContainer";
 
 export default function List(props) {
     const errors = useRef();
@@ -44,6 +45,7 @@ export default function List(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
+                <ItemsContainer listName={title}/>
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
                 <div className="col-1 p-0 h-full absolute justify-content-center">
