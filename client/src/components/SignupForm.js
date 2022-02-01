@@ -10,8 +10,9 @@ import { FileUpload } from "primereact/fileupload";
 import TermsOfService from "./TermsOfService";
 import { Divider } from "primereact/divider";
 import { Link } from "react-router-dom";
+import { Avatar } from "primereact/avatar";
 
-export const LoginForm = (props) => {
+export default function SignupForm(props) {
     const [isDialogVisible, setDialogVisible] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
     const formik = useFormik({
@@ -28,7 +29,7 @@ export const LoginForm = (props) => {
             } else if (!/^[A-Z0-9_-]/i.test(data.username)) {
                 errors.username = "A username must only contain letters, numbers, underscores and dashes.";
             } else if (data.username.length > 15) {
-                errors.username = "A username must be no more than 15 characters long.";
+                errors.username = "The username should not exceed 15 characters in length.";
             }
             if (!data.email) {
                 errors.email = "An email is required";
@@ -37,6 +38,8 @@ export const LoginForm = (props) => {
             }
             if (!data.password) {
                 errors.password = "A password is required.";
+            } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/.test(data.password)) {
+                errors.password = "The password does not conform to security rules.";
             }
             if (!data.accept) {
                 errors.accept = "You need to agree to the terms and conditions of this service before registering.";
@@ -97,15 +100,10 @@ export const LoginForm = (props) => {
                 <form onSubmit={ formik.handleSubmit } className="p-fluid">
                     <div className="grid align-items-center">
                         <div className="col-5 md:col-4 flex justify-content-center">
-                            <img
-                                id="chosenProfilePicture"
+                            <Avatar
+                                image={ profilePicture !== null ? profilePicture : "/static/images/default_profile_picture.jpg" }
+                                shape="circle"
                                 className="w-6rem h-6rem"
-                                src={
-                                    profilePicture === null
-                                    ? "/static/images/default_profile_picture.jpg"
-                                    : profilePicture
-                                }
-                                alt="Chosen profile avatar"
                             />
                         </div>
                         <div className="col-7 md:col-8">
@@ -165,7 +163,7 @@ export const LoginForm = (props) => {
                             footer={
                                 <Fragment>
                                     <Divider />
-                                    <h3 className="font-semibold text-md my-2">Suggestions</h3>
+                                    <h3 className="font-semibold text-md my-2">Password requirements</h3>
                                     <ul className="pl-2 ml-2 mt-0">
                                         <li className="mt-3">At least one lowercase character.</li>
                                         <li className="mt-2">At least one uppercase character.</li>
@@ -202,5 +200,3 @@ export const LoginForm = (props) => {
         </div>
     );
 }
-
-export default LoginForm;

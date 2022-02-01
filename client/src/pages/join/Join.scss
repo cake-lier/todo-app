@@ -1,0 +1,36 @@
+@import "../../colors";
+
+div.otpInput > input {
+  width: 16% !important;
+  height: 3rem !important;
+  font-size: 1.25rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.38);
+  transition: border-color 0.2s ease;
+  margin: 0 !important;
+  outline: 0;
+}
+
+div.otpInput > input:hover {
+  border: 1px solid rgba(0, 0, 0, 0.87);
+}
+
+div.otpInput > input:focus {
+  border: 2px solid $primary-color;
+}
+
+div.otpInput > input:focus-visible {
+  margin: $primary-color;
+}
+
+span#pinCodeContainer > label {
+  color: rgba(0, 0, 0, 0.6);
+}
+/*
+@media screen and (min-width: 768px) {
+  div.otpInput > input {
+    width: 3rem !important;
+    height: 3rem !important;
+    font-size: 1.5rem;
+  }
+}*/

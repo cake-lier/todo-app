@@ -17,11 +17,13 @@
     "express-session": "^1.17.2",
     "mongoose": "^6.1.5",
     "node-schedule": "^2.1.0",
+    "otp-generator": "^4.0.0",
+    "rrule": "^2.6.8",
     "run-rs": "^0.7.5",
     "socket.io": "^4.4.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "prop-types": "^15.8.1"
+    "nodemon": "^2.0.15"
   }
 }

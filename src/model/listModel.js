@@ -13,6 +13,10 @@ const memberSchema = new mongoose.Schema({
         default: null,
         validate: v => v === null || uuid.validate(v)
     },
+    username: {
+        type: String,
+        default: null
+    },
     role: {
         type: String,
         enum: ["owner", "member"],
@@ -32,11 +36,11 @@ const listSchema = new mongoose.Schema({
     joinCode: {
         type: String,
         default: null,
-        validate: v => v === null || uuid.validate(v)
+        validate: v => v === null || (v.length === 6 && v.split("").every(c => /[a-zA-Z0-9#!&@]/.test(c)))
     },
     colorIndex: {
         type: Number,
-        enum: [0, 1, 2],
+        enum: [0, 1, 2, 3, 4],
         default: 0
     },
     members: {

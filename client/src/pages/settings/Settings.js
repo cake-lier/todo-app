@@ -4,7 +4,7 @@ import ErrorMessages from "../../components/ErrorMessages";
 import { Divider } from "primereact/divider";
 import { ChangeAccountDataForm } from "../../components/ChangeAccountDataForm";
 import DeleteAccountForm from "../../components/deleteAccountForm/DeleteAccountForm";
-import ChangePasswordForm from "../../components/ChangePasswordForm";
+import ChangePasswordForm from "../../components/changePasswordForm/ChangePasswordForm";
 import { Messages } from "primereact/messages";
 import { InputSwitch } from 'primereact/inputswitch';
 import "./Settings.scss";
@@ -16,7 +16,7 @@ import {useOnClickOutside} from "../../components/ClickOutsideHook";
 export function Settings(props) {
     const errors = useRef();
     const displayError = lastErrorCode => {
-        errors.displayError(lastErrorCode);
+        errors.current.displayError(lastErrorCode);
     }
     const messages = useRef();
     const displaySuccess = () => {
@@ -31,7 +31,7 @@ export function Settings(props) {
     const getTabElement = tabName => {
         if (tabName === "password") {
             return (
-                <div className="grid">
+                <div className="grid ">
                     <div className="col-12 md:col-5 md:ml-8">
                         <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />
                     </div>
@@ -94,16 +94,19 @@ export function Settings(props) {
             <div className="col-12 fixed top-0" style={{ zIndex: 1001 }}>
                 <Messages ref={ messages } />
             </div>
+
             <div id="settingsMainMenuContainer" className="mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "Settings" } open={ true } />
             </div>
+
             <div id="settingsMainMenuContainer" className="mx-0 p-0 h-full absolute flex justify-content-center md:hidden">
                 <div className="h-full w-full" ref={ node } style={ divStyle }>
                     <BurgerMenu open={ open } setOpen={ setOpen } />
                     <MainMenu selected={ "Settings" } open={ open } />
                 </div>
             </div>
-            <div id="settingsPageContainer" className="mx-0 p-0 hidden md:block">
+
+            <div id="settingsPageContainer" className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex">
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }
@@ -116,11 +119,11 @@ export function Settings(props) {
                     ] }
                     displayError={ displayError }
                 />
-                <div className="grid">
+                <div className="grid overflow-scroll">
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>
-                    <div className="col-12">
+                    <div className="col-12 ">
                         { getTabElement(props.tab) }
                     </div>
                 </div>

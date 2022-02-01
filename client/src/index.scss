@@ -1,12 +1,9 @@
 @import "colors";
 
-@function getPrimaryColorWithAlpha($alpha) {
-    @return rgba(232, 45, 95, $alpha);
-}
-
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
 h1, h1 a, h2, h2 a, h3, h3 a, h4, h4 a, h5, h5 a, h6, h6 a,
-p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link, .p-menu .p-menuitem-link .p-menuitem-text,
+p, div, .p-menu .p-menuitem-link, .p-menu .p-menuitem-link .p-menuitem-text,
 #nav li a, div.title a, .headline, .subtitle, .Heading, .Footer {
     font-family: 'Source Sans Pro', sans-serif !important;
 }
@@ -58,6 +55,20 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
             color: $primary-color;
         }
     }
+    position: static !important;
+}
+
+.p-button.p-button-text {
+    color: $primary-color !important;
+}
+
+.p-button.p-button-text:enabled:hover, .p-button.p-button-text:not(button):not(a):not(.p-disabled):hover {
+    background: getPrimaryColorWithAlpha(0.04);
+    color: $primary-color;
+}
+.p-button.p-button-text:enabled:active, .p-button.p-button-text:not(button):not(a):not(.p-disabled):active {
+    background: getPrimaryColorWithAlpha(0.16);
+    color: $primary-color;
 }
 
 .p-inputtext:enabled:focus {
@@ -124,12 +135,68 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 }
 
 .p-inputswitch.p-inputswitch-checked:not(.p-disabled):hover .p-inputswitch-slider:before {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2),
+                0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+                0px 1px 5px 0px rgba(0, 0, 0, 0.12);
 }
-.p-inputswitch.p-inputswitch-checked.p-inputswitch-focus .p-inputswitch-slider:before, .p-inputswitch.p-inputswitch-checked.p-inputswitch-focus:not(.p-disabled):hover .p-inputswitch-slider:before {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+.p-inputswitch.p-inputswitch-checked.p-inputswitch-focus .p-inputswitch-slider:before,
+.p-inputswitch.p-inputswitch-checked.p-inputswitch-focus:not(.p-disabled):hover .p-inputswitch-slider:before {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12),
+                0 3px 1px -2px rgba(0, 0, 0, 0.2),
+                0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+                0px 1px 5px 0px rgba(0, 0, 0, 0.12);
 }
 
 .grid {
     margin: 0;
+}
+
+.p-avatar img {
+    width: auto;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #F5F5F5;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+    background-image: -webkit-gradient(linear, left top, right top, from(#ffecd2), to($pastel-red));
+    background-image: -webkit-linear-gradient(left, #ffecd2 0%, $pastel-red 100%);
+    background-image: linear-gradient(to right, #ffecd2 0%, $pastel-red 100%);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.black-overlay {
+    background-color: black;
+    opacity: 50%;
+}
+
+@keyframes ui-progress-spinner-color {
+    100%,
+    0% {
+        stroke: $primary-color;
+    }
+    40% {
+        stroke: $primary-color;
+    }
+    66% {
+        stroke: $primary-color;
+    }
+    80%,
+    90% {
+        stroke: $primary-color;
+    }
 }

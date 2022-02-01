@@ -5,10 +5,11 @@ require("mongoose").connect("mongodb://Eli-PC:27017,Eli-PC:27018,Eli-PC:27019/to
 const app = express();
 app.use(express.json({ limit: 2097152 }));
 app.use("/static", express.static(__dirname + "/public"));
+app.use(express.static(path.join(__dirname, "client/build")));
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const store = new MongoDBStore({
-    uri: "mongodb://Eli-PC/todo",
+    uri: "mongodb://Eli-PC:27017,Eli-PC:27018,Eli-PC:27019/todo?replicaSet=rs",
     collection: "sessions"
 });
 app.use(session({
@@ -22,8 +23,7 @@ app.use(session({
         path: "/",
         httpOnly: true,
         sameSite: "strict",
-        secure: "auto",
-        maxAge: 1000 * 60 * 60 * 24
+        secure: "auto"
     }
 }));
 const routes = require("./src/routes/routes");
@@ -31,32 +31,9 @@ routes.initializeUserRoutes(app);
 routes.initializeListRoutes(app);
 routes.initializeItemRoutes(app);
 routes.initializeStaticRoutes(app);
-const validation = require("./src/utils/validation");
+const { sendError, Error } = require("./src/utils/validation");
 app.use(
-    (_, response) => validation.sendError(response, validation.Error.ResourceNotFound)
+    (_, response) => sendError(response, Error.ResourceNotFound)
 );
-const server = app.listen(8080, () => console.log("Node API server started"));
-
-// socket.io + node-schedule
-const io = require('socket.io')(server);
-const schedule = require('node-schedule');
-
-io.on('connection', (socket) =>  {
-    console.log('a user connected');
-
-    socket.on('reminder', (data) => {
-        console.log('Reminder set for ' + data);
-        schedule.scheduleJob(data, function(){
-            console.log('Trigger reminder');
-            socket.emit('reminder');
-        });
-    });
-
-    socket.on("message", data => {  console.log("RECEIVED THIS MSG: " + data);});
-
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
-});
-
-
+require("./src/utils/schedule").scheduleTasks();
+global.io = require("./src/utils/sockets").setupSockets(app.listen(8080, () => console.log("Node API server started")));

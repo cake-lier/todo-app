@@ -8,7 +8,12 @@ import Login from "../pages/login/Login";
 import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import Settings from "../pages/settings/Settings";
-import {List} from "./list/List";
+import Calendar from "../pages/calendar/Calendar";
+import { TestList } from "./list/TestList";
+import Join from "../pages/join/Join";
+import MyLists from "../pages/myLists/MyLists";
+import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
+import List from "../pages/list/List";
 
 class App extends Component {
 
@@ -16,44 +21,86 @@ class App extends Component {
         super(props);
         this.state = {
             user: null,
+            notifications: [],
             displayError: false,
             ready: false,
             socket: null
         };
         this.setUser = this.setUser.bind(this);
         this.unsetUser = this.unsetUser.bind(this);
+        this.setNotifications = this.setNotifications.bind(this);
     }
 
     setUser(user) {
         this.setState({ user });
-        if ( this.state.socket === null ) this.setState({socket: io()});
     }
 
     unsetUser() {
-        this.setState({ user: null });
-        if ( this.state.socket !== null ) this.state.socket.disconnect();
+        if (this.state.socket !== null) {
+            this.state.socket.disconnect();
+        }
+        const socket = io();
+        socket.on("connect", () =>
+            axios.post(
+                "/socket",
+                {
+                    socketId: socket.id
+                }
+            )
+            .then(
+                _ => this.setState({
+                    user: null,
+                    socket
+                }),
+                _ => this.setState({ displayError: true })
+            )
+        );
+    }
+
+    setNotifications(notifications) {
+        this.setState({ notifications });
     }
 
     componentDidMount() {
-       axios.get("/users/me")
-            .then(
-                response => {
-                    this.setState({
-                        user: response.data,
-                        ready: true
-                    });
-                    if(this.state.user !== null) {
-                        this.setState({socket: io()});
-                        this.state.socket.on('reminder', (data) => {
-                            alert("Reminder!!!");
-                        })
-                    }
-                },
-                error => this.setState({
-                    displayError: error.response.data.error !== 3,
-                    ready: true
-                })
-            );
+        const socket = io();
+        socket.on("connect", () =>
+            axios.post(
+                "/socket",
+                {
+                    socketId: socket.id
+                }
+            )
+            .then(_ => axios.get("/users/me"))
+            .then(userResponse => {
+                const user = userResponse.data;
+                axios.get("/users/me/notifications")
+                     .then(
+                         notificationsResponse => this.setState({
+                             socket,
+                             user,
+                             notifications: notificationsResponse.data,
+                             ready: true
+                         }),
+                         _ => this.setState({
+                             socket,
+                             user,
+                             displayError: true,
+                             ready: true
+                         })
+                     );
+            })
+            .catch(error => this.setState({
+                socket,
+                displayError: error.response.data.error !== 3,
+                ready: true
+            })
+        ));
+    }
+
+    componentWillUnmount() {
+        if (this.state.socket !== null) {
+            this.state.socket.disconnect();
+        }
     }
 
     render() {
@@ -82,10 +129,20 @@ class App extends Component {
                         element={ this.state.user === null ? <Signup setUser={ this.setUser } /> : <Navigate to="/my-day" /> }
                     />
                     <Route
+                        path="/join"
+                        element={ this.state.user === null ? <Join socket={ this.state.socket } /> : <Navigate to="/my-day" /> }
+                    />
+                    <Route
                         path="/my-day"
                         element={
                             this.state.user !== null
-                            ? <MyDay user={ this.state.user } unsetUser={ this.unsetUser } />
+                            ? <MyDay
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                                />
                             : <Navigate to="/" />
                         }
                     />
@@ -98,6 +155,9 @@ class App extends Component {
                                     user={ this.state.user }
                                     unsetUser={ this.unsetUser }
                                     setUser={ this.setUser }
+                                    notifications={ this.state.notifications }
+                                    setNotifications={ this.setNotifications }
+                                    socket={ this.state.socket }
                                     tab="account"
                               />
                             : <Navigate to="/" />
@@ -107,7 +167,13 @@ class App extends Component {
                         path="/settings/password"
                         element={
                             this.state.user !== null
-                            ? <Settings user={ this.state.user } tab="password" />
+                            ? <Settings
+                                  user={ this.state.user }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                                  tab="password"
+                              />
                             : <Navigate to="/" />
                         }
                     />
@@ -115,13 +181,58 @@ class App extends Component {
                         path="/settings/notifications"
                         element={
                             this.state.user !== null
-                            ? <Settings user={ this.state.user } setUser={ this.setUser } tab="notifications" />
+                            ? <Settings
+                                  user={ this.state.user }
+                                  setUser={ this.setUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                                  tab="notifications"
+                              />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/calendar"
+                        element={
+                            this.state.user !== null
+                            ? <Calendar
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                              />
                             : <Navigate to="/" />
                         }
                     />
                     <Route  // for testing
-                        path="/list"
-                        element={<List name="School things" socket={this.state.socket}/>}
+                        path="/test-list"
+                        element={<TestList name="School things" socket={ this.state.socket }/>}
+                    />
+                    <Route
+                        exact path="/my-lists"
+                        element={
+                            this.state.user !== null
+                                ? <MyLists user={ this.state.user } unsetUser={ this.unsetUser } />
+                                : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        exact path="/shared-with-me"
+                        element={
+                            this.state.user !== null
+                                ? <SharedWithMe user={ this.state.user } unsetUser={ this.unsetUser }/>
+                                : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/my-lists/:id"
+                        element={
+                            this.state.user !== null
+                                ? <List user={this.state.user} unsetUser={ this.unsetUser }/>
+                                : <Navigate to="/"/>
+                        }
                     />
                 </Routes>
             </>

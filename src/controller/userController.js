@@ -1,8 +1,11 @@
 "use strict";
 
-const validation = require("../utils/validation");
+const { Error, validateRequest, sendError } = require("../utils/validation");
 const uuid = require("uuid");
 const User = require("../model/userModel").createUserModel();
+const List = require("../model/listModel").createListModel();
+const Item = require("../model/itemModel").createItemModel();
+const Notification = require("../model/notificationsModel").createNotificationModel();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const rounds = 12;
@@ -10,7 +13,7 @@ const rounds = 12;
 function decodeImage(encodedImage, response) {
     const matches = encodedImage.match(/^\s*data:image\/(png|jpg|jpeg);base64,(\S+)\s*$/);
     if (matches.length !== 3 || (matches[1] !== "png" && matches[1] !== "jpg" && matches[1] !== "jpeg")) {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
         return [];
     }
     return [
@@ -35,13 +38,15 @@ function createUser(request, response, path, hashedPassword) {
         profilePicturePath: path
     })
     .then(user => {
-        request.session.userId = user._id;
+        const userId = user._id.toString();
+        request.session.userId = userId;
+        io.in(request.session.socketId).socketsJoin(`user:${ userId }`);
         response.json(createUserObject(user));
     });
 }
 
 function signup(request, response) {
-    if (!validation.validateRequest(
+    if (!validateRequest(
         request,
         response,
         ["username", "email", "password"]
@@ -59,12 +64,12 @@ function signup(request, response) {
                   fs.writeFile(appRoot + "/public" + path, data, { flag: "wx", encoding: "base64" }, error => {
                       if (error !== null) {
                           console.log(error);
-                          validation.sendError(response, validation.Error.GeneralError);
+                          sendError(response, Error.GeneralError);
                           return;
                       }
                       createUser(request, response, path, hashedPassword).catch(error => {
                           console.log(error);
-                          validation.sendError(response, validation.Error.GeneralError);
+                          sendError(response, Error.GeneralError);
                       });
                   });
                   return Promise.resolve();
@@ -73,12 +78,12 @@ function signup(request, response) {
           })
           .catch(error => {
               console.log(error);
-              validation.sendError(response, validation.Error.GeneralError);
+              sendError(response, Error.GeneralError);
           });
 }
 
 function getUser(request, response) {
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
     User.findById(request.session.userId)
@@ -86,14 +91,14 @@ function getUser(request, response) {
         .then(
             user => {
                 if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    sendError(response, Error.ResourceNotFound);
                     return;
                 }
                 response.json(createUserObject(user));
             },
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
 }
@@ -114,7 +119,7 @@ function createUpdatedUserDocument(user, username, email, profilePicturePath) {
 
 function updateAccount(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
     if (typeof request.body.profilePicture === "string") {
@@ -126,7 +131,7 @@ function updateAccount(request, response) {
         fs.writeFile(appRoot + "/public" + path, data, { flag: "wx", encoding: "base64" }, error => {
             if (error !== null) {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
                 return;
             }
             User.findByIdAndUpdate(
@@ -144,7 +149,7 @@ function updateAccount(request, response) {
                             if (error !== null) {
                                 console.log(error);
                             }
-                            validation.sendError(response, validation.Error.ResourceNotFound);
+                            sendError(response, Error.ResourceNotFound);
                         });
                         return;
                     }
@@ -161,7 +166,7 @@ function updateAccount(request, response) {
                 },
                 error => {
                     console.log(error);
-                    validation.sendError(response, validation.Error.GeneralError);
+                    sendError(response, Error.GeneralError);
                 }
             );
         });
@@ -175,7 +180,7 @@ function updateAccount(request, response) {
         .then(
             user => {
                 if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    sendError(response, Error.ResourceNotFound);
                     return;
                 }
                 if (user.profilePicturePath !== null) {
@@ -191,7 +196,7 @@ function updateAccount(request, response) {
             },
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
     } else if (request.body.profilePicture === undefined) {
@@ -204,24 +209,24 @@ function updateAccount(request, response) {
         .then(
             user => {
                 if (user === null) {
-                    validation.sendError(response, validation.Error.ResourceNotFound);
+                    sendError(response, Error.ResourceNotFound);
                     return;
                 }
                 response.json(createUserObject(user));
             },
             error => {
                 console.log(error);
-                validation.sendError(response, validation.Error.GeneralError);
+                sendError(response, Error.GeneralError);
             }
         );
     } else {
-        validation.sendError(response, validation.Error.RequestError);
+        sendError(response, Error.RequestError);
     }
 }
 
 function updatePassword(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, ["oldPassword", "newPassword"], [], true)) {
+    if (!validateRequest(request, response, ["oldPassword", "newPassword"], [], true)) {
         return;
     }
     bcrypt.hash(request.body.newPassword, rounds)
@@ -230,13 +235,13 @@ function updatePassword(request, response) {
                   .exec()
                   .then(user => {
                       if (user === null) {
-                          validation.sendError(response, validation.Error.ResourceNotFound);
+                          sendError(response, Error.ResourceNotFound);
                           return Promise.resolve();
                       }
                       return bcrypt.compare(request.body.oldPassword, user.password)
                                    .then(areEqual => {
                                        if (!areEqual) {
-                                           validation.sendError(response, validation.Error.PasswordError);
+                                           sendError(response, Error.PasswordError);
                                            return Promise.resolve();
                                        }
                                        return User.findByIdAndUpdate(
@@ -247,7 +252,7 @@ function updatePassword(request, response) {
                                        .exec()
                                        .then(user => {
                                            if (user === null) {
-                                               validation.sendError(response, validation.Error.GeneralError);
+                                               sendError(response, Error.GeneralError);
                                            } else {
                                                response.json(createUserObject(user));
                                            }
@@ -258,86 +263,210 @@ function updatePassword(request, response) {
           )
           .catch(error => {
               console.log(error);
-              validation.sendError(response, validation.Error.GeneralError);
+              sendError(response, Error.GeneralError);
           });
+}
+
+function sendNotification(userId, list, eventName, text) {
+    const listId = list._id.toString();
+    return Notification.create({
+        users: list.members.filter(m => m.userId !== null && m.userId !== userId),
+        text: text
+    })
+    .catch(error => console.log(error))
+    .then(_ => io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName, listId, text));
+}
+
+function deleteUserData(request, response, session, user) {
+    return List.find({ members: { $elemMatch: { userId: user._id, role: "owner" } } }, { session })
+               .exec()
+               .then(lists => {
+                   const listIds = lists.map(l => l._id);
+                   return List.deleteMany({ _id: { $in: listIds } }, { session })
+                              .exec()
+                              .then(_ => Item.deleteMany({ listId: { $in: listIds } }, { session }).exec())
+                              .then(_ => Promise.all(lists.map(list => {
+                                  const listId = list._id.toString();
+                                  const listText = `The list "${ list.title }" has just been deleted`;
+                                  return Notification.create({
+                                      users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                      text: listText
+                                  })
+                                  .catch(error => console.log(error))
+                                  .then(_ => {
+                                      io.in(`list:${ listId }`)
+                                        .except(`user:${ request.session.userId }`)
+                                        .emit("listDeleted", listId, listText);
+                                      return Item.find({ listId: list._id }, { session })
+                                                 .exec()
+                                                 .then(items => Promise.all(items.map(item => {
+                                                     jobs[item._id.toString()]?.cancel();
+                                                     return sendNotification(
+                                                         request.session.userId,
+                                                         list,
+                                                         "itemDeleted",
+                                                         `The item "${ item.title }" has just been deleted`
+                                                     );
+                                                 })));
+                                  })
+                                  .then(_ => {
+                                      io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
+                                      io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
+                                  });
+                              })));
+               })
+               .then(_ =>
+                   List.find({ members: { $elemMatch: { userId: user._id, role: "member" } } }, { session })
+                       .exec()
+                       .then(lists =>
+                           List.updateMany(
+                               { _id: lists.map(l => l._id) },
+                               { $pull: { members: { userId: user._id, role: "member" } } },
+                               { session }
+                           )
+                           .exec()
+                           .then(_ => Promise.all(lists.map(list => sendNotification(
+                               request.session.userId,
+                               list,
+                               "listMemberRemoved",
+                               `A member has left from the list "${ list.title }"`
+                           ))))
+                       )
+               )
+               .then(_ =>
+                   Item.find({ assignees: { $elemMatch: { userId: user._id } } }, { session })
+                       .exec()
+                       .then(items =>
+                           Item.updateMany(
+                               { _id: { $in: items.map(i => i._id) } },
+                               { $pull: { assignees: { userId: user._id } } },
+                               { session }
+                           )
+                           .exec()
+                           .then(_ => Promise.all(items.map(item =>
+                               List.findById(item.listId, undefined, { session })
+                                   .exec()
+                                   .then(list => {
+                                       if (list !== null) {
+                                           return sendNotification(
+                                               request.session.userId,
+                                               list,
+                                               "itemAssigneeRemoved",
+                                               `An assignee was removed from the item "${ item.title }"`
+                                           );
+                                       }
+                                       return Promise.resolve();
+                                   })
+                               )))
+                       )
+               )
+               .then(_ => {
+                   io.in(`user:${ user._id.toString() }`).disconnectSockets();
+                   request.session.destroy(_ => response.send({}));
+               });
 }
 
 function unregister(request, response) {
     const userId = request.session.userId;
-    if (!validation.validateRequest(request, response, ["password"], [], true)) {
+    if (!validateRequest(request, response, ["password"], [], true)) {
         return;
     }
     User.findById(userId)
         .exec()
         .then(user => {
             if (user === null) {
-                validation.sendError(response, validation.Error.ResourceNotFound);
+                sendError(response, Error.ResourceNotFound);
                 return Promise.resolve();
             }
             return bcrypt.compare(request.body.password, user.password)
                          .then(areEqual => {
                              if (!areEqual) {
-                                 validation.sendError(response, validation.Error.PasswordError);
+                                 sendError(response, Error.PasswordError);
                                  return Promise.resolve();
                              }
-                             return User.findByIdAndDelete(userId)
-                                        .exec()
-                                        .then(result => {
-                                            if (result.deleteCount === 0) {
-                                                validation.sendError(response, validation.Error.GeneralError);
-                                            } else if (user.profilePicturePath !== null) {
-                                                fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
-                                                    if (error !==  null) {
-                                                        console.log(error);
-                                                    }
-                                                    request.session.destroy(_ => response.send());
-                                                });
-                                            } else {
-                                                request.session.destroy(_ => response.send());
-                                            }
-                                            return Promise.resolve();
-                                        });
+                             return User.startSession(session => session.withTransaction(() =>
+                                 User.findByIdAndDelete(userId, { session })
+                                     .exec()
+                                     .then(deletedUser => {
+                                         if (deletedUser === null) {
+                                             sendError(response, Error.GeneralError);
+                                             return Promise.resolve();
+                                         }
+                                         if (user.profilePicturePath !== null) {
+                                             fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
+                                                 if (error !== null) {
+                                                     console.log(error);
+                                                 }
+                                             });
+                                         }
+                                         return deleteUserData(request, response, session, user);
+                                     })
+                             ));
                          });
         })
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
 function login(request, response) {
-    if (!validation.validateRequest(request, response, ["email", "password"])) {
+    if (!validateRequest(request, response, ["email", "password"])) {
         return;
     }
-    User.findOne({ email: request.body.email })
-        .exec()
-        .then(user => {
-            if (user === null) {
-                validation.sendError(response, validation.Error.LoginError);
-                return Promise.resolve();
-            }
-            return bcrypt.compare(request.body.password, user.password)
-                         .then(areEqual => {
-                             if (!areEqual) {
-                                 validation.sendError(response, validation.Error.LoginError);
-                             } else {
-                                 request.session.userId = user._id;
-                                 response.json(createUserObject(user));
-                             }
-                             return Promise.resolve();
-                         });
-        })
+    User.startSession()
+        .then(session => session.withTransaction(() =>
+            User.findOne({ email: request.body.email })
+                .exec()
+                .then(user => {
+                    if (user === null) {
+                        sendError(response, Error.LoginError);
+                        return Promise.resolve();
+                    }
+                    return bcrypt.compare(request.body.password, user.password)
+                                 .then(areEqual => {
+                                     if (!areEqual) {
+                                         sendError(response, Error.LoginError);
+                                         return Promise.resolve();
+                                     }
+                                     const userId = user._id.toString();
+                                     request.session.userId = userId;
+                                     io.in(request.session.socketId).socketsJoin(`user:${ userId }`);
+                                     return List.find(
+                                         { members: { $elemMatch: { userId } } },
+                                         undefined,
+                                         { session }
+                                     )
+                                     .exec()
+                                     .then(lists => {
+                                         lists.forEach(l => {
+                                             io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }`);
+                                             if (
+                                                 l.members
+                                                  .filter(m => m.userId.toString() === userId)
+                                                  .every(m => m.role === "owner")
+                                             ) {
+                                                 io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }:owner`);
+                                             }
+                                         });
+                                         response.json(createUserObject(user));
+                                         return Promise.resolve();
+                                     });
+                                 });
+                })
+        ))
         .catch(error => {
             console.log(error);
-            validation.sendError(response, validation.Error.GeneralError);
+            sendError(response, Error.GeneralError);
         });
 }
 
 function logout(request, response) {
-    if (!validation.validateRequest(request, response, [], [], true)) {
+    if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    request.session.destroy(_ => response.send());
+    io.in(request.session.socketId).disconnectSockets();
+    request.session.destroy(_ => response.send({}));
 }
 
 module.exports = {

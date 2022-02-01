@@ -1,15 +1,5 @@
 @import "../../colors";
 
-div#settingsMainMenuContainer {
-    width: 10%;
-}
-
 div#settingsPageContainer {
     background-color: $secondary-background;
-}
-
-@media screen and (min-width: 768px) {
-    div#settingsPageContainer {
-        width: 90%;
-    }
 }

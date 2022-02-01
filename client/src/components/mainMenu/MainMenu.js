@@ -20,12 +20,28 @@ export function MainMenu({ open, selected }) {
             disabled: selected === "My day",
             command: useOnClicked("my-day")
         },
-        { label: "My lists", icon: PrimeIcons.LIST, disabled: selected === "My lists" },
-        { label: "Shared with me", icon: PrimeIcons.USERS, disabled: selected === "Shared with me" },
-        { label: "Calendar", icon: PrimeIcons.CALENDAR, disabled: selected === "Calendar" },
+        {
+            label: "My lists",
+            icon: PrimeIcons.LIST,
+            disabled: selected === "My lists",
+            command: useOnClicked("my-lists")
+        },
+        {
+            label: "Shared with me",
+            icon: PrimeIcons.USERS,
+            disabled: selected === "Shared with me",
+            command: useOnClicked("shared-with-me")
+        },
+        {
+            label: "Calendar",
+            icon: PrimeIcons.CALENDAR,
+            disabled: selected === "Calendar",
+            command: useOnClicked("calendar")
+        },
         { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: selected === "Reports" },
         { label: "Achievements", icon: PrimeIcons.STAR, disabled: selected === "Achievements" }
     ];
+
     const subItems = [
         { label: "Search", icon: PrimeIcons.SEARCH, disabled: selected === "Search" },
         {

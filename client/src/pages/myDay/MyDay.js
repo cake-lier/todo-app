@@ -9,7 +9,7 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 export default function MyDay(props) {
     const errors = useRef();
     const displayError = (lastErrorCode) => {
-        errors.displayError(lastErrorCode);
+        errors.current.displayError(lastErrorCode);
     }
     const [open, setOpen] = useState(false);
     const node = useRef();
@@ -29,13 +29,16 @@ export default function MyDay(props) {
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }
-                    title={ "My Day" }
+                    title="My Day"
                     showDate={ true }
                     isResponsive={ false }
                     displayError={ displayError }
                 />
             </div>
             <div className="w-full p-0 md:hidden">
+                <div
+                    className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")}
+                />
                 <div className="col-1 p-0 h-full absolute justify-content-center">
                     <div className="h-full w-full" ref={ node } style={ divStyle }>
                         <BurgerMenu open={ open } setOpen={ setOpen } />
