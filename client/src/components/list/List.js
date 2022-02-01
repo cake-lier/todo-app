@@ -9,10 +9,30 @@ import { InputNumber } from 'primereact/inputnumber';
 export function List(props) {
     // checklist
     const listName = props.name;
-    const items = [{name: 'Take a picture', key: '00'},
-                    {name: 'Write report', key: '01'},
-                    {name: 'Production', key: '02'},
-                    {name: 'Research', key: '03'}];
+    const items = [{name: 'Take a picture', key: '00', count: 5},
+                    {name: 'Write report', key: '01', count: 6},
+                    {name: 'Production', key: '02', count: 7},
+                    {name: 'Research', key: '03', count: 8}];
+    // when checkbox is checked/unchecked, update selectedItems[]
+    const [selectedItems, setSelectedItems] = useState(Array.prototype);
+    const onItemChange = (e) => {
+        let _selectedItems = [...selectedItems];
+
+        if (e.checked) {
+            _selectedItems.push(e.value);
+        }
+        else {
+            for (let i = 0; i < _selectedItems.length; i++) {
+                const selectedItem = _selectedItems[i];
+
+                if (selectedItem.key === e.value.key) {
+                    _selectedItems.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        setSelectedItems(_selectedItems);
+    }
 
     // create item
     const [itemName, setItemName] = useState('');
@@ -20,7 +40,7 @@ export function List(props) {
     const onNewItem = () => {
         console.log("onNewItem; name: " + itemName + "; itemNum: " + itemNum);
         setDisplayDialog(false);
-        // TODO: axios post after list creation
+        // TODO: axios post
     }
 
     const [displayDialog, setDisplayDialog] = useState(false);
@@ -39,7 +59,7 @@ export function List(props) {
             <Button label="New Task" icon="pi pi-plus" onClick={ () => setDisplayDialog(true)}/>
             {
                 items.map((item) => {
-                    return( <Item item={item} />)
+                    return( <Item key={item.key} item={item} onItemChange={onItemChange} selectedItems={selectedItems}/>)
                 })
             }
         </div>

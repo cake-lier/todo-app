@@ -5,29 +5,9 @@ import {Menu} from "primereact/menu";
 import React, {useRef, useState} from "react";
 import {Dialog} from "primereact/dialog";
 import {Calendar} from "primereact/calendar";
+import {ItemCount} from "./ItemCount";
 
-export function Item(props){
-    // when checkbox is checked/unchecked, update selectedItems[]
-    const [selectedItems, setSelectedItems] = useState(Array.prototype);
-    const onItemChange = (e) => {
-        let _selectedItems = [...selectedItems];
-
-        if (e.checked) {
-            _selectedItems.push(e.value);
-        }
-        else {
-            for (let i = 0; i < _selectedItems.length; i++) {
-                const selectedItem = _selectedItems[i];
-
-                if (selectedItem.key === e.value.key) {
-                    _selectedItems.splice(i, 1);
-                    break;
-                }
-            }
-        }
-        setSelectedItems(_selectedItems);
-    }
-
+export function Item({socket, item, onItemChange, selectedItems}){
     // item dot menu
     const menu = useRef(null);
     let menuItems = [
@@ -56,7 +36,7 @@ export function Item(props){
             <div  className="flex justify-content-center">
                 <Button label={btn_text} onClick={() => {
                     onHide(display);
-                    props.socket.emit('reminder', date2);
+                    socket.emit('reminder', date2);
                 }} />
             </div>
         )
@@ -67,13 +47,11 @@ export function Item(props){
             <div  className="flex justify-content-center">
                 <Button label={btn_text} onClick={() => {
                     onHide(display);
-                    props.socket.emit('reminder', date2);
+                    socket.emit('reminder', date2);
                 }} />
             </div>
         )
     }
-
-    // socket receive
 
     const onHide = (name) => {
         dialogFuncMap[`${name}`](false);
@@ -83,15 +61,17 @@ export function Item(props){
         <>
         <div className="flex justify-content-between m-2">
             <div>
-                <div key={props.item.key} className="field-checkbox m-1">
-                    <Checkbox inputId={props.item.key}
-                              name="item" value={props.item}
+                <div className="field-checkbox m-1 mb-0">
+                    <Checkbox inputId={item.key}
+                              name="item" value={item}
                               onChange={onItemChange}
-                              checked={selectedItems.some((i) => i.key === props.item.key)}
+                              checked={selectedItems.some((i) => i.key === item.key)}
                     />
-                    <label htmlFor={props.item.key}>{props.item.name}</label>
+                    <label htmlFor={item.key}>{item.name}</label>
+                    <ItemCount maxCount={item.count} />
                 </div>
-                <div className="flex align-items-center flex-wrap">
+
+                <div className="flex align-items-center flex-wrap pl-4">
                     <Tag className="flex m-1 p-tag-rounded" icon="pi pi-calendar">Jan 11</Tag>
                     <Tag className="flex m-1 p-tag-rounded" icon="pi pi-circle-on">Unibo</Tag>
                 </div>
