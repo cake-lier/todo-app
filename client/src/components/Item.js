@@ -62,12 +62,12 @@ export function Item({socket, item, onItemChange, selectedItems}){
         <div className="flex justify-content-between m-2">
             <div>
                 <div className="field-checkbox m-1 mb-0">
-                    <Checkbox inputId={item.key}
+                    <Checkbox inputId={item.id}
                               name="item" value={item}
                               onChange={onItemChange}
-                              checked={selectedItems.some((i) => i.key === item.key)}
+                              checked={selectedItems.some((i) => i.key === item.id)}
                     />
-                    <label htmlFor={item.key}>{item.name}</label>
+                    <label htmlFor={item.id}>{item.title}</label>
                     <ItemCount maxCount={item.count} />
                 </div>
 

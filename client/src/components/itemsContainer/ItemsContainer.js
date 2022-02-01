@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
@@ -9,10 +9,13 @@ import axios from "axios";
 
 export function ItemsContainer({listId, listTitle}) {
     // checklist
-    const items = [{name: 'Take a picture', key: '00', count: 5},
-        {name: 'Write report', key: '01', count: 6},
-        {name: 'Production', key: '02', count: 7},
-        {name: 'Research', key: '03', count: 8}];
+    const [items, setItems] = useState([]);
+    const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
+    // const items = [{name: 'Take a picture', key: '00', count: 5},
+    //     {name: 'Write report', key: '01', count: 6},
+    //     {name: 'Production', key: '02', count: 7},
+    //     {name: 'Research', key: '03', count: 8}];
+
     // when checkbox is checked/unchecked, update selectedItems[]
     const [selectedItems, setSelectedItems] = useState(Array.prototype);
     const onItemChange = (e) => {
@@ -42,12 +45,13 @@ export function ItemsContainer({listId, listTitle}) {
             "/lists/" + listId + "/items",
             {
                 listId: listId,
-                title: listTitle,
+                title: itemName,
                 count: setItemNum,
                 assignees: []
             }
         ).then(item => {
-            console.log("created item titled " + item.data.title)
+            console.log("created item titled " + item.data.title);
+            appendItem(item.data);
         });
     }
 
@@ -66,7 +70,7 @@ export function ItemsContainer({listId, listTitle}) {
                 <Button label="New Task" icon="pi pi-plus" onClick={() => setDisplayDialog(true)}/>
                 {
                     items.map((item) => {
-                        return (<Item key={item.key} item={item} onItemChange={onItemChange}
+                        return (<Item key={item.id} item={item} onItemChange={onItemChange}
                                       selectedItems={selectedItems}/>)
                     })
                 }
