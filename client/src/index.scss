@@ -165,7 +165,6 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     scrollbar-color: $pastel-red #ffecd2;   /* scroll thumb and track */
 }
 
-
 *::-webkit-scrollbar {
     width: 8px;
     background-color: #F5F5F5;
@@ -195,19 +194,19 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     opacity: 50%;
 }
 
-@keyframes ui-progress-spinner-color {
+@keyframes p-progress-spinner-color {
     100%,
     0% {
-        stroke: $primary-color;
+        stroke: $primary-color !important;
     }
     40% {
-        stroke: $primary-color;
+        stroke: $primary-color !important;
     }
     66% {
-        stroke: $primary-color;
+        stroke: $primary-color !important;
     }
     80%,
     90% {
-        stroke: $primary-color;
+        stroke: $primary-color !important;
     }
 }

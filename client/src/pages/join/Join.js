@@ -11,7 +11,7 @@ import { useFormik } from "formik";
 
 export default function Join(props) {
     const navigate = useNavigate();
-    const handleOnSuccess = listId => navigate("/lists/" + listId);
+    const errors = useRef();
     const formik = useFormik({
         initialValues: {
             pinCode: "",
@@ -28,19 +28,26 @@ export default function Join(props) {
             }
             return errors;
         },
-        onSubmit: data => props.socket.emit("join", data.pinCode, data.username, result => {
-            if (!result.success) {
-                errors.current.displayError(98);
-                formik.setSubmitting(false);
-            } else if (result.listId === null) {
-                errors.current.displayError(97);
-                formik.setSubmitting(false);
-            } else {
-                handleOnSuccess(result.listId);
-            }
-        })
+        onSubmit: data => {
+            props.socket.once("joinResponse", listId => {
+                if (listId !== null) {
+                    navigate("/my-lists/" + listId);
+                } else {
+                    errors.current.displayError(96);
+                    formik.setSubmitting(false);
+                }
+            });
+            props.socket.emit("join", data.pinCode, data.username, props.socket.id, result => {
+                if (result.error) {
+                    errors.current.displayError(98);
+                    formik.setSubmitting(false);
+                } else if (!result.sent) {
+                    errors.current.displayError(97);
+                    formik.setSubmitting(false);
+                }
+            });
+        }
     });
-    const errors = useRef();
     const isUsernameFieldValid = () => !formik.touched.username || formik.errors.username === undefined;
     return (
         <div className="grid h-screen align-items-center justify-content-center">

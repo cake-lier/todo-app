@@ -43,10 +43,16 @@ class ErrorMessages extends Component {
                     content: "An error has occurred while fetching the requested resource, please try again."
                 });
                 break;
+            case 96:
+                this.messages.show({
+                    severity: "info",
+                    content: "The owner of the list you are trying to join denied your request."
+                });
+                break;
             case 97:
                 this.messages.show({
                     severity: "info",
-                    content: "The owner of the list you are trying to join is not currently reachable or denied your request."
+                    content: "The owner of the list you are trying to join is not currently reachable."
                 });
                 break;
             case 98:

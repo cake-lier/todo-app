@@ -36,10 +36,12 @@ class App extends Component {
     }
 
     unsetUser() {
+        this.state.socket.off("joinRequest");
         if (this.state.socket !== null) {
             this.state.socket.disconnect();
         }
         const socket = io();
+        socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
         socket.on("connect", () =>
             axios.post(
                 "/socket",
@@ -63,7 +65,8 @@ class App extends Component {
 
     componentDidMount() {
         const socket = io();
-        socket.on("connect", () =>
+        socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
+        socket.on("connect", () => {
             axios.post(
                 "/socket",
                 {
@@ -93,8 +96,8 @@ class App extends Component {
                 socket,
                 displayError: error.response.data.error !== 3,
                 ready: true
-            })
-        ));
+            }));
+        });
     }
 
     componentWillUnmount() {
