@@ -106,7 +106,7 @@ export function Settings(props) {
                 </div>
             </div>
 
-            <div id="settingsPageContainer" className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex">
+            <div id="settingsPageContainer" className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex">
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }
@@ -128,7 +128,10 @@ export function Settings(props) {
                     </div>
                 </div>
             </div>
-            <div id="settingsPageContainer" className="mx-0 p-0 md:hidden">
+            <div id="settingsPageContainer" className="mx-0 p-0 w-full md:hidden">
+                <div
+                    className={"black-overlay absolute h-full w-full z-5 " + (open ? null : "hidden")}
+                />
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }

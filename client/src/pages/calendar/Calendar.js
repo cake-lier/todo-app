@@ -78,7 +78,7 @@ export default function Calendar(props) {
             <div id="calendarMainMenuContainer" className="h-screen mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "Calendar" } open={ true } />
             </div>
-            <div id="calendarPageContainer" className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex">
+            <div id="calendarPageContainer" className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex">
                 <PageHeader
                     user={ user }
                     unsetUser={ unsetUser }
@@ -90,7 +90,7 @@ export default function Calendar(props) {
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>
-                    <div className="col-1 mx-8 mt-3 flex flex-grow-1">
+                    <div className="col-1 mx-8 mt-3 flex flex-1">
                         <FullCalendar
                             plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
                             buttonText={ {
@@ -148,6 +148,9 @@ export default function Calendar(props) {
                     </div>
                 </div>
                 <div id="calendarPageContainer" className="mx-0 p-0 w-full md:block">
+                    <div
+                        className={"black-overlay absolute h-full w-full z-5 " + (open ? null : "hidden")}
+                    />
                     <PageHeader
                         user={ user }
                         unsetUser={ unsetUser }
