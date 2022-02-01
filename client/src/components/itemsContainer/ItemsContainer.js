@@ -15,20 +15,38 @@ export function ItemsContainer({listId}) {
     useEffect(() => {
         axios.get("/items/")
             .then(allItems => {
-                setItems(allItems.data.filter(i => i.listId === listId));
-            },
-                //TODO error
-        );
+                    setItems(allItems.data.filter(i => i.listId === listId));
+                    // TODO show completed items as checked
+                    // setSelectedItems(items => items.filter(i => i.completionDate !== null || i.completionDate !== ""));
+                },
+                // TODO error
+            );
     }, [listId]);
 
     // when checkbox is checked/unchecked, update selectedItems[]
-    const [selectedItems, setSelectedItems] = useState(Array.prototype);
+    const [selectedItems, setSelectedItems] = useState([]);
     const onItemChange = (e) => {
         let _selectedItems = [...selectedItems];
 
         if (e.checked) {
             _selectedItems.push(e.value);
+            axios.put("/items/" + e.value._id + "/complete", {
+                isComplete: true
+            })
+                .then(r => {
+                        console.log("task " + e.value._id + " marked as completed.");
+                    },
+                    // TODO error
+                 );
         } else {
+            axios.put("/items/" + e.value._id + "/complete", {
+                isComplete: false
+            })
+                .then(r => {
+                        console.log("task " + e.value._id + " marked as incomplete.");
+                    },
+                    // TODO error
+                );
             for (let i = 0; i < _selectedItems.length; i++) {
                 const selectedItem = _selectedItems[i];
 
