@@ -58,6 +58,19 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     position: static !important;
 }
 
+.p-button.p-button-text {
+    color: $primary-color !important;
+}
+
+.p-button.p-button-text:enabled:hover, .p-button.p-button-text:not(button):not(a):not(.p-disabled):hover {
+    background: getPrimaryColorWithAlpha(0.04);
+    color: $primary-color;
+}
+.p-button.p-button-text:enabled:active, .p-button.p-button-text:not(button):not(a):not(.p-disabled):active {
+    background: getPrimaryColorWithAlpha(0.16);
+    color: $primary-color;
+}
+
 .p-inputtext:enabled:focus {
     box-shadow: inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color;
     border-color: $primary-color;

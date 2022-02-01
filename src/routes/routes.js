@@ -17,14 +17,13 @@ function initializeUserRoutes(app) {
 function initializeListRoutes(app) {
     app.route("/lists").post(controller.list.createList)
                        .get(controller.list.getUserLists);
-    app.route("/lists/shared").get(controller.list.getUserSharedLists);
-    app.route("/lists/member/:id").get(controller.user.getProfilePicture);
     app.route("/lists/:id").delete(controller.list.deleteList)
                            .get(controller.list.getList);
     app.route("/lists/:id/title").put(controller.list.updateTitle);
     app.route("/lists/:id/isVisible").put(controller.list.updateVisibility);
     app.route("/lists/:id/colorIndex").put(controller.list.updateColorIndex);
-    app.route("/lists/:id/members").post(controller.list.addMember);
+    app.route("/lists/:id/members").get(controller.list.getMembers)
+                                   .post(controller.list.addMember);
     app.route("/lists/:id/members/:memberId").delete(controller.list.removeMember);
     app.route("/lists/:id/items/").post(controller.item.createItem)
                                   .get(controller.item.getListItems);

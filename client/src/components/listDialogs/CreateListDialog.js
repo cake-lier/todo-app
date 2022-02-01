@@ -1,25 +1,48 @@
-import {Button} from "primereact/button";
-import {useState} from "react";
+import { Button } from "primereact/button";
 import axios from "axios";
 import ListDialog from "./ListDialog";
+import { useFormik } from "formik";
 
-export default function CreateListDialog({display, setDisplay, lists, setLists, list}) {
-
-    const [state, setState] = useState("true");
-    const [isSubmitting, setSubmitting] = useState("false");
-    const [listName, setListName] = useState(list? list.title : "");
-    const [isVisible, setVisibility] = useState(list? list.joinCode===null : false);
-    const [color, setColor] = useState(0);
-
+export default function CreateListDialog({ display, setDisplay, appendList, displayError }) {
+    const formik = useFormik({
+        initialValues: {
+            title: "",
+            isVisible: false,
+            colorIndex: 0
+        },
+        validate: data => {
+            const errors = {};
+            if (!data.title) {
+                errors.title = "A title for the list is required.";
+            }
+            return errors;
+        },
+        onSubmit: data => {
+            axios.post(
+                "/lists",
+                {
+                    title: data.title,
+                    isVisible: data.isVisible,
+                    colorIndex: data.colorIndex
+                }
+            )
+            .then(
+                list => {
+                    appendList(list.data);
+                    setDisplay(false);
+                    formik.resetForm();
+                },
+                error => displayError(error.response.data.error)
+            );
+        }
+    });
     const cancel = () => {
-        setSubmitting(false);
-        setState(true);
-        setListName("");
-        setVisibility(false);
-        setColor(0);
+        formik.resetForm();
         setDisplay(false);
     }
-
+    const isFormFieldValid = name => !formik.touched[name] || formik.errors[name] === undefined;
+    const getFormErrorMessage =
+            name => isFormFieldValid(name) ? "" : <p className="p-error mx-2 text-sm">{ formik.errors[name] }</p>;
     const renderFooter = () => {
         return (
             <div className="grid">
@@ -27,61 +50,30 @@ export default function CreateListDialog({display, setDisplay, lists, setLists, 
                     <Button
                         className="w-full p-button-text"
                         label="Cancel"
-                        onClick={() => cancel()} />
+                        onClick={ cancel } />
                 </div>
                 <div className="col-6 p-3 flex justify-content-center">
                     <Button
-                        className={"w-full p-button-text" + (isSubmitting ? null : "disabled")}
-                        onClick={(e) => createList(e)}
+                        className={"w-full p-button" + (formik.isSubmitting ? " p-disabled" : "")}
                         label="Save"
                         type="submit"
-                        autoFocus />
+                        onClick={ formik.submitForm }
+                    />
                 </div>
             </div>
         );
     }
-
-    const createList = (e) => {
-        e.preventDefault();
-        setSubmitting(true);
-        if (listName !== "") {
-            axios.post(
-                "/lists",
-                {
-                    title: listName,
-                    isVisible: isVisible,
-                    colorIndex: color
-                }
-            ).then(
-                list => {
-                    const newList = [...lists, list.data];
-                    setLists(newList);
-                    console.log(list.data);
-                    cancel();
-                },
-                error => {
-                    // TO DO
-                }
-            )
-        } else {
-            setState(false);
-            console.log("RIP")
-        }
-    }
-
     return (
         <ListDialog
             dialogName="Create a new list"
-            display={display}
-            renderFooter={renderFooter}
-            listName={listName}
-            setListName={setListName}
-            state={state}
-            color={color}
-            setColor={setColor}
-            isVisible={isVisible}
-            setVisibility={setVisibility}
-            ownership
+            display={ display }
+            renderFooter={ renderFooter }
+            title={ formik.values.title }
+            colorIndex={ formik.values.colorIndex }
+            isVisible={ formik.values.isVisible }
+            handleChange={ formik.handleChange }
+            isFormFieldValid={ isFormFieldValid }
+            getFormErrorMessage={ getFormErrorMessage }
         />
     );
 }

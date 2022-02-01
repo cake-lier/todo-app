@@ -1,5 +1,5 @@
 import { Component } from "react";
-import {Navigate, Route, Routes, useParams} from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Dialog } from "primereact/dialog";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -210,12 +210,11 @@ class App extends Component {
                         path="/test-list"
                         element={<TestList name="School things" socket={ this.state.socket }/>}
                     />
-
                     <Route
                         exact path="/my-lists"
                         element={
                             this.state.user !== null
-                                ? <MyLists user={ this.state. user } unsetUser={ this.unsetUser } />
+                                ? <MyLists user={ this.state.user } unsetUser={ this.unsetUser } />
                                 : <Navigate to="/" />
                         }
                     />
@@ -223,7 +222,7 @@ class App extends Component {
                         exact path="/shared-with-me"
                         element={
                             this.state.user !== null
-                                ? <SharedWithMe user={this.state.user} unsetUser={this.unsetUser }/>
+                                ? <SharedWithMe user={ this.state.user } unsetUser={ this.unsetUser }/>
                                 : <Navigate to="/" />
                         }
                     />

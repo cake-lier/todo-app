@@ -1,30 +1,73 @@
-import {useEffect, useState} from "react";
 import {Button} from "primereact/button";
 import ListDialog from "./ListDialog";
 import axios from "axios";
+import {useFormik} from "formik";
 
-export default function EditListDialog({display, setDisplay, lists, setLists, listId, title, joinCode, colorIndex, ownership=true}) {
-    const [state, setState] = useState("true");
-    const [isSubmitting, setSubmitting] = useState("false");
-    const [listName, setListName] = useState(title);
-    const [isVisible, setVisibility] = useState(joinCode ? true : false)
-    const [color, setColor] = useState(colorIndex);
-
-    useEffect(() => {
-        setListName(title);
-        setVisibility(joinCode ? true : false);
-        setColor(colorIndex);
-    }, [title, joinCode, colorIndex])
-
-    const cancel = () => {
-        setSubmitting(false);
-        setState(true);
-        setDisplay(false);
-        setListName(title);
-        setVisibility(joinCode ? true : false);
-        setColor(colorIndex);
-    }
-
+export default function EditListDialog({ display, setDisplay, updateList, listId, title, joinCode, colorIndex, ownership = true, displayError }) {
+    const formik = useFormik({
+        enableReinitialize: true,
+        initialValues: {
+            title,
+            isVisible: !!joinCode,
+            colorIndex
+        },
+        validate: data => {
+            const errors = {};
+            if (!data.title) {
+                errors.title = "A title for the list is required.";
+            }
+            return errors;
+        },
+        onSubmit: data => {
+            (
+                data.title !== title
+                ? axios.put(`/lists/${ listId }/title`, { title: data.title })
+                : Promise.resolve(null)
+            )
+            .then(
+                list =>
+                    (
+                        data.isVisible !== !!joinCode
+                        ? axios.put(`/lists/${ listId }/isVisible`, { isVisible: data.isVisible })
+                        : Promise.resolve(list)
+                    )
+                    .then(
+                        list =>
+                            (
+                                data.colorIndex !== colorIndex
+                                ? axios.put(`/lists/${ listId }/colorIndex`, { colorIndex: data.colorIndex })
+                                : Promise.resolve(list)
+                            )
+                            .then(
+                                list => {
+                                    if (list !== null) {
+                                        updateList(list.data);
+                                    }
+                                },
+                                error => {
+                                    if (list !== null) {
+                                        updateList(list.data);
+                                    }
+                                    displayError(error.response.data.error)
+                                }
+                            ),
+                        error => {
+                            if (list !== null) {
+                                updateList(list.data);
+                            }
+                            displayError(error.response.data.error);
+                        }
+                    ),
+                error => displayError(error.response.data.error)
+            );
+            setDisplay(false);
+            formik.resetForm(data);
+        }
+    });
+    const cancel = () => setDisplay(false);
+    const isFormFieldValid = name => !formik.touched[name] || formik.errors[name] === undefined;
+    const getFormErrorMessage =
+            name => isFormFieldValid(name) ? "" : <p className="p-error text-sm">{ formik.errors[name] }</p>;
     const renderFooter = () => {
         return (
             <div className="grid">
@@ -32,96 +75,31 @@ export default function EditListDialog({display, setDisplay, lists, setLists, li
                     <Button
                         className="w-full p-button-text"
                         label="Cancel"
-                        onClick={() => cancel()} />
+                        onClick={ cancel } />
                 </div>
                 <div className="col-6 p-3 flex justify-content-center">
                     <Button
-                        className={"w-full p-button-text" + (isSubmitting ? null : "disabled")}
-                        onClick={(e) => editList(e)}
+                        className={"w-full p-button" + (formik.isSubmitting ? " disabled" : "")}
+                        onClick={ formik.submitForm }
                         label="Save"
                         type="submit"
-                        autoFocus />
+                    />
                 </div>
             </div>
         );
     }
-
-    function updateLists(updatedList) {
-        const oldLists = lists.filter((l) => l._id !== listId);
-        const newLists = [...oldLists, updatedList.data];
-        setLists(newLists);
-    }
-
-    function editListTitle() {
-        if (listName !== title) {
-            axios.put(
-                "/lists/" + listId + "/title",
-                {title: listName}
-            ).then(
-                list => {
-                    updateLists(list);
-                },
-                error => {
-                    //TODO
-                }
-            )
-        }
-    }
-
-    function editListVisibility() {
-        if (isVisible !== (joinCode !== null)) {
-            axios.put(
-                "/lists/" + listId + "/isVisible",
-                {isVisible: isVisible}
-            ).then(
-                list => {
-                    updateLists(list);
-                },
-                error => {
-                    //TODO
-                }
-            )
-        }
-    }
-
-    function editListColor() {
-        if (color !== colorIndex) {
-            axios.put(
-                "/lists/"+listId+"/colorIndex",
-                {colorIndex: color}
-            ).then(
-                list => {
-                    updateLists(list);
-                },
-                error => {
-                    //TODO
-                }
-            )
-        }
-    }
-
-    const editList = (e) => {
-        e.preventDefault();
-        setSubmitting(true);
-        editListTitle()
-        editListVisibility()
-        editListColor()
-        setDisplay(false)
-    }
-
     return (
         <ListDialog
             dialogName="Update the list"
-            display={display}
-            renderFooter={renderFooter}
-            listName={listName}
-            setListName={setListName}
-            state={state}
-            color={color}
-            setColor={setColor}
-            isVisible={isVisible}
-            setVisibility={setVisibility}
-            ownership={ownership}
+            display={ display }
+            renderFooter={ renderFooter }
+            title={ formik.values.title }
+            colorIndex={ formik.values.colorIndex }
+            isVisible={ formik.values.isVisible }
+            handleChange={ formik.handleChange }
+            isFormFieldValid={ isFormFieldValid }
+            getFormErrorMessage={ getFormErrorMessage }
+            ownership={ ownership }
         />
     );
 }

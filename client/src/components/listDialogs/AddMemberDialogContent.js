@@ -3,47 +3,52 @@ import {useState} from "react";
 import {Button} from "primereact/button";
 import axios from "axios";
 
-export default function AddMemberDialogContent({listId, setDisplay, lists, setLists, membersProfile, setMembersProfile}){
-
+export default function AddMemberDialogContent({ list, setDisplay, updateList, setMembers, displayError }){
     const [email, setEmail] = useState("");
-
     const joinListHandler = () => {
-        //TODO
-        console.log("JOINED! :D")
         axios.post(
-            /lists/ + listId + "/members",
-            {body: email}
-        ).then( r => {
-            setDisplay(false)
-            const oldListIdx = lists.indexOf(lists.filter(l => l._id === listId)[0])
-            let newLists = lists
-            newLists[oldListIdx] = r.data
-            setLists(newLists)
-            //setMembersProfile([...membersProfile, r.data.members[r.data.members.length-1]])
-        })
+            `/lists/${ list._id }/members`,
+            { email, isAnonymous: false }
+        )
+        .then(
+            list => {
+                setDisplay(false);
+                axios.get(`/lists/${ list.data._id }/members/`)
+                     .then(
+                         members => setMembers(members.data),
+                         error => displayError(error.response.data.error)
+                     );
+                updateList(list.data);
+            },
+            error => displayError(error.response.data.error)
+        );
     }
-
-    return(
+    return (
         <div className="grid">
-            <div className="col-12 m-0 p-0 flex flex-row align-items-center">
+            <div className="col-12 m-0 flex flex-row align-items-center">
                 <div className="col-9 m-0 p-0">
-                    <InputText
-                        className="p-inputtext-sm block mb- p-2 w-full h-2rem"
-                        value={email}
-                        placeholder="Member email"
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                    <span className="p-float-label">
+                        <InputText
+                            id="memberEmail"
+                            name="memberEmail"
+                            className="w-full"
+                            value={ email }
+                            onChange={ e => setEmail(e.target.value) }
+                        />
+                        <label htmlFor="memberEmail">
+                            Member email
+                        </label>
+                    </span>
                 </div>
                 <div className="col-3">
                     <Button
-                        className="w-full p-button-text"
+                        className="w-full p-button"
                         label="Add"
                         type="submit"
-                        onClick={joinListHandler}
-                        autoFocus />
+                        onClick={ joinListHandler }
+                    />
                 </div>
             </div>
         </div>
-
     );
 }

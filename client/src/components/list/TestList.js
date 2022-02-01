@@ -6,7 +6,6 @@ import { Menu } from 'primereact/menu';
 import { Calendar } from 'primereact/calendar';
 import { Dialog } from 'primereact/dialog';
 import "./TestList.scss";
-import {io} from "socket.io-client";
 
 export function TestList(props) {
     // checklist

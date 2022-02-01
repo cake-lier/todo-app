@@ -7,6 +7,7 @@ const Notification = require("../model/notificationsModel").createNotificationMo
 const uuid = require("uuid");
 const otp = require("otp-generator");
 const { Error, validateRequest, sendError } = require("../utils/validation");
+const mongoose = require("mongoose");
 
 function createList(request, response) {
     if (!validateRequest(request, response, ["title"], [], true)) {
@@ -114,30 +115,59 @@ function getUserLists(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    List.find({ members: { $elemMatch: { userId: request.session.userId, role: "owner" } } })
-        .exec()
-        .then(
-            lists => response.json(lists),
-            error => {
-                console.log(error);
-                sendError(response, Error.GeneralError);
-            }
-        );
+    List.find(
+        { members: { $elemMatch: { userId: request.session.userId, role: request.query.shared ? "member" : "owner" } } }
+    )
+    .exec()
+    .then(
+        lists => response.json(lists),
+        error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        }
+    );
 }
 
-function getUserSharedLists(request, response) {
-    if (!validateRequest(request, response, [], [], true)) {
+function getMembers(request, response) {
+    if (!validateRequest(request, response, [], ["id"], true)) {
         return;
     }
-    List.find({ members: { $elemMatch: { userId: request.session.userId, role:"member" } } })
-        .exec()
-        .then(
-            lists => response.json(lists),
-            error => {
-                console.log(error);
-                sendError(response, Error.GeneralError);
-            }
-        );
+    List.startSession()
+        .then(session => session.withTransaction(() =>
+            List.findById(request.params.id, undefined, { session })
+                .exec()
+                .then(list => {
+                    if (list === null) {
+                        sendError(response, Error.ResourceNotFound);
+                        return Promise.resolve();
+                    }
+                    return Promise.all(list.members.map(member => {
+                        if (member.anonymousId !== null) {
+                            return Promise.resolve(
+                                { _id: member._id, username: member.username, role: member.role, profilePicturePath: null }
+                            );
+                        }
+                        return User.findById(member.userId, undefined, { session })
+                                   .exec()
+                                   .then(user => {
+                                       if (user === null) {
+                                           return Promise.resolve(null);
+                                       }
+                                       return Promise.resolve({
+                                           _id: member._id,
+                                           username: user.username,
+                                           role: member.role,
+                                           profilePicturePath: user.profilePicturePath
+                                       });
+                                   });
+                    }))
+                    .then(members => response.json(members.filter(m => m !== null)));
+                })
+    ))
+    .catch(error => {
+        console.log(error);
+        sendError(response, Error.GeneralError);
+    });
 }
 
 function updateListProperty(
@@ -288,13 +318,13 @@ function addMember(request, response) {
                             request,
                             response,
                             {
-                                _id: request.params.id,
+                                _id: mongoose.Types.ObjectId(request.params.id),
                                 members: {
-                                    $elemMatch: { userId, role: "owner" },
-                                    $not: { $elemMatch: { userId: request.body.userId } }
+                                    $elemMatch: { userId: mongoose.Types.ObjectId(request.session.userId), role: "owner" },
+                                    $not: { $elemMatch: { userId: user._id } }
                                 }
                             },
-                            { $push: { members: { userId: request.body.userId } } },
+                            { $push: { members: { userId: user._id } } },
                             { new: true, session },
                             (response, list) => {
                                 const listId = list._id.toString();
@@ -387,12 +417,12 @@ function removeMember(request, response) {
                 return;
             }
             const listId = list._id.toString();
-            const memberIndex = list.members.indexOf(m => m._id === request.params.memberId);
+            const memberIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId);
             const userText = `You have been removed as a member from the list "${ list.title }"`;
             if (list.members[memberIndex].userId !== null) {
                 Notification.create({
                     users: [list.members[memberIndex].userId],
-                    userText
+                    text: userText
                 })
                 .catch(error => console.log(error))
                 .then(_ => {
@@ -428,7 +458,7 @@ module.exports = {
     deleteList,
     getList,
     getUserLists,
-    getUserSharedLists,
+    getMembers,
     updateTitle,
     updateVisibility,
     updateColorIndex,
