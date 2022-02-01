@@ -75,6 +75,8 @@ export function ItemsContainer({listId}) {
         ).then(item => {
             console.log("created item titled " + item.data.title);
             appendItem(item.data);
+            setItemName('');
+            setItemNum(1);
         });
     }
 
@@ -121,9 +123,9 @@ export function ItemsContainer({listId}) {
                     visible={displayDialog} onHide={() => setDisplayDialog(false)}>
                 <label htmlFor="inputItemName">Name</label>
                 <span id="inputItemName" className="p-float-label">
-                <InputText id="itemName" value={itemName} onChange={(e) => setItemName(e.target.value)}/>
-                <label htmlFor="itemName">Task Name</label>
-            </span>
+                    <InputText id="itemName" value={itemName} onChange={(e) => setItemName(e.target.value)}/>
+                    <label htmlFor="itemName">Task Name</label>
+                </span>
 
                 <label htmlFor="num">Task number</label>
                 <div className="grid">
