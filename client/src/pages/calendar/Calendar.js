@@ -86,11 +86,11 @@ export default function Calendar(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
-                <div className="grid overflow-scroll">
+                <div className="grid overflow-y-scroll">
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>
-                    <div className="col-6 ml-8 mt-3 flex flex-grow-1">
+                    <div className="col-1 mx-8 mt-3 flex flex-grow-1">
                         <FullCalendar
                             plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
                             buttonText={ {
