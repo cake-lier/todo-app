@@ -1,108 +1,93 @@
-// import axios from "axios";
-// import { TreeTable } from 'primereact/treetable';
-// import { Column } from 'primereact/column';
-// import "./MyDayItem.scss"
-// import EmptyTaskSVG from "../EmptyTaskSVG";
-// import Moment from "moment";
-// import {useCallback, useEffect, useState} from "react";
-// import {Checkbox} from "primereact/checkbox";
-// import {Tag} from "primereact/tag";
-//
-// export default function MyDayItem({displayError}) {
-//     const [items, setItems] = useState([]);
-//
-//     const populateItems = useCallback((type, itemList, key) => {
-//         if (itemList.length > 0) {
-//             let children = [];
-//             itemList.forEach(i => {
-//                 children = [...children, {
-//                     key: i._id,
-//                     data: i
-//                 }]
-//             })
-//             const newItems = [
-//                 {
-//                     key: key,
-//                     data: {
-//                         title: type,
-//                         dueDate: null
-//                     },
-//                     children: children
-//                 }
-//             ];
-//             console.log(newItems)
-//             return newItems;
-//         }
-//     },[])
-//
-//     useEffect(() => {
-//         axios.get(
-//             "/items"
-//         ).then(
-//             res => {
-//                 if (!res) {
-//                     const today = Moment(Date.now())
-//                     const dueTask = res.data.filter(i => i.dueDate !== null)
-//                     const pastDue = dueTask.filter(i => Moment(i.dueDate).isBefore(today, 'day'))
-//                     const dueToday = dueTask.filter(i => Moment(i.dueDate).isSame(today, 'day'))
-//                     const upcoming = dueTask.filter(i => Moment(i.dueDate).isAfter(today, 'day'))
-//                     const newItems = [
-//                         ...items,
-//                         populateItems("Past due", pastDue, 0),
-//                         populateItems("Due today", dueToday, 1),
-//                         populateItems("Upcoming", upcoming, 2)
-//                     ]
-//                     console.log(newItems);
-//                     setItems(newItems)
-//                     console.log(items)
-//                 }
-//             },
-//             errors => {
-//                 displayError(errors);
-//             }
-//         )
-//     }, [])
-//
-//     const rowTemplate = (node, column) => {
-//         if (node.key) {
-//             return(
-//                 <>
-//                     <h1>{node.title}</h1>
-//                 </>
-//             );
-//         }
-//         return (
-//             <div className="grid align-items-center">
-//                 <div className="flex justify-content-between m-2">
-//                     <div>
-//                         <div key={node._id} className="field-checkbox m-1">
-//                             <Checkbox inputId={node._id}
-//                                       name="item"
-//                                       value={node}
-//                             />
-//                             <label htmlFor={node._id}>{node.title}</label>
-//                         </div>
-//                         <div className="flex align-items-center flex-wrap">
-//                             <Tag className="flex m-1 p-tag-rounded" icon="pi pi-calendar">Jan 11</Tag>
-//                             <Tag className="flex m-1 p-tag-rounded" icon="pi pi-circle-on">Unibo</Tag>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </div>
-//         );
-//     }
-//
-//     return (
-//         <div className={"card flex flex-grow-1 " + (items.length ? null : "justify-content-center align-items-center")}>
-//             <TreeTable className={"flex-basis " + (items.length ? null : "hidden")}
-//                        value={items}
-//                        scrollHeight="80vh"
-//                        scrollable>
-//                 <Column field="title" header="Title" expander></Column>
-//             </TreeTable>
-//             <div className={(items.length ? "hidden" : null)}>
-//                 <EmptyTaskSVG/>
-//             </div>
-//         </div>
-//     );
-// }
+import axios from "axios";
+import { Panel } from 'primereact/panel';
+import { Ripple } from 'primereact/ripple';
+import "./MyDayItem.scss"
+import EmptyTaskSVG from "../EmptyTaskSVG";
+import Moment from "moment";
+import {useEffect, useState} from "react";
+
+export default function MyDayItem({displayError}) {
+    const [pastDue, setPastDue] = useState([]);
+    const [dueToday, setDueToday] = useState([]);
+    const [upcoming, setUpcoming] = useState([]);
+    const [tasksPresent, setTasksPresent] = useState(false);
+
+    useEffect(() => {
+        axios.get(
+            "/items"
+        ).then(
+            res => {
+                if (res.data.length) {
+                    const today = Moment(Date.now())
+                    const dueTask = res.data.filter(i => i.dueDate !== null)
+                    const pastDue = dueTask.filter(i => Moment(i.dueDate).isBefore(today, 'day'))
+                    const dueToday = dueTask.filter(i => Moment(i.dueDate).isSame(today, 'day'))
+                    const upcoming = dueTask.filter(i => Moment(i.dueDate).isAfter(today, 'day'))
+                    setPastDue(pastDue);
+                    setDueToday(dueToday);
+                    setUpcoming(upcoming);
+                    setTasksPresent(true);
+                } else {
+                    setTasksPresent(false);
+                }
+            },
+            errors => {
+                displayError(errors);
+            }
+        )
+    }, [displayError, setPastDue, setDueToday, setUpcoming, setTasksPresent]);
+
+    const template = (options) => {
+        const toggleIcon = options.collapsed ? 'pi pi-chevron-down' : 'pi pi-chevron-up';
+        const className = `${options.className} justify-content-start px-0`;
+        const titleClassName = `${options.titleClassName} pl-1`;
+        const title = options.props.id.toString().includes("past-due")
+            ? "Past due" : options.props.id.toString().includes("due-today")
+            ? "Due today" : "Upcoming"
+
+        return (
+            <div className={className}>
+                <button className={options.togglerClassName} onClick={options.onTogglerClick}>
+                    <span className={toggleIcon}></span>
+                    <Ripple />
+                </button>
+                <span className={titleClassName}>
+                    {title}
+                </span>
+            </div>
+        )
+    }
+
+    return (
+        <div className={"card flex flex-grow-1 flex-column " + (tasksPresent ? null : "justify-content-center align-items-center")}>
+            <Panel
+                id="past-due"
+                className={pastDue.length > 0 ? null : "hidden"}
+                headerTemplate={template}
+                titleElement="P"
+                collapsed
+                toggleable>
+                <p>Past due tasks list</p>
+            </Panel>
+            <Panel
+                id="due-today"
+                className={dueToday.length > 0 ? null : "hidden"}
+                headerTemplate={template}
+                collapsed
+                toggleable>
+                <p>Due today tasks list</p>
+            </Panel>
+            <Panel
+                id="upcoming"
+                className={upcoming.length > 0 ? null : "hidden"}
+                headerTemplate={template}
+                collapsed
+                toggleable>
+                <p>Upcoming tasks list</p>
+            </Panel>
+            <div className={(tasksPresent ? "hidden" : null)}>
+                <EmptyTaskSVG/>
+            </div>
+        </div>
+    );
+}
