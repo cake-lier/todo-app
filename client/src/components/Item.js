@@ -4,7 +4,6 @@ import {Tag} from "primereact/tag";
 import {Button} from "primereact/button";
 import {Menu} from "primereact/menu";
 import {ItemCount} from "./ItemCount";
-import { DataView, DataViewLayoutOptions } from 'primereact/dataview';
 import {DueDateDialog} from "./itemDialogs/dueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/setReminderDialog";
 
@@ -21,15 +20,9 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
         {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem(item)}}
     ];
 
-    // calendar
+    // calendar dialogs
     const [displayCalendar1, setDisplayCalendar1] = useState(false);
     const [displayCalendar2, setDisplayCalendar2] = useState(false);
-
-    // const itemTemplate = (list) => {
-    //     return (
-    //
-    //     );
-    // }
 
     return (
         <>

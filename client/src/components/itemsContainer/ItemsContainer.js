@@ -11,6 +11,8 @@ export function ItemsContainer({listId}) {
     // checklist
     const [items, setItems] = useState([]);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
+    const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
+
     // init items from database
     useEffect(() => {
         axios.get("/items/")
@@ -84,16 +86,7 @@ export function ItemsContainer({listId}) {
     const deleteItem = (item) => {
         axios.delete("/items/" + item._id).then(r => {
                 console.log("item deleted");
-                // update items array
-                let _items = [...items];
-                for (let i = 0; i < _items.length; i++) {
-                    const selectedItem = _items[i];
-
-                    if (selectedItem._id === item._id) {
-                        _items.splice(i, 1);
-                        break;
-                    }
-                }
+                removeItem(item);
             },
             // TODO error msg
         );
