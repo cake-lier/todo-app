@@ -5,6 +5,7 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import JoinDialog from "../../components/JoinDialog/JoinDialog";
 
 export default function List(props) {
     const errors = useRef();
@@ -32,6 +33,9 @@ export default function List(props) {
     return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
+
+            <JoinDialog
+            />
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "My day" } open={true}/>
             </div>
