@@ -17,8 +17,13 @@ export function Item({socket, item, onItemChange, selectedItems}){
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
         {label: 'Add tags', icon: 'pi pi-tag' },
         {label: 'Add priority', icon: 'pi pi-star' },
-        {label: 'Delete', icon: 'pi pi-trash'}
+        {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem()}}
     ];
+
+    // delete item
+    const deleteItem = () => {
+        console.log("id: " + item.id + "| _id: " + item._id);
+    }
 
     // calendar
     const [displayCalendar1, setDisplayCalendar1] = useState(false);
@@ -62,12 +67,12 @@ export function Item({socket, item, onItemChange, selectedItems}){
         <div className="flex justify-content-between m-2">
             <div>
                 <div className="field-checkbox m-1 mb-0">
-                    <Checkbox inputId={item.id}
+                    <Checkbox inputId={item._id}
                               name="item" value={item}
                               onChange={onItemChange}
-                              checked={selectedItems.some((i) => i.key === item.id)}
+                              checked={selectedItems.some((i) => i._id === item._id)}
                     />
-                    <label htmlFor={item.id}>{item.title}</label>
+                    <label htmlFor={item._id}>{item.title}</label>
                     <ItemCount maxCount={item.count} />
                 </div>
 

@@ -11,6 +11,7 @@ export function ItemsContainer({listId}) {
     // checklist
     const [items, setItems] = useState([]);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
+    // init items from database
     useEffect(() => {
         axios.get("/items/")
             .then(allItems => {
@@ -31,7 +32,7 @@ export function ItemsContainer({listId}) {
             for (let i = 0; i < _selectedItems.length; i++) {
                 const selectedItem = _selectedItems[i];
 
-                if (selectedItem.key === e.value.key) {
+                if (selectedItem._id === e.value._id) {
                     _selectedItems.splice(i, 1);
                     break;
                 }
@@ -74,7 +75,7 @@ export function ItemsContainer({listId}) {
                 <Button label="New Task" icon="pi pi-plus" onClick={() => setDisplayDialog(true)}/>
                 {
                     items.map((item) => {
-                        return (<Item key={item.id} item={item} onItemChange={onItemChange}
+                        return (<Item key={item._id} item={item} onItemChange={onItemChange}
                                       selectedItems={selectedItems}/>)
                     })
                 }
