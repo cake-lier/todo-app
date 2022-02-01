@@ -7,7 +7,7 @@ import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
 import SharedWithMeHeader from "../../components/SharedWithMeHeader";
 
-export default function SharedWithMe(props) {
+export default function SharedWithMe({ user, unsetUser, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -28,8 +28,8 @@ export default function SharedWithMe(props) {
             </div>
             <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex">
                 <PageHeader
-                    user={ props.user }
-                    unsetUser={ props.unsetUser }
+                    user={ user }
+                    unsetUser={ unsetUser }
                     title="Shared with me"
                     showDate={ false }
                     isResponsive={ false }
@@ -40,9 +40,10 @@ export default function SharedWithMe(props) {
                 <ListItem
                     lists={ lists }
                     setLists={ setLists }
-                    userId={ props.user._id }
+                    userId={ user._id }
                     ownership={ false }
                     displayError={ displayError }
+                    socket={ socket }
                 />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
@@ -56,21 +57,22 @@ export default function SharedWithMe(props) {
                      style={{backgroundColor: "white"}}>
                     <div className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")} />
                     <PageHeader
-                        user={ props.user }
-                        unsetUser={ props.unsetUser }
+                        user={ user }
+                        unsetUser={ unsetUser }
                         title="Shared with me"
-                        showDate={false}
-                        isResponsive={true}
-                        displayError={displayError}
+                        showDate={ false }
+                        isResponsive={ true }
+                        displayError={ displayError }
                     />
                     <SharedWithMeHeader />
                     <Divider className="p-0" />
                     <ListItem
                         lists={ lists }
                         setLists={ setLists }
-                        userId={ props.user._id }
+                        userId={ user._id }
                         ownership={ false }
                         displayError={ displayError }
+                        socket={ socket }
                     />
                 </div>
             </div>

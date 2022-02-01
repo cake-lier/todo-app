@@ -10,7 +10,7 @@ import EditListDialog from "../listDialogs/EditListDialog";
 import { TieredMenu } from "primereact/tieredmenu";
 import MembersDialog from "../listDialogs/MembersDialog";
 
-export default function ListItem({ lists, setLists, userId, ownership= true, displayError }) {
+export default function ListItem({ lists, setLists, userId, ownership= true, displayError, socket }) {
     const menu = useRef(null);
     const [list, setList] = useState(null);
     const [displayJoinCodeDialog, setDisplayJoinCodeDialog] = useState(false);
@@ -61,6 +61,32 @@ export default function ListItem({ lists, setLists, userId, ownership= true, dis
                  error => displayError(error.response.data.error)
              );
     }, [ownership, setLists, displayError]);
+    useEffect(() => {
+        function handleUpdates(event) {
+            if ([
+                "listCreated",
+                "listDeleted",
+                "listTitleChanged",
+                "listVisibilityChanged",
+                "listMemberAdded",
+                "listSelfRemoved",
+                "listMemberRemoved"
+            ].includes(event)) {
+                axios.get(ownership ? "/lists" : "/lists?shared=true")
+                     .then(
+                         lists => {
+                             setLists(lists.data);
+                             const chosenList = lists.data.filter(l => l._id === list._id);
+                             menu.current.hide();
+                             setList(chosenList.length > 0 ? chosenList[0] : null);
+                         },
+                         error => displayError(error.response.data.error)
+                     );
+            }
+        }
+        socket.onAny(handleUpdates);
+        return () => socket.offAny(handleUpdates);
+    }, [ownership, displayError, socket, setLists, setList, list]);
     const navigate = useNavigate();
     const onTitleClick = useCallback(id => navigate(`/my-lists/${ id }`), [navigate]);
     const updateList = list => {

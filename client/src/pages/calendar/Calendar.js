@@ -64,7 +64,7 @@ export default function Calendar(props) {
             }
         }
         socket.onAny(handleUpdates);
-        return () => socket.offAny(handleUpdates)
+        return () => socket.offAny(handleUpdates);
     }, [socket, updateEvents]);
     const mobileCalendar = useRef();
     const desktopCalendar = useRef();

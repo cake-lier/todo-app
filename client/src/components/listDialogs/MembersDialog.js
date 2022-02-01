@@ -35,7 +35,7 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
             <div className="grid flex flex-row align-items-center">
                 <h1>Members</h1>
                 <Button
-                    className="ml-3 p-1"
+                    className={"ml-3 p-1" + (ownership ? "" : " hidden")}
                     id="create-button"
                     label="Add"
                     icon="pi pi-plus"
@@ -64,10 +64,9 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
                 <div className="col-2 flex justify-content-end">
                     <h1 className={(member.role === "owner") ? null : "hidden"}>Admin</h1>
                     <i
-                        className={"pi pi-times mr-1 " + ((member.role !== "owner" && ownership) ? "" : "hidden")}
+                        className={"pi pi-times cursor-pointer mr-1 " + ((member.role !== "owner" && ownership) ? "" : "hidden")}
                         onClick={ () => removeMember(member) }
-                    >
-                    </i>
+                    />
                 </div>
             </div>
         );

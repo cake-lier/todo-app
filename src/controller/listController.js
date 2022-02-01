@@ -25,8 +25,17 @@ function createList(request, response) {
     .then(
         list => {
             const listId = list._id.toString();
-            io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
-            io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
+            const text = `The list "${ list.title }" has just been created`;
+            Notification.create({
+                users: list.members.filter(m => m.userId !== null),
+                text
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
+                io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
+                io.in(`list:${ listId }`).emit("listCreated", listId, text);
+            });
             response.json(list);
         },
         error => {
@@ -58,7 +67,7 @@ function deleteList(request, response) {
                                const listId = list._id.toString();
                                const text = `The list "${ list.title }" has just been deleted`;
                                Notification.create({
-                                   users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                   users: list.members.filter(m => m.userId !== null),
                                    text
                                })
                                .catch(error => console.log(error))

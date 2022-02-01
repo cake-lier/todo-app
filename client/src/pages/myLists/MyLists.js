@@ -2,13 +2,13 @@ import ErrorMessages from "../../components/ErrorMessages";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import BurgerMenu from "../../components/BurgerMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
-import { useCallback, useRef, useState } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import { Divider } from "primereact/divider";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
 
-export default function MyLists(props) {
+export default function MyLists({ user, unsetUser, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -35,8 +35,8 @@ export default function MyLists(props) {
                 className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex"
             >
                 <PageHeader
-                    user={ props.user }
-                    unsetUser={ props.unsetUser }
+                    user={ user }
+                    unsetUser={ unsetUser }
                     title="My Lists"
                     showDate={ false }
                     isResponsive={ false }
@@ -44,7 +44,7 @@ export default function MyLists(props) {
                 />
                 <MyListsHeader appendList={ appendList } displayError={ displayError } />
                 <Divider className="p-0" />
-                <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } />
+                <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } socket={ socket } />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
                 <div className="col-1 p-0 h-full absolute justify-content-center">
@@ -57,8 +57,8 @@ export default function MyLists(props) {
                      style={{ backgroundColor: "white" }}>
                     <div className={ "black-overlay absolute h-full w-full z-20 " + (open ? "" : "hidden") } />
                     <PageHeader
-                        user={ props.user }
-                        unsetUser={ props.unsetUser }
+                        user={ user }
+                        unsetUser={ unsetUser }
                         title="My Lists"
                         showDate={ false }
                         isResponsive={ true }
@@ -66,7 +66,7 @@ export default function MyLists(props) {
                     />
                     <MyListsHeader appendList={ appendList } displayError={ displayError } />
                     <Divider className="p-0" />
-                    <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } />
+                    <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } socket={ socket } />
                 </div>
             </div>
         </div>

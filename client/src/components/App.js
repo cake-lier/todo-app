@@ -214,7 +214,7 @@ class App extends Component {
                         exact path="/my-lists"
                         element={
                             this.state.user !== null
-                                ? <MyLists user={ this.state.user } unsetUser={ this.unsetUser } />
+                                ? <MyLists user={ this.state.user } unsetUser={ this.unsetUser } socket={ this.state.socket } />
                                 : <Navigate to="/" />
                         }
                     />
@@ -222,7 +222,11 @@ class App extends Component {
                         exact path="/shared-with-me"
                         element={
                             this.state.user !== null
-                                ? <SharedWithMe user={ this.state.user } unsetUser={ this.unsetUser }/>
+                                ? <SharedWithMe
+                                    user={ this.state.user }
+                                    unsetUser={ this.unsetUser }
+                                    socket={ this.state.socket }
+                                  />
                                 : <Navigate to="/" />
                         }
                     />
@@ -230,8 +234,8 @@ class App extends Component {
                         path="/my-lists/:id"
                         element={
                             this.state.user !== null
-                                ? <List user={this.state.user} unsetUser={ this.unsetUser }/>
-                                : <Navigate to="/"/>
+                            ? <List user={this.state.user} unsetUser={ this.unsetUser } socket={ this.state.socket } />
+                            : <Navigate to="/"/>
                         }
                     />
                 </Routes>
