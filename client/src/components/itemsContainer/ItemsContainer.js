@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
@@ -7,14 +7,18 @@ import "./ItemsContainer.scss";
 import {Item} from "../Item";
 import axios from "axios";
 
-export function ItemsContainer({listId, listTitle}) {
+export function ItemsContainer({listId}) {
     // checklist
     const [items, setItems] = useState([]);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
-    // const items = [{name: 'Take a picture', key: '00', count: 5},
-    //     {name: 'Write report', key: '01', count: 6},
-    //     {name: 'Production', key: '02', count: 7},
-    //     {name: 'Research', key: '03', count: 8}];
+    useEffect(() => {
+        axios.get("/items/")
+            .then(allItems => {
+                setItems(allItems.data.filter(i => i.listId === listId));
+            },
+                //TODO error
+        );
+    }, [listId]);
 
     // when checkbox is checked/unchecked, update selectedItems[]
     const [selectedItems, setSelectedItems] = useState(Array.prototype);
