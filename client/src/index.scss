@@ -156,6 +156,10 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     width: auto;
 }
 
+.p-dataview-emptymessage {
+    font-size: 1.5em;
+}
+
 ::-webkit-scrollbar {
     width: 8px;
     background-color: #F5F5F5;

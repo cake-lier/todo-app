@@ -86,7 +86,7 @@ export default function Calendar(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
-                <div className="grid overflow-y-scroll">
+                <div className="grid overflow-y-auto">
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>

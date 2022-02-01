@@ -8,7 +8,10 @@ export default function AddMemberDialogContent({ list, setDisplay, updateList, s
     const joinListHandler = () => {
         axios.post(
             `/lists/${ list._id }/members`,
-            { email, isAnonymous: false }
+            {
+                email,
+                isAnonymous: false
+            }
         )
         .then(
             list => {

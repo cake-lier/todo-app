@@ -36,7 +36,7 @@ export default function SharedWithMe(props) {
                     displayError={ displayError }
                 />
                 <SharedWithMeHeader />
-                <Divider className={ !lists || lists.length === 0 ? "hidden" : "p-0"} />
+                <Divider className="p-0" />
                 <ListItem
                     lists={ lists }
                     setLists={ setLists }
@@ -64,7 +64,7 @@ export default function SharedWithMe(props) {
                         displayError={displayError}
                     />
                     <SharedWithMeHeader />
-                    <Divider className={ !lists || lists.length === 0 ? "hidden" : "p-0" } />
+                    <Divider className="p-0" />
                     <ListItem
                         lists={ lists }
                         setLists={ setLists }

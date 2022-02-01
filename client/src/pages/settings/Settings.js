@@ -119,7 +119,7 @@ export function Settings(props) {
                     ] }
                     displayError={ displayError }
                 />
-                <div className="grid overflow-scroll">
+                <div className="grid overflow-y-auto">
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>

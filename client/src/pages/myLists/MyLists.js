@@ -43,7 +43,7 @@ export default function MyLists(props) {
                     displayError={ displayError }
                 />
                 <MyListsHeader appendList={ appendList } displayError={ displayError } />
-                <Divider className={ !lists || lists.length === 0 ? "hidden" : "p-0" } />
+                <Divider className="p-0" />
                 <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
