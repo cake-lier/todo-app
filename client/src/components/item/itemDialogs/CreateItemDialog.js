@@ -20,6 +20,7 @@ export function CreateItemDialog({listId, appendItem, displayDialog, setDisplayD
     return (
         <ItemDialog
             headerTitle={'Create a new task!'}
+            btnText={'Create'}
             displayDialog={displayDialog}
             setDisplayDialog={setDisplayDialog}
             initName=''

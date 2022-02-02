@@ -6,7 +6,7 @@ import {Button} from "primereact/button";
 import {useFormik} from "formik";
 import { classNames } from 'primereact/utils';
 
-export function ItemDialog({headerTitle, displayDialog, setDisplayDialog, initName, initCount, action}){
+export function ItemDialog({headerTitle, btnText, displayDialog, setDisplayDialog, initName, initCount, action}){
     const formik = useFormik({
         initialValues: {
             name: initName,
@@ -65,7 +65,7 @@ export function ItemDialog({headerTitle, displayDialog, setDisplayDialog, initNa
                 </div>
 
                 <div className="flex justify-content-center">
-                    <Button label='Create' type='submit' />
+                    <Button label={btnText} type='submit' />
                 </div>
             </form>
         </Dialog>

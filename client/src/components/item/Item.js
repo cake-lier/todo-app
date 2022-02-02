@@ -7,12 +7,13 @@ import {DueDateDialog} from "./itemDialogs/DueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
 import {ItemTag} from "./itemTag/ItemTag";
 import {AddTagDialog} from "./itemDialogs/AddTagDialog";
+import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 
-export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
+export function Item({socket, item, onItemChange, selectedItems, deleteItem, updateItem}){
     // item dot menu
     const menu = useRef(null);
     let menuItems = [
-        {label: 'Edit', icon: 'pi pi-pencil'},
+        {label: 'Edit', icon: 'pi pi-pencil', command:()=>{setDisplayEdit(true)}},
         {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
         {label: 'Assign to', icon: 'pi pi-user-plus' },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
@@ -25,6 +26,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
     const [displayCalendar1, setDisplayCalendar1] = useState(false);
     const [displayCalendar2, setDisplayCalendar2] = useState(false);
     const [displayAddTag, setDisplayAddTag] = useState(false);
+    const [displayEdit, setDisplayEdit] = useState(false);
 
     // tags
     const [tags, setTags] = useState(item.tags);
@@ -67,6 +69,11 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
             <DueDateDialog itemId={item._id} displayCalendar={displayCalendar1} setDisplayCalendar={setDisplayCalendar1} />
             <SetReminderDialog itemId={item._id} displayCalendar={displayCalendar2} setDisplayCalendar={setDisplayCalendar2} />
             <AddTagDialog itemId={item._id} display={displayAddTag} setDisplay={setDisplayAddTag} updateTags={updateTags} />
+            <EditItemDialog
+                    item={item}
+                    updateItem={updateItem}
+                    displayDialog={displayEdit}
+                    setDisplayDialog={setDisplayEdit} />
         </>
     )
 }

@@ -9,6 +9,7 @@ export function ItemsContainer({listId}) {
     // checklist
     const [items, setItems] = useState([]);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
+    const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
 
     // init items from database
@@ -74,8 +75,12 @@ export function ItemsContainer({listId}) {
                 <Button label="New Task" icon="pi pi-plus" onClick={() => setDisplayDialog(true)}/>
                 {
                     items.map((item) => {
-                        return (<Item key={item._id} item={item} onItemChange={onItemChange}
-                                      selectedItems={selectedItems} deleteItem={deleteItem}/>)
+                        return (<Item key={item._id}
+                                      item={item}
+                                      onItemChange={onItemChange}
+                                      selectedItems={selectedItems}
+                                      deleteItem={deleteItem}
+                                      updateItem={updateItem} />)
                     })
                 }
             </div>
