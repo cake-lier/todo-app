@@ -1,4 +1,4 @@
-import React, {useRef, useState} from "react";
+import React, {useCallback, useRef, useState} from "react";
 import {Checkbox} from "primereact/checkbox";
 import {Tag} from "primereact/tag";
 import {Button} from "primereact/button";
@@ -6,6 +6,9 @@ import {Menu} from "primereact/menu";
 import {ItemCount} from "./ItemCount";
 import {DueDateDialog} from "./itemDialogs/dueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/setReminderDialog";
+import {ItemTag} from "./ItemTag";
+import {AddTagDialog} from "./itemDialogs/AddTagDialog";
+import axios from "axios";
 
 export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
     // item dot menu
@@ -15,14 +18,19 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
         {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
         {label: 'Assign to', icon: 'pi pi-user-plus' },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
-        {label: 'Add tags', icon: 'pi pi-tag' },
+        {label: 'Add tags', icon: 'pi pi-tag', command:()=>{setDisplayAddTag(true)}},
         {label: 'Add priority', icon: 'pi pi-star' },
         {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem(item)}}
     ];
 
-    // calendar dialogs
+    // dialogs
     const [displayCalendar1, setDisplayCalendar1] = useState(false);
     const [displayCalendar2, setDisplayCalendar2] = useState(false);
+    const [displayAddTag, setDisplayAddTag] = useState(false);
+
+    // tags
+    const [tags, setTags] = useState(item.tags);
+    const updateTags = useCallback(t => setTags(t), [tags, setTags]);
 
     return (
         <>
@@ -39,8 +47,11 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
                     </div>
 
                     <div className="flex align-items-center flex-wrap pl-4">
-                        <Tag className="flex m-1 p-tag-rounded" icon="pi pi-calendar">Jan 11</Tag>
-                        <Tag className="flex m-1 p-tag-rounded" icon="pi pi-circle-on">Unibo</Tag>
+                        {
+                            tags.map((tag) => {
+                                return (<ItemTag key={tag._id} itemId={item._id} text={tag.title} colorIndex={tag.colorIndex}/> )
+                            })
+                        }
                     </div>
                 </div>
                 <Button icon="pi pi-ellipsis-v"
@@ -51,6 +62,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
 
             <DueDateDialog itemId={item._id} displayCalendar={displayCalendar1} setDisplayCalendar={setDisplayCalendar1} />
             <SetReminderDialog itemId={item._id} displayCalendar={displayCalendar2} setDisplayCalendar={setDisplayCalendar2} />
+            <AddTagDialog itemId={item._id} display={displayAddTag} setDisplay={setDisplayAddTag} updateTags={updateTags} />
         </>
     )
 }

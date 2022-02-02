@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import JoinDialog from "../../components/joinDialog/JoinDialog";
-import {ItemsContainer} from "../../components/itemsContainer/ItemsContainer";
+import {ItemsContainer} from "../../components/item/itemsContainer/ItemsContainer";
 
 export default function List(props) {
     const errors = useRef();

@@ -21,6 +21,18 @@ const assigneeSchema = new mongoose.Schema({
     }
 });
 
+const tag = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    colorIndex: {
+        type: Number,
+        enum: [0, 1, 2, 3, 4],
+        default: 0
+    }
+});
+
 const itemSchema = new mongoose.Schema({
     listId: {
         type: mongoose.ObjectId,
@@ -46,7 +58,7 @@ const itemSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
-    tags: [String],
+    tags: [tag],
     count: {
         type: Number,
         default: 1,

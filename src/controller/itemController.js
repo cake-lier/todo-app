@@ -303,7 +303,8 @@ function addTags(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        { $addToSet: { tags: { $each: request.body.tags ? request.body.tags : [] } } },
+        { $addToSet: { tags: { $each: request.body.title ? [{title: request.body.title, colorIndex: request.body.colorIndex}] : [] } } },
+        //{$push: {tags: {text: request.body.title, colorIndex: request.body.colorIndex}}},
         (list, item) => {
             const listId = list._id.toString();
             const text = `Some tags have been added to the item "${item.title}"`;
