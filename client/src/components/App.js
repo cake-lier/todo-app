@@ -9,7 +9,6 @@ import MyDay from "../pages/myDay/MyDay";
 import Signup from "../pages/signup/Signup";
 import Settings from "../pages/settings/Settings";
 import Calendar from "../pages/calendar/Calendar";
-import { TestList } from "./list/TestList";
 import Join from "../pages/join/Join";
 import MyLists from "../pages/myLists/MyLists";
 import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
@@ -207,10 +206,6 @@ class App extends Component {
                               />
                             : <Navigate to="/" />
                         }
-                    />
-                    <Route  // for testing
-                        path="/test-list"
-                        element={<TestList name="School things" socket={ this.state.socket }/>}
                     />
                     <Route
                         exact path="/my-lists"
