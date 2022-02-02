@@ -465,7 +465,6 @@ function logout(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    io.in(request.session.socketId).disconnectSockets();
     request.session.destroy(_ => response.send({}));
 }
 

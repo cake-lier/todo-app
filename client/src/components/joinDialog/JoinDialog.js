@@ -44,10 +44,7 @@ class JoinDialog extends Component {
         const handleResponse = isApproved => {
             this.props.socket.emit("joinApproval", this.props.socket.id, this.state.listId, isApproved);
             this.setState({
-                displayJoinDialog: false,
-                listId: "",
-                listTitle: "",
-                username: ""
+                displayJoinDialog: false
             });
         };
         const renderFooter = () => {

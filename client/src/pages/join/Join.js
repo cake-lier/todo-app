@@ -29,20 +29,23 @@ export default function Join(props) {
             return errors;
         },
         onSubmit: data => {
-            props.socket.once("joinResponse", listId => {
+            const handleJoinResponse = listId => {
                 if (listId !== null) {
                     navigate("/my-lists/" + listId);
                 } else {
                     errors.current.displayError(96);
                     formik.setSubmitting(false);
                 }
-            });
+            };
+            props.socket.once("joinResponse", handleJoinResponse);
             props.socket.emit("join", data.pinCode, data.username, props.socket.id, result => {
                 if (result.error) {
                     errors.current.displayError(98);
+                    props.socket.off("joinResponse", handleJoinResponse);
                     formik.setSubmitting(false);
                 } else if (!result.sent) {
                     errors.current.displayError(97);
+                    props.socket.off("joinResponse", handleJoinResponse);
                     formik.setSubmitting(false);
                 }
             });
