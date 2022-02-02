@@ -6,7 +6,7 @@ import {Menu} from "primereact/menu";
 import {ItemCount} from "./ItemCount";
 import {DueDateDialog} from "./itemDialogs/dueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/setReminderDialog";
-import {ItemTag} from "./ItemTag";
+import {ItemTag} from "./itemTag/ItemTag";
 import {AddTagDialog} from "./itemDialogs/AddTagDialog";
 import axios from "axios";
 
