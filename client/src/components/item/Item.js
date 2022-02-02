@@ -1,14 +1,12 @@
 import React, {useCallback, useRef, useState} from "react";
 import {Checkbox} from "primereact/checkbox";
-import {Tag} from "primereact/tag";
 import {Button} from "primereact/button";
 import {Menu} from "primereact/menu";
 import {ItemCount} from "./ItemCount";
-import {DueDateDialog} from "./itemDialogs/dueDateDialog";
-import {SetReminderDialog} from "./itemDialogs/setReminderDialog";
+import {DueDateDialog} from "./itemDialogs/DueDateDialog";
+import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
 import {ItemTag} from "./itemTag/ItemTag";
 import {AddTagDialog} from "./itemDialogs/AddTagDialog";
-import axios from "axios";
 
 export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
     // item dot menu
@@ -52,7 +50,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
                             tags.map((tag) => {
                                 return (<ItemTag key={tag._id}
                                                  itemId={item._id}
-                                                 tag={tag} 
+                                                 tag={tag}
                                                  removeTag={removeTag}
                                                  text={tag.title}
                                                  colorIndex={tag.colorIndex}/> )
