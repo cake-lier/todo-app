@@ -8,7 +8,6 @@ export function ItemTag({itemId, tag, removeTag, text, colorIndex}){
     const onRemove = () => {
         axios.delete("/items/" + itemId + "/tags", { data: { tags: [tag] }})
             .then(r => {
-                    console.log("done");
                     removeTag(tag);
                 },
                 // TODO error
