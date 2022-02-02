@@ -2,7 +2,8 @@
 .p-chip.custom-chip {
   background: transparent;
   border: 0.1rem solid #38373D;
-  margin: 0;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
 }
 
 span.p-chip-text{

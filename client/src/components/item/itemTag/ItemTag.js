@@ -3,7 +3,7 @@ import "./ItemTag.scss";
 
 export function ItemTag({itemId, text, colorIndex}){
     const colors = ["red-list", "purple-list", "blue-list", "green-list", "yellow-list"];
-    
+
     const onRemove = () => {
         console.log("removed");
     };
