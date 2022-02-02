@@ -1,15 +1,13 @@
 import {InputText} from "primereact/inputtext";
 import {InputNumber} from "primereact/inputnumber";
 import {Dialog} from "primereact/dialog";
-import React, {useState} from "react";
+import React from "react";
 import {Button} from "primereact/button";
 import axios from "axios";
 import {useFormik} from "formik";
 import { classNames } from 'primereact/utils';
 
-
 export function CreateItemDialog({listId, displayDialog, setDisplayDialog, appendItem}){
-    const [formData, setFormData] = useState({});
     const formik = useFormik({
         initialValues: {
             name: '',
@@ -23,7 +21,6 @@ export function CreateItemDialog({listId, displayDialog, setDisplayDialog, appen
             return errors;
         },
         onSubmit: (data) => {
-            setFormData(data);
             setDisplayDialog(false);
             axios.post(
                 "/lists/" + listId + "/items",
@@ -33,12 +30,9 @@ export function CreateItemDialog({listId, displayDialog, setDisplayDialog, appen
                     count: data.count,
                     assignees: []
                 }
-            ).then(item => {
-                console.log("created item titled " + item.data.title);
-                appendItem(item.data);
-                setItemName('');
-                setItemNum(1);
-            });
+            ).then(item => appendItem(item.data),
+                // TODO error
+            );
             formik.resetForm();
         }
     });
@@ -46,10 +40,6 @@ export function CreateItemDialog({listId, displayDialog, setDisplayDialog, appen
     const getFormErrorMessage = (name) => {
         return isFormFieldValid(name) && <small className="p-error">{formik.errors[name]}</small>;
     };
-
-
-    const [itemName, setItemName] = useState('');
-    const [itemNum, setItemNum] = useState(1);
 
 
     return (
