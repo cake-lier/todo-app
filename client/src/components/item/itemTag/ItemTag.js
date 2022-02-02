@@ -1,11 +1,18 @@
 import { Chip } from 'primereact/chip';
 import "./ItemTag.scss";
+import axios from "axios";
 
-export function ItemTag({itemId, text, colorIndex}){
+export function ItemTag({itemId, tag, removeTag, text, colorIndex}){
     const colors = ["red-list", "purple-list", "blue-list", "green-list", "yellow-list"];
 
     const onRemove = () => {
-        console.log("removed");
+        axios.delete("/items/" + itemId + "/tags", { data: { tags: [tag] }})
+            .then(r => {
+                    console.log("done");
+                    removeTag(tag);
+                },
+                // TODO error
+            )
     };
 
     return (

@@ -31,6 +31,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
     // tags
     const [tags, setTags] = useState(item.tags);
     const updateTags = useCallback(t => setTags(t), [tags, setTags]);
+    const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
 
     return (
         <>
@@ -49,7 +50,12 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem}){
                     <div className="flex align-items-center flex-wrap pl-4">
                         {
                             tags.map((tag) => {
-                                return (<ItemTag key={tag._id} itemId={item._id} text={tag.title} colorIndex={tag.colorIndex}/> )
+                                return (<ItemTag key={tag._id}
+                                                 itemId={item._id}
+                                                 tag={tag} 
+                                                 removeTag={removeTag}
+                                                 text={tag.title}
+                                                 colorIndex={tag.colorIndex}/> )
                             })
                         }
                     </div>
