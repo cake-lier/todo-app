@@ -61,10 +61,7 @@ export function ItemsContainer({listId}) {
 
     // delete item
     const deleteItem = (item) => {
-        axios.delete("/items/" + item._id).then(r => {
-                console.log("item deleted");
-                removeItem(item);
-            },
+        axios.delete("/items/" + item._id).then(r => removeItem(item),
             // TODO error msg
         );
     }
@@ -84,9 +81,10 @@ export function ItemsContainer({listId}) {
             </div>
             <CreateItemDialog
                 listId={listId}
+                appendItem={appendItem}
                 displayDialog={displayDialog}
                 setDisplayDialog={setDisplayDialog}
-                appendItem={appendItem}/>
+                />
         </>
     )
 }

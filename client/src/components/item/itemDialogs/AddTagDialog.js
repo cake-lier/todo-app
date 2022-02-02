@@ -26,9 +26,6 @@ export function AddTagDialog({ itemId, display, setDisplay, updateTags }) {
             )
                 .then(
                     item => {
-                        console.log(item.data.tags);
-                        console.log("tag.data._id " + item.data._id);
-                        console.log("itemId " + itemId);
                         updateTags(item.data.tags);
                         setDisplay(false);
                         formik.resetForm();
