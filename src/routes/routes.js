@@ -41,6 +41,7 @@ function initializeItemRoutes(app) {
     app.route("/items/:id/count").put(controller.item.updateCount);
     app.route("/items/:id/assignees").post(controller.item.addAssignee);
     app.route("/items/:id/assignees/:assigneeId").delete(controller.item.removeAssignee);
+    app.route("/items/:id/priority").put(controller.item.updatePriority);
 }
 
 function initializeStaticRoutes(app) {

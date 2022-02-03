@@ -18,8 +18,8 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
         {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
         {label: 'Assign to', icon: 'pi pi-user-plus' },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
-        {label: 'Add tags', icon: 'pi pi-tag', command:()=>{setDisplayAddTag(true)}},
-        {label: 'Add priority', icon: 'pi pi-star' },
+        {label: 'Add tag', icon: 'pi pi-tag', command:()=>{setDisplayAddTag(true)}},
+        {label: 'Toggle priority', icon: 'pi pi-star', command:()=>{setPriority(!priority)}},
         {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem(item)}}
     ];
 
@@ -35,6 +35,9 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
     const updateTags = useCallback(t => setTags(t), [tags, setTags]);
     const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
 
+    // priority star
+    const [priority, setPriority] = useState(item.priority);
+
     return (
         <>
             <div className="flex justify-content-between m-2">
@@ -45,6 +48,9 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
                                   onChange={onItemChange}
                                   checked={selectedItems.some((i) => i._id === item._id)}
                         />
+                        <span hidden={!priority}>
+                            <i className="pi pi-star-fill ml-2" />
+                        </span>
                         <label htmlFor={item._id}>{item.title}</label>
                         <ItemCount maxCount={item.count} />
                     </div>

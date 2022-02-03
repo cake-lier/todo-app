@@ -569,6 +569,20 @@ function deleteItem(request, response) {
     );
 }
 
+function updatePriority(request, response) {
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    if (typeof request.body.priority !== 'boolean') {
+        sendError(response, Error.RequestError);
+    }
+    updateItemAtomicProperty(
+        request,
+        response,
+        { $set: { priority: request.body.priority} }
+    );
+}
+
 module.exports = {
     createItem,
     getUserItems,
@@ -582,5 +596,6 @@ module.exports = {
     updateCount,
     addAssignee,
     removeAssignee,
-    deleteItem
+    deleteItem,
+    updatePriority
 }

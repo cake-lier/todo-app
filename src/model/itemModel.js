@@ -74,6 +74,10 @@ const itemSchema = new mongoose.Schema({
     assignees: {
         type: [assigneeSchema],
         required: true
+    },
+    priority: {
+        type: Boolean,
+        default: false
     }
 });
 
