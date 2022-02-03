@@ -16,9 +16,9 @@ export function ItemsContainer({listId}) {
     useEffect(() => {
         axios.get("/items/")
             .then(allItems => {
-                    setItems(allItems.data.filter(i => i.listId === listId));
-                    // TODO show completed items as checked
-                    // setSelectedItems(items => items.filter(i => i.completionDate !== null || i.completionDate !== ""));
+                let i = allItems.data.filter(i => i.listId === listId);
+                    setItems(i);
+                    setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
                 },
                 // TODO error
             );
@@ -34,18 +34,14 @@ export function ItemsContainer({listId}) {
             axios.put("/items/" + e.value._id + "/complete", {
                 isComplete: true
             })
-                .then(r => {
-                        console.log("task " + e.value._id + " marked as completed.");
-                    },
+                .then(r => console.log("task " + e.value._id + " marked as completed."),
                     // TODO error msg
                  );
         } else {
             axios.put("/items/" + e.value._id + "/complete", {
                 isComplete: false
             })
-                .then(r => {
-                        console.log("task " + e.value._id + " marked as incomplete.");
-                    },
+                .then(r => console.log("task " + e.value._id + " marked as incomplete."),
                     // TODO error msg
                 );
             for (let i = 0; i < _selectedItems.length; i++) {

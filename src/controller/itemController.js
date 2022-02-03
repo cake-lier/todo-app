@@ -279,7 +279,7 @@ function updateCompletion(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        request.body.isComplete ? { $set: { completionDate: Date.now() } } : { $unset: { completionDate: "" } },
+        request.body.isComplete ? { $set: { completionDate: Date.now() } } : { $set: { completionDate: "" } },
         (list, item) => {
             const listId = list._id.toString();
             const text = `The item "${item.title}" is now set as ${request.body.isComplete ? "" : "in"}complete`;
