@@ -238,10 +238,10 @@ function updateDate(request, response) {
         request,
         response,
         request.body.dueDate === undefined && request.body.reminderString === undefined
-        ? { $unset: { dueDate: "", reminderString: "" } }
+        ? { $set: { dueDate: "", reminderString: "" } }
         : (request.body.dueDate === undefined
-           ? { $set: { reminderString: request.body.reminderString }, $unset: { dueDate: "" } }
-           : { $set: { dueDate: request.body.dueDate }, $unset: { reminderString: "" } }),
+           ? { $set: { reminderString: request.body.reminderString, dueDate: "" } }
+           : { $set: { dueDate: request.body.dueDate, reminderString: "" } }),
         (list, item) => {
             const listId = list._id.toString();
             const text =

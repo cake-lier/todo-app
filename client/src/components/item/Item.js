@@ -8,6 +8,7 @@ import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
 import {ItemTag} from "./itemTag/ItemTag";
 import {AddTagDialog} from "./itemDialogs/AddTagDialog";
 import {EditItemDialog} from "./itemDialogs/EditItemDialog";
+import {DueDateTag} from "./itemTag/DueDateTag";
 
 export function Item({socket, item, onItemChange, selectedItems, deleteItem, updateItem}){
     // item dot menu
@@ -30,6 +31,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
 
     // tags
     const [tags, setTags] = useState(item.tags);
+    const [dueDate, setDueDate] = useState(item.dueDate);
     const updateTags = useCallback(t => setTags(t), [tags, setTags]);
     const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
 
@@ -58,6 +60,11 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
                                                  colorIndex={tag.colorIndex}/> )
                             })
                         }
+                        <DueDateTag
+                            itemId={item._id}
+                            dueDate={dueDate}
+                            setDueDate={setDueDate}
+                        />
                     </div>
                 </div>
                 <Button icon="pi pi-ellipsis-v"
@@ -66,7 +73,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
                 <Menu model={menuItems} popup ref={menu} />
             </div>
 
-            <DueDateDialog itemId={item._id} displayCalendar={displayCalendar1} setDisplayCalendar={setDisplayCalendar1} />
+            <DueDateDialog itemId={item._id} displayCalendar={displayCalendar1} setDisplayCalendar={setDisplayCalendar1} setDueDate={setDueDate} />
             <SetReminderDialog itemId={item._id} displayCalendar={displayCalendar2} setDisplayCalendar={setDisplayCalendar2} />
             <AddTagDialog itemId={item._id} display={displayAddTag} setDisplay={setDisplayAddTag} updateTags={updateTags} />
             <EditItemDialog

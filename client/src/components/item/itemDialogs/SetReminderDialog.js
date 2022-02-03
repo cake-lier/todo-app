@@ -13,6 +13,7 @@ export function SetReminderDialog({itemId, displayCalendar, setDisplayCalendar})
                     onHide(display);
                     // TODO socket
                     // socket.emit('reminder', date2);
+                    console.log("reminder: " + date);
                 }} />
             </div>
         )
