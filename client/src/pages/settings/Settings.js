@@ -15,9 +15,9 @@ import {useOnClickOutside} from "../../components/ClickOutsideHook";
 
 export function Settings(props) {
     const errors = useRef();
-    const displayError = lastErrorCode => {
+    const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
-    }
+    }, [errors]);
     const messages = useRef();
     const displaySuccess = () => {
         messages.current.show({ severity: "success", content: "The password was changed successfully." });
@@ -112,6 +112,9 @@ export function Settings(props) {
                     unsetUser={ props.unsetUser }
                     title={ "Settings" }
                     isResponsive={ false }
+                    notifications={ props.notifications }
+                    setNotifications={ props.setNotifications }
+                    socket={ props.socket }
                     tabs={ [
                         { label: "Account", command: useOnTabClicked("account") },
                         { label: "Password", command: useOnTabClicked("password") },
@@ -136,6 +139,9 @@ export function Settings(props) {
                     user={ props.user }
                     unsetUser={ props.unsetUser }
                     title={ "Settings" }
+                    notifications={ props.notifications }
+                    setNotifications={ props.setNotifications }
+                    socket={ props.socket }
                     isResponsive={ true }
                     tabs={ [
                         { label: "Account", command: useOnTabClicked("account") },

@@ -7,7 +7,7 @@ import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
 import SharedWithMeHeader from "../../components/SharedWithMeHeader";
 
-export default function SharedWithMe({ user, unsetUser, socket }) {
+export default function SharedWithMe({ user, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -33,6 +33,9 @@ export default function SharedWithMe({ user, unsetUser, socket }) {
                     title="Shared with me"
                     showDate={ false }
                     isResponsive={ false }
+                    notifications={ notifications }
+                    setNotifications={ setNotifications }
+                    socket={ socket }
                     displayError={ displayError }
                 />
                 <SharedWithMeHeader />
@@ -62,6 +65,9 @@ export default function SharedWithMe({ user, unsetUser, socket }) {
                         title="Shared with me"
                         showDate={ false }
                         isResponsive={ true }
+                        notifications={ notifications }
+                        setNotifications={ setNotifications }
+                        socket={ socket }
                         displayError={ displayError }
                     />
                     <SharedWithMeHeader />

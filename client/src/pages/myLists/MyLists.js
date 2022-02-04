@@ -2,13 +2,13 @@ import ErrorMessages from "../../components/ErrorMessages";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import BurgerMenu from "../../components/BurgerMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import { Divider } from "primereact/divider";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
 
-export default function MyLists({ user, unsetUser, socket }) {
+export default function MyLists({ user, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -40,10 +40,13 @@ export default function MyLists({ user, unsetUser, socket }) {
                     title="My Lists"
                     showDate={ false }
                     isResponsive={ false }
+                    notifications={ notifications }
+                    setNotifications={ setNotifications }
+                    socket={ socket }
                     displayError={ displayError }
                 />
                 <MyListsHeader appendList={ appendList } displayError={ displayError } />
-                <Divider className="p-0" />
+                <Divider className="p-0 mb-0" />
                 <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } socket={ socket } />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
@@ -62,10 +65,13 @@ export default function MyLists({ user, unsetUser, socket }) {
                         title="My Lists"
                         showDate={ false }
                         isResponsive={ true }
+                        notifications={ notifications }
+                        setNotifications={ setNotifications }
+                        socket={ socket }
                         displayError={ displayError }
                     />
                     <MyListsHeader appendList={ appendList } displayError={ displayError } />
-                    <Divider className="p-0" />
+                    <Divider className="p-0 m-0" />
                     <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } socket={ socket } />
                 </div>
             </div>

@@ -7,7 +7,7 @@ function getUserNotifications(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    Notification.find({ users: { $elemMatch: { userId: request.session.userId } } })
+    Notification.find({ users: { $elemMatch: { $eq: request.session.userId } } })
                 .exec()
                 .then(
                     notifications => response.json(notifications),
@@ -23,8 +23,8 @@ function deleteNotification(request, response) {
         return;
     }
     Notification.findByIdAndUpdate(
-        request.body.id,
-        { $pull: { users: { userId: request.session.userId } } },
+        {_id: request.params.id},
+        { $pull: { users: request.session.userId } },
         { runValidators: true, context: "query", new: true }
     )
     .exec()
@@ -35,7 +35,10 @@ function deleteNotification(request, response) {
                 return;
             }
             if (notification.users.length === 0) {
-                Notification.findByIdAndDelete(request.body.id).exec().catch(error => console.log(error));
+                Notification.findByIdAndDelete(request.body.id)
+                            .exec()
+                            .then(_ => response.send({}))
+                            .catch(error => console.log(error));
             }
         },
         error => {

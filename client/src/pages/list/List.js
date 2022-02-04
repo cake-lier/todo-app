@@ -46,6 +46,9 @@ export default function List(props) {
                     title={ title }
                     showDate={ false }
                     isResponsive={ false }
+                    notifications={ props.notifications }
+                    setNotifications={ props.setNotifications }
+                    socket={ props.socket }
                     displayError={ displayError }
                 />
             </div>
@@ -63,6 +66,9 @@ export default function List(props) {
                         title={ title }
                         showDate={ false }
                         isResponsive={ true }
+                        notifications={ props.notifications }
+                        setNotifications={ props.setNotifications }
+                        socket={ props.socket }
                         displayError={ displayError }
                     />
                 </div>

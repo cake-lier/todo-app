@@ -215,7 +215,7 @@ function updateText(request, response) {
             const listId = list._id.toString();
             const text = `The item "${ item.title }" had its text changed`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null),
+                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text
             })
             .catch(error => console.log(error))
@@ -259,7 +259,7 @@ function updateDate(request, response) {
                 scheduleNextReminder(listId, itemId, request.body.reminderString);
             }
             Notification.create({
-                users: list.members.filter(m => m.userId !== null),
+                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text
             })
             .catch(error => console.log(error))
@@ -283,7 +283,7 @@ function updateCompletion(request, response) {
             const listId = list._id.toString();
             const text = `The item "${item.title}" is now set as ${request.body.isComplete ? "" : "in"}complete`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null),
+                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text
             })
             .catch(error => console.log(error))
@@ -307,7 +307,7 @@ function addTags(request, response) {
             const listId = list._id.toString();
             const text = `Some tags have been added to the item "${item.title}"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null),
+                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text
             })
             .catch(error => console.log(error))
@@ -331,7 +331,7 @@ function removeTags(request, response) {
             const listId = list._id.toString();
             const text = `Some tags have been removed from the item "${item.title}"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null),
+                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text
             })
             .catch(error => console.log(error))
@@ -376,7 +376,7 @@ function updateCount(request, response) {
                             const listId = list._id.toString();
                             const text = `The item "${item.title}" had its count updated`;
                             Notification.create({
-                                users: list.members.filter(m => m.userId !== null),
+                                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                                 text
                             })
                             .catch(error => console.log(error))
@@ -463,7 +463,7 @@ function addAssignee(request, response) {
                                        const listId = lists[0]._id.toString();
                                        const text = `An assignee was added to the item "${item.title}"`;
                                        Notification.create({
-                                           users: lists[0].members.filter(m => m.userId !== null),
+                                           users: lists[0].members.filter(m => m.userId !== null).map(m=> m.userId),
                                            text
                                        })
                                        .catch(error => console.log(error))
@@ -520,7 +520,7 @@ function removeAssignee(request, response) {
                         const listId = list._id.toString();
                         const text = `An assignee was removed from the item "${ item.title }"`;
                         Notification.create({
-                            users: list.members.filter(m => m.userId !== null),
+                            users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                             text
                         })
                         .catch(error => console.log(error))
@@ -553,7 +553,7 @@ function deleteItem(request, response) {
                         const listId = list._id.toString();
                         const text = `The item "${item.title}" was deleted`;
                         Notification.create({
-                            users: list.members.filter(m => m.userId !== null),
+                            users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                             text
                         })
                         .catch(error => console.log(error))

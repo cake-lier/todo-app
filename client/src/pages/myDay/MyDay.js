@@ -1,4 +1,4 @@
-import {useRef, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 import BurgerMenu from "../../components/BurgerMenu";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
@@ -8,9 +8,9 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 
 export default function MyDay(props) {
     const errors = useRef();
-    const displayError = (lastErrorCode) => {
+    const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
-    }
+    }, [errors]);
     const [open, setOpen] = useState(false);
     const node = useRef();
     useOnClickOutside(node, () => setOpen(false));
@@ -32,6 +32,9 @@ export default function MyDay(props) {
                     title="My Day"
                     showDate={ true }
                     isResponsive={ false }
+                    notifications={ props.notifications }
+                    setNotifications={ props.setNotifications }
+                    socket={ props.socket }
                     displayError={ displayError }
                 />
             </div>
@@ -52,6 +55,9 @@ export default function MyDay(props) {
                         title="My day"
                         showDate={ true }
                         isResponsive={ true }
+                        notifications={ props.notifications }
+                        setNotifications={ props.setNotifications }
+                        socket={ props.socket }
                         displayError={ displayError }
                     />
                 </div>

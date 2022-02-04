@@ -84,6 +84,9 @@ export default function Calendar(props) {
                     unsetUser={ unsetUser }
                     title="Calendar"
                     isResponsive={ false }
+                    notifications={ props.notifications }
+                    setNotifications={ props.setNotifications }
+                    socket={ props.socket }
                     displayError={ displayError }
                 />
                 <div className="grid overflow-y-auto">
@@ -156,6 +159,9 @@ export default function Calendar(props) {
                         unsetUser={ unsetUser }
                         title="Calendar"
                         isResponsive={ true }
+                        notifications={ props.notifications }
+                        setNotifications={ props.setNotifications }
+                        socket={ props.socket }
                         displayError={ displayError }
                     />
                     <div className="grid">

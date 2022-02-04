@@ -35,7 +35,7 @@ export function UserIcon(props) {
                 icon={ props.user.profilePicturePath === null ? "pi pi-user" : "" }
                 onClick={ e => menu.current.toggle(e) }
                 shape="circle"
-                className="w-4rem h-4rem"
+                className="w-3rem h-3rem"
             />
         </>
     );
