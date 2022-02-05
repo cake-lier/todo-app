@@ -39,7 +39,8 @@ function initializeItemRoutes(app) {
     app.route("/items/:id/tags").post(controller.item.addTags)
                                 .delete(controller.item.removeTags);
     app.route("/items/:id/count").put(controller.item.updateCount);
-    app.route("/items/:id/assignees").post(controller.item.addAssignee);
+    app.route("/items/:id/assignees").get(controller.item.getAssignees)
+                                     .post(controller.item.addAssignee);
     app.route("/items/:id/assignees/:assigneeId").delete(controller.item.removeAssignee);
 }
 
