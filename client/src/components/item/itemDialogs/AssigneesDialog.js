@@ -1,7 +1,6 @@
 import {Dialog} from "primereact/dialog";
 import React, { useState, useCallback, useEffect } from "react";
-import { Image } from 'primereact/image';
-import "./AssigneesDialog.scss";
+import { Avatar } from 'primereact/avatar';
 
 export function AssigneesDialog({itemId, listMembers, displayDialog, setDisplayDialog}) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
@@ -20,13 +19,13 @@ export function AssigneesDialog({itemId, listMembers, displayDialog, setDisplayD
             {
                 listMembers.map(m => {
                     return (
-                        <div className="round-icon flex align-items-center flex-wrap">
-                            <img
-                                className="icon"
-                                key={m._id}
-                                src={m.profilePicturePath ? m.profilePicturePath : defaultProfilePicture}
-                                style={{width: '4rem'}}/>
-                            <label className="ml-2" htmlFor="icon">{m.username}</label>
+                        <div key={m._id} className="round-icon flex align-items-center flex-wrap mb-2">
+                            <Avatar
+                                size='large'
+                                className='avatar-assignee p-avatar-circle'
+                                image={m.profilePicturePath ? m.profilePicturePath : defaultProfilePicture}
+                                />
+                            <label className="ml-2" htmlFor="avatar-assignee">{m.username}</label>
                         </div>
                     )
                 })
