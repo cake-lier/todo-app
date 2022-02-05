@@ -1,5 +1,6 @@
 "use strict";
 
+const User = require("../model/userModel.js").createUserModel();
 const List = require("../model/listModel").createListModel();
 const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
@@ -111,6 +112,86 @@ function getListItems(request, response) {
             sendError(response, Error.GeneralError);
         }
     );
+}
+
+function getAssignees(request, response) {
+    const userId = request.session.userId;
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    if (userId === undefined && !request.body.anonymousId) {
+        sendError(response, Error.RequestError);
+        return;
+    }
+    Item.startSession()
+        .then(session => session.withTransaction(() =>
+            Item.aggregate(
+                [
+                    { $match: { _id: mongoose.Types.ObjectId(request.params.id) } },
+                    { $lookup: { from: "lists", localField: "listId", foreignField: "_id", as: "lists" } },
+                    { $replaceRoot: { newRoot: { $arrayElemAt: [ "$lists", 0 ] } } },
+                    {
+                        $match: {
+                            members: {
+                                $elemMatch:
+                                    userId !== undefined
+                                        ? { userId: mongoose.Types.ObjectId(userId) }
+                                        : { anonymousId: request.body.anonymousId }
+                            }
+                        }
+                    }
+                ],
+                { session }
+            )
+            .exec()
+            .then(lists => {
+                if (lists.length === 0) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                return Item.findById(request.params.id, { session })
+                           .exec()
+                           .then(item => {
+                               if (item === null) {
+                                   sendError(response, Error.ResourceNotFound);
+                                   return Promise.resolve();
+                               }
+                               return Promise.all(item.assignees.map(assignee => {
+                                   if (assignee.anonymousId !== null) {
+                                       return Promise.resolve({
+                                               _id: assignee._id,
+                                               username: lists[0].members
+                                                                 .filter(m => m.anonymousId === assignee.anonymousId)[0]
+                                                                 .username,
+                                               count: assignee.count,
+                                               profilePicturePath: null
+                                       });
+                                   }
+                                   return User.findById(assignee.userId, undefined, { session })
+                                           .exec()
+                                           .then(user => {
+                                               if (user === null) {
+                                                   return Promise.resolve(null);
+                                               }
+                                               return Promise.resolve({
+                                                   _id: assignee._id,
+                                                   username: user.username,
+                                                   count: assignee.role,
+                                                   profilePicturePath:
+                                                       user.profilePicturePath === null
+                                                       ? null
+                                                       : "/static" + user.profilePicturePath
+                                               });
+                                           });
+                                   }))
+                                   .then(members => response.json(members.filter(m => m !== null)));
+                           });
+            })
+        ))
+        .catch(error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        });
 }
 
 function updateItemProperty(request, response, onSuccess) {
@@ -596,6 +677,7 @@ module.exports = {
     updateCount,
     addAssignee,
     removeAssignee,
-    deleteItem,
-    updatePriority
+    getAssignees,
+    updatePriority,
+    deleteItem
 }

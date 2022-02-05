@@ -35,7 +35,6 @@ class App extends Component {
     }
 
     unsetUser() {
-        this.state.socket.off("joinRequest");
         if (this.state.socket !== null) {
             this.state.socket.disconnect();
         }
