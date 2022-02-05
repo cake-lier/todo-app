@@ -10,6 +10,7 @@ import {AddTagDialog} from "./itemDialogs/AddTagDialog";
 import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 import {DueDateTag} from "./itemTag/DueDateTag";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
+import {EditTagDialog} from "./itemDialogs/EditTagDialog";
 
 export function Item({socket, item, listMembers, onItemChange, selectedItems, deleteItem, updateItem}){
     // item dot menu
@@ -19,7 +20,7 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
         {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
         {label: 'Assign to', icon: 'pi pi-user-plus', command:()=>{setDisplayAssignees(true)} },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
-        {label: 'Add tag', icon: 'pi pi-tag', command:()=>{setDisplayAddTag(true)}},
+        {label: 'Edit tags', icon: 'pi pi-tag', command:()=>{setDisplayEditTag(true)}},
         {label: 'Toggle priority', icon: 'pi pi-star', command:()=>{setPriority(!priority)}},
         {label: 'Delete', icon: 'pi pi-trash', command:()=>{deleteItem(item)}}
     ];
@@ -27,17 +28,9 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
     // dialogs
     const [displayCalendar1, setDisplayCalendar1] = useState(false);
     const [displayCalendar2, setDisplayCalendar2] = useState(false);
-    const [displayAddTag, setDisplayAddTag] = useState(false);
+    const [displayEditTag, setDisplayEditTag] = useState(false);
     const [displayEdit, setDisplayEdit] = useState(false);
     const [displayAssignees, setDisplayAssignees] = useState(false);
-
-    const assigneesTemplate = () => {
-        return (
-            <AssigneesDialog
-                itemId={item._id}
-                listMembers={listMembers} />
-        )
-    }
 
     // tags
     const [tags, setTags] = useState(item.tags);
@@ -98,11 +91,15 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
                 itemId={item._id}
                 displayCalendar={displayCalendar2}
                 setDisplayCalendar={setDisplayCalendar2} />
-            <AddTagDialog
+
+            <EditTagDialog
                 itemId={item._id}
-                display={displayAddTag}
-                setDisplay={setDisplayAddTag}
-                updateTags={updateTags} />
+                removeTag={removeTag}
+                tags={tags}
+                updateTags={updateTags}
+                display={displayEditTag}
+                setDisplay={setDisplayEditTag} />
+
             <EditItemDialog
                 item={item}
                 updateItem={updateItem}

@@ -1,10 +1,13 @@
 import React, { useState, useCallback } from "react";
 import { Avatar } from 'primereact/avatar';
 import {DataView} from "primereact/dataview";
+import {Dialog} from "primereact/dialog";
 import {ManageItemDialog} from "./ManageItemDialog";
 
 export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
+
+    const [addDialog, setAddDialog] = useState(false);
 
     const [assignees, setAssignees] = useState();   // assigned members
     const [members, setMembers] = useState();       // { userId, username, profilePicturePath }
@@ -38,16 +41,29 @@ export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
     }
 
     return (
-        <ManageItemDialog title="This task is assigned to..." display={display} setDisplay={setDisplay}>
-            <DataView
-                value={ listMembers }
-                itemTemplate={ iconTemplate }
-                rows={ 10 }
-                paginator={ listMembers.length > 10 }
-                alwaysShowPaginator={ false }
-                emptyMessage="There are no list members."
-            />
-        </ManageItemDialog>
+        <>
+            <ManageItemDialog
+                title="This task is assigned to..."
+                display={display}
+                setDisplay={setDisplay}
+                setAddDialog={setAddDialog}>
+                <DataView
+                    value={ listMembers }
+                    itemTemplate={ iconTemplate }
+                    rows={ 10 }
+                    paginator={ listMembers.length > 10 }
+                    alwaysShowPaginator={ false }
+                    emptyMessage="There are no list members."
+                />
+            </ManageItemDialog>
+
+            <Dialog className="w-27rem m-3"
+                    header="Assign to..."
+                    visible={ addDialog }
+                    onHide={ () => setAddDialog(false) }>
+                <span>This is content.</span>
+            </Dialog>
+        </>
     )
 
 }
