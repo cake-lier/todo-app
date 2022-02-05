@@ -59,7 +59,8 @@ export default function MyDayItem({displayError}) {
     }
 
     return (
-        <div className={"card flex flex-grow-1 flex-column " + (tasksPresent ? null : "justify-content-center align-items-center")}>
+        <div id="my-day-items"
+             className={"card flex flex-grow-1 flex-column " + (tasksPresent ? null : "justify-content-center align-items-center")}>
             <Panel
                 id="past-due"
                 className={pastDue.length > 0 ? null : "hidden"}
