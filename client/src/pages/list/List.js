@@ -15,6 +15,7 @@ export default function List(props) {
     }, [errors]);
     const { id } = useParams();
     const [title, setTitle] = useState("");
+    const [members, setMembers] = useState();
     const [open, setOpen] = useState(false);
     const node = useRef();
     const divStyle = {
@@ -27,6 +28,7 @@ export default function List(props) {
              .then(
                  list => {
                      setTitle(list.data.title);
+                     setMembers(list.data.members);
                  },
                  error => displayError(error.response.data.error)
              );
@@ -47,7 +49,7 @@ export default function List(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
-                <ItemsContainer listId={id} />
+                <ItemsContainer listId={id} listMembers={members}/>
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
                 <div className="col-1 p-0 h-full absolute justify-content-center">

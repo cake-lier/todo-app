@@ -12,6 +12,8 @@ export function ItemsContainer({listId}) {
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
 
+    const [listMembers, setListMembers] = useState([]);
+
     // init items from database
     useEffect(() => {
         axios.get("/items/")
@@ -20,7 +22,13 @@ export function ItemsContainer({listId}) {
                     setItems(i);
                     setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
                 },
-                // TODO error
+                // TODO error msg
+            );
+
+        // init list members
+        axios.get("/lists/" + listId + "/members")
+            .then(members => setListMembers(members.data),
+                // TODO error msg
             );
     }, [listId]);
 
@@ -73,6 +81,7 @@ export function ItemsContainer({listId}) {
                     items.map((item) => {
                         return (<Item key={item._id}
                                       item={item}
+                                      listMembers={listMembers}
                                       onItemChange={onItemChange}
                                       selectedItems={selectedItems}
                                       deleteItem={deleteItem}

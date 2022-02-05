@@ -9,14 +9,16 @@ import {ItemTag} from "./itemTag/ItemTag";
 import {AddTagDialog} from "./itemDialogs/AddTagDialog";
 import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 import {DueDateTag} from "./itemTag/DueDateTag";
+import {ItemMember} from "./ItemMember";
+import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 
-export function Item({socket, item, onItemChange, selectedItems, deleteItem, updateItem}){
+export function Item({socket, item, listMembers, onItemChange, selectedItems, deleteItem, updateItem}){
     // item dot menu
     const menu = useRef(null);
     let menuItems = [
         {label: 'Edit', icon: 'pi pi-pencil', command:()=>{setDisplayEdit(true)}},
         {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
-        {label: 'Assign to', icon: 'pi pi-user-plus' },
+        {label: 'Assign to', icon: 'pi pi-user-plus', command:()=>{setDisplayAddAssignee(true)} },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
         {label: 'Add tag', icon: 'pi pi-tag', command:()=>{setDisplayAddTag(true)}},
         {label: 'Toggle priority', icon: 'pi pi-star', command:()=>{setPriority(!priority)}},
@@ -28,6 +30,7 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
     const [displayCalendar2, setDisplayCalendar2] = useState(false);
     const [displayAddTag, setDisplayAddTag] = useState(false);
     const [displayEdit, setDisplayEdit] = useState(false);
+    const [displayAddAssignee, setDisplayAddAssignee] = useState(false);
 
     // tags
     const [tags, setTags] = useState(item.tags);
@@ -79,14 +82,30 @@ export function Item({socket, item, onItemChange, selectedItems, deleteItem, upd
                 <Menu model={menuItems} popup ref={menu} />
             </div>
 
-            <DueDateDialog itemId={item._id} displayCalendar={displayCalendar1} setDisplayCalendar={setDisplayCalendar1} setDueDate={setDueDate} />
-            <SetReminderDialog itemId={item._id} displayCalendar={displayCalendar2} setDisplayCalendar={setDisplayCalendar2} />
-            <AddTagDialog itemId={item._id} display={displayAddTag} setDisplay={setDisplayAddTag} updateTags={updateTags} />
+            <DueDateDialog
+                itemId={item._id}
+                displayCalendar={displayCalendar1}
+                setDisplayCalendar={setDisplayCalendar1}
+                setDueDate={setDueDate} />
+            <SetReminderDialog
+                itemId={item._id}
+                displayCalendar={displayCalendar2}
+                setDisplayCalendar={setDisplayCalendar2} />
+            <AddTagDialog
+                itemId={item._id}
+                display={displayAddTag}
+                setDisplay={setDisplayAddTag}
+                updateTags={updateTags} />
             <EditItemDialog
-                    item={item}
-                    updateItem={updateItem}
-                    displayDialog={displayEdit}
-                    setDisplayDialog={setDisplayEdit} />
+                item={item}
+                updateItem={updateItem}
+                displayDialog={displayEdit}
+                setDisplayDialog={setDisplayEdit} />
+            <AssigneesDialog
+                itemId={item._id}
+                listMembers={listMembers}
+                displayDialog={displayAddAssignee}
+                setDisplayDialog={setDisplayAddAssignee} />
         </>
     )
 }
