@@ -469,11 +469,37 @@ function logout(request, response) {
     request.session.destroy(_ => response.send({}));
 }
 
+function enablingNotification(request, response) {
+    if (!validateRequest(request, response, [], [], true)) {
+        return;
+    }
+
+    User.findByIdAndUpdate(
+        request.session.userId,
+        { $set: { enableNotification: request.body.enabled}},
+        { context: "query", new: true })
+        .exec()
+        .then(
+            user => {
+                if (user === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                response.json(user)
+            },
+            error => {
+                console.log(error);
+                sendError(response, Error.GeneralError);
+            }
+        )
+}
+
 module.exports = {
     signup,
     getUser,
     updateAccount,
     updatePassword,
+    enablingNotification,
     unregister,
     login,
     logout

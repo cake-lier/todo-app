@@ -12,6 +12,7 @@ function initializeUserRoutes(app) {
     app.route("/users/me/password").put(controller.user.updatePassword);
     app.route("/users/me/notifications").get(controller.notification.getUserNotifications);
     app.route("/users/me/notifications/:id").delete(controller.notification.deleteNotification);
+    app.route("/users/me/enabledNotifications").put(controller.user.enablingNotification);
 }
 
 function initializeListRoutes(app) {

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import { Divider } from "primereact/divider";
@@ -12,8 +12,10 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 import { useNavigate } from "react-router-dom";
 import BurgerMenu from "../../components/BurgerMenu";
 import {useOnClickOutside} from "../../components/ClickOutsideHook";
+import axios from "axios";
 
 export function Settings(props) {
+    const [notificationEnabled, setNotificationEnabled] = useState(props.user.enableNotification)
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -28,6 +30,17 @@ export function Settings(props) {
             () => navigate("/settings/" + url), [url]
         );
     }
+
+    const changeNotification = (enabled) => {
+        setNotificationEnabled(enabled)
+        axios.put(
+            "/users/me/enabledNotifications",
+            {enabled: enabled}
+        ).then(
+            error => displayError(error)
+        )
+    }
+
     const getTabElement = tabName => {
         if (tabName === "password") {
             return (
@@ -53,7 +66,9 @@ export function Settings(props) {
                         <form>
                             <span className="mt-2 flex align-items-center">
                                 <label className="mr-2" htmlFor="notifications">All notifications enabled</label>
-                                <InputSwitch id="notifications" checked={ true } />
+                                <InputSwitch id="notifications"
+                                             checked={ notificationEnabled }
+                                             onChange={(e) => changeNotification(e.value)} />
                             </span>
                         </form>
                     </div>

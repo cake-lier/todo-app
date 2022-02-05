@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
     creationDate: {
         type: Date,
         default: Date.now
+    },
+    enableNotification: {
+        type: Boolean,
+        default: true
     }
 });
 

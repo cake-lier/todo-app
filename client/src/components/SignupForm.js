@@ -57,7 +57,9 @@ export default function SignupForm(props) {
                 }
             )
             .then(
-                user => props.setUser(user.data),
+                user => {
+                    props.setUser(user.data)
+                },
                 error => {
                     props.displayError(error.response.data.error);
                     formik.resetForm();
