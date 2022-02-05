@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import BurgerMenu from "../../components/BurgerMenu";
 import {useOnClickOutside} from "../../components/ClickOutsideHook";
 
-export function Settings(props) {
+export default function Settings(props) {
     const errors = useRef();
     const displayError = lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -117,6 +117,7 @@ export function Settings(props) {
                         { label: "Password", command: useOnTabClicked("password") },
                         { label: "Notifications", command: useOnTabClicked("notifications") }
                     ] }
+                    activeTabIndex={ props.tab === "account" ? 0 : (props.tab === "password" ? 1 : 2) }
                     displayError={ displayError }
                 />
                 <div className="grid overflow-y-auto">
@@ -142,6 +143,7 @@ export function Settings(props) {
                         { label: "Password", command: useOnTabClicked("password") },
                         { label: "Notifications", command: useOnTabClicked("notifications") }
                     ] }
+                    activeTabIndex={ props.tab === "account" ? 0 : (props.tab === "password" ? 1 : 2) }
                     displayError={ displayError }
                 />
                 <div className="grid">
@@ -156,6 +158,3 @@ export function Settings(props) {
         </div>
     );
 }
-
-export default Settings;
-

@@ -12,7 +12,6 @@ export function MainMenu({ open, selected }) {
             () => navigate("/" + url), [url]
         );
     }
-
     const mainItems = [
         {
             label: "My day",
@@ -38,7 +37,12 @@ export function MainMenu({ open, selected }) {
             disabled: selected === "Calendar",
             command: useOnClicked("calendar")
         },
-        { label: "Reports", icon: PrimeIcons.CHART_BAR, disabled: selected === "Reports" },
+        {
+            label: "Reports",
+            icon: PrimeIcons.CHART_BAR,
+            disabled: selected === "Reports",
+            command: useOnClicked("reports")
+        },
         { label: "Achievements", icon: PrimeIcons.STAR, disabled: selected === "Achievements" }
     ];
 

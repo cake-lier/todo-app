@@ -2,11 +2,12 @@ import ErrorMessages from "../../components/ErrorMessages";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import BurgerMenu from "../../components/BurgerMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
-import {useCallback, useEffect, useRef, useState} from "react";
+import {useCallback, useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import { Divider } from "primereact/divider";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
+import "./MyLists.scss";
 
 export default function MyLists({ user, unsetUser, socket }) {
     const errors = useRef();
@@ -53,7 +54,7 @@ export default function MyLists({ user, unsetUser, socket }) {
                         <MainMenu selected={ "My lists" } open={open}/>
                     </div>
                 </div>
-                <div id="myListsContainer-mobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                <div id="myListsContainerMobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
                      style={{ backgroundColor: "white" }}>
                     <div className={ "black-overlay absolute h-full w-full z-20 " + (open ? "" : "hidden") } />
                     <PageHeader
