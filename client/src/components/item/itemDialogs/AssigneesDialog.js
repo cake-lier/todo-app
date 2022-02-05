@@ -1,9 +1,9 @@
-import {Dialog} from "primereact/dialog";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Avatar } from 'primereact/avatar';
 import {DataView} from "primereact/dataview";
+import {ManageItemDialog} from "./ManageItemDialog";
 
-export function AssigneesDialog({itemId, listMembers, displayDialog, setDisplayDialog}) {
+export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
 
     const [assignees, setAssignees] = useState();   // assigned members
@@ -38,13 +38,7 @@ export function AssigneesDialog({itemId, listMembers, displayDialog, setDisplayD
     }
 
     return (
-        <Dialog
-            className="w-27rem m-3"
-            header="Assign this task to..."
-            visible={displayDialog}
-            dismissableMask={true} closable={false}
-            onHide={() => setDisplayDialog(false)}>
-
+        <ManageItemDialog title="This task is assigned to..." display={display} setDisplay={setDisplay}>
             <DataView
                 value={ listMembers }
                 itemTemplate={ iconTemplate }
@@ -53,8 +47,7 @@ export function AssigneesDialog({itemId, listMembers, displayDialog, setDisplayD
                 alwaysShowPaginator={ false }
                 emptyMessage="There are no list members."
             />
-
-        </Dialog>
+        </ManageItemDialog>
     )
 
 }

@@ -9,7 +9,6 @@ import {ItemTag} from "./itemTag/ItemTag";
 import {AddTagDialog} from "./itemDialogs/AddTagDialog";
 import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 import {DueDateTag} from "./itemTag/DueDateTag";
-import {ItemMember} from "./ItemMember";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 
 export function Item({socket, item, listMembers, onItemChange, selectedItems, deleteItem, updateItem}){
@@ -18,7 +17,7 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
     let menuItems = [
         {label: 'Edit', icon: 'pi pi-pencil', command:()=>{setDisplayEdit(true)}},
         {label: 'Due date', icon: 'pi pi-calendar', command:()=>{setDisplayCalendar1(true)}},
-        {label: 'Assign to', icon: 'pi pi-user-plus', command:()=>{setDisplayAddAssignee(true)} },
+        {label: 'Assign to', icon: 'pi pi-user-plus', command:()=>{setDisplayAssignees(true)} },
         {label: 'Add reminder', icon: 'pi pi-bell', command:()=>{setDisplayCalendar2(true)}},
         {label: 'Add tag', icon: 'pi pi-tag', command:()=>{setDisplayAddTag(true)}},
         {label: 'Toggle priority', icon: 'pi pi-star', command:()=>{setPriority(!priority)}},
@@ -30,7 +29,15 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
     const [displayCalendar2, setDisplayCalendar2] = useState(false);
     const [displayAddTag, setDisplayAddTag] = useState(false);
     const [displayEdit, setDisplayEdit] = useState(false);
-    const [displayAddAssignee, setDisplayAddAssignee] = useState(false);
+    const [displayAssignees, setDisplayAssignees] = useState(false);
+
+    const assigneesTemplate = () => {
+        return (
+            <AssigneesDialog
+                itemId={item._id}
+                listMembers={listMembers} />
+        )
+    }
 
     // tags
     const [tags, setTags] = useState(item.tags);
@@ -101,11 +108,11 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
                 updateItem={updateItem}
                 displayDialog={displayEdit}
                 setDisplayDialog={setDisplayEdit} />
+
             <AssigneesDialog
-                itemId={item._id}
-                listMembers={listMembers}
-                displayDialog={displayAddAssignee}
-                setDisplayDialog={setDisplayAddAssignee} />
+                display={displayAssignees}
+                setDisplay={setDisplayAssignees}
+                listMembers={listMembers}/>
         </>
     )
 }
