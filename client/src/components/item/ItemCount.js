@@ -6,16 +6,17 @@ import React, {useState} from "react";
 export function ItemCount({maxCount}) {
     const [count, setCount] = useState(0);
     const addCount = () => {
-        setCount(count + 1 <= maxCount ? count + 1 : maxCount);
+        // TODO counter
     }
     const subCount = () => {
-        setCount(count - 1 >= 0 ? count - 1 : 0);
+        // TODO counter
     }
 
     return(
         <div className="flex align-items-center">
             <Tooltip target=".count-display" autoHide={false}>
                 <div className="flex align-items-center">
+                    <span style={{color: "white"}}>(placeholder)</span>
                     <Button type="button" icon="pi pi-plus" onClick={addCount} className="p-button-rounded p-button-success m-1" />
                     <Button type="button" icon="pi pi-minus" onClick={subCount} className="p-button-rounded p-button-danger m-1" />
                 </div>
