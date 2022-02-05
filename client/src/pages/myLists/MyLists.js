@@ -32,7 +32,7 @@ export default function MyLists({ user, unsetUser, notifications, setNotificatio
             <div
                 id="myListsContainer"
                 style={{ backgroundColor: "white" }}
-                className="mx-0 p-0 h-full flex-column flex-grow-1 hidden md:flex"
+                className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex"
             >
                 <PageHeader
                     user={ user }

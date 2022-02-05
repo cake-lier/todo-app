@@ -1,13 +1,22 @@
 import { Badge } from "primereact/badge";
-import {useEffect, useRef, useState} from "react";
+import { Toast } from 'primereact/toast';
+import React, {useEffect, useRef, useState} from "react";
 import { OverlayPanel } from 'primereact/overlaypanel';
-import { DataView } from 'primereact/dataview';
+import { DataScroller } from 'primereact/datascroller';
 import axios from "axios";
 import "./Notifications.scss"
 
-export default function Notification({notifications, setNotifications, socket, displayError}) {
+export default function Notification({notifications, setNotifications, socket, displayError, notificationEnabled}) {
 
+    const toast = useRef(null);
     const panel = useRef(null);
+    const [showUnread, setShowUnread] = useState(false);
+
+    useEffect(() => {
+        if (notifications.length) {
+            setShowUnread(true);
+        }
+    }, [])
 
     useEffect(() => {
         function handleUpdates(event) {
@@ -15,8 +24,15 @@ export default function Notification({notifications, setNotifications, socket, d
                 axios.get("/users/me/notifications")
                     .then(
                         notifications => {
-                            console.log(notifications);
                             setNotifications(notifications.data);
+                            if (notificationEnabled) {
+                                toast.current.show({
+                                    severity: 'info',
+                                    detail: notifications.data[notifications.data.length-1].text,
+                                    closable: false,
+                                    life: 2000
+                                })
+                            }
                         },
                         error => displayError(error.response.data.error)
                     );
@@ -24,7 +40,7 @@ export default function Notification({notifications, setNotifications, socket, d
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [displayError, socket, setNotifications, notifications]);
+    }, [displayError, socket, setNotifications, notifications, toast]);
 
     const deleteNotification = (id) => {
         axios.delete(`/users/me/notifications/${id}`)
@@ -34,10 +50,16 @@ export default function Notification({notifications, setNotifications, socket, d
             )
     }
 
+    const deleteAllNotification = () => {
+        notifications.forEach(m => {
+            axios.delete(`/users/me/notifications/${m._id}`).then(error => displayError(error))
+        })
+        setNotifications([]);
+    }
+
     const itemTemplate = (data) => {
-        console.log(data)
         return (
-            <div className="grid p-3 w-full">
+            <div className="grid p-3 pl-3 w-full">
                 <div className="col-12 p-0 m-0 flex justify-content-end">
                     <i className="pi pi-times"
                        onClick={() => deleteNotification(data._id)}
@@ -52,21 +74,32 @@ export default function Notification({notifications, setNotifications, socket, d
 
     return(
         <>
+            <Toast ref={toast}/>
             <OverlayPanel ref={panel} id="notifications-overlay-panel" style={{width: '450px'}}>
-                <DataView
-                    className={ notifications?.length > 10? "overflow-y-auto" : null }
-                    layout="list"
+                <DataScroller
+                    rows={5}
+                    inline
+                    header={
+                        <div
+                            className={"grid justify-content-start p-0 pl-3 pt-2 underline " + (notifications.length ? null : "hidden")}
+                            onClick={deleteAllNotification}>
+                            Delete all notifications
+                        </div>}
+                    scrollHeight="400px"
                     itemTemplate={ itemTemplate }
-                    emptyMessage="No notifications."
+                    emptyMessage={ <p className="p-3 border-0 text-xl">No notifications.</p>}
                     value={ notifications }
                 />
             </OverlayPanel>
 
             <i className="pi pi-bell mr-3 p-text-secondary p-overlay-badge"
                style={{ fontSize: '2rem' }}
-               onClick={(e) => panel.current.toggle(e) }
+               onClick={(e) => {
+                   panel.current.toggle(e);
+                   setShowUnread(false);
+               } }
             >
-                <Badge className={notifications?.length > 0 ? null : "hidden"} severity="danger" />
+                <Badge className={notificationEnabled && showUnread && notifications.length? null : "hidden"} severity="danger" />
             </i>
         </>
     )

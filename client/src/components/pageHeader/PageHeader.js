@@ -25,6 +25,7 @@ const PageHeader = ({ user, unsetUser, title, showDate, tabs, isResponsive, noti
                         notifications={ notifications }
                         setNotifications={ setNotifications }
                         socket={ socket }
+                        notificationEnabled = { user.enableNotification }
                     />
                     <UserIcon
                         user={ user }
@@ -61,6 +62,7 @@ const PageHeader = ({ user, unsetUser, title, showDate, tabs, isResponsive, noti
                         notifications={ notifications }
                         setNotifications={ setNotifications }
                         socket={ socket }
+                        notificationEnabled = { user.enableNotification }
                     />
                     <UserIcon
                         user={ user }

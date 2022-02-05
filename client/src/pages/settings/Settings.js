@@ -37,6 +37,7 @@ export function Settings(props) {
             "/users/me/enabledNotifications",
             {enabled: enabled}
         ).then(
+            user => props.setUser(user.data),
             error => displayError(error)
         )
     }
