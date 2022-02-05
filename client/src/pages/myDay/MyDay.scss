@@ -1,5 +1,7 @@
 @import "../../colors";
 
-div#pageContainer > div {
-    background-color: $secondary-background;
+#my-day-container-mobile {
+    #empty-task-svg {
+        padding-top: 35vh;
+    }
 }

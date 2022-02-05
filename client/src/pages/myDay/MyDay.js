@@ -5,6 +5,7 @@ import { MainMenu } from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import "./MyDay.scss";
 import PageHeader from "../../components/pageHeader/PageHeader";
+import MyDayItem from "../../components/myDayItem/MyDayItem";
 
 export default function MyDay(props) {
     const errors = useRef();
@@ -22,10 +23,12 @@ export default function MyDay(props) {
     return(
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
-            <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
+            <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block sticky top-0">
                 <MainMenu selected={ "My day" } open={ true } />
             </div>
-            <div id="pageContainer" className="mx-0 p-0 flex-grow-1 hidden md:block m-0">
+            <div id="my-day-container"
+                 className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex"
+                 style={{ backgroundColor: "white" }}>
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }
@@ -34,18 +37,25 @@ export default function MyDay(props) {
                     isResponsive={ false }
                     displayError={ displayError }
                 />
+
+                <div className="grid h-full overflow-y-auto">
+                    <MyDayItem/>
+                </div>
             </div>
             <div className="w-full p-0 md:hidden">
                 <div
                     className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")}
                 />
-                <div className="col-1 p-0 h-full absolute justify-content-center">
+                <div className="col-1 p-0 h-full absolute justify-content-center ">
                     <div className="h-full w-full" ref={ node } style={ divStyle }>
                         <BurgerMenu open={ open } setOpen={ setOpen } />
                         <MainMenu selected={ "My day" } open={open} />
                     </div>
                 </div>
-                <div id="pageContainer" className="mx-0 p-0 w-full md:block">
+                <div id="my-day-container-mobile"
+                     className="mx-0 p-0 w-full h-full md:block"
+                     style={{ backgroundColor: "white" }}
+                >
                     <PageHeader
                         user={ props.user }
                         unsetUser={ props.unsetUser }
@@ -54,6 +64,10 @@ export default function MyDay(props) {
                         isResponsive={ true }
                         displayError={ displayError }
                     />
+
+                    <div className="grid overflow-y-auto">
+                        <MyDayItem/>
+                    </div>
                 </div>
             </div>
         </div>

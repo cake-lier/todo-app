@@ -1,0 +1,23 @@
+@import "../../colors";
+
+.p-component {
+  width: 100%;
+  height: fit-content;
+}
+
+.p-panel {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.p-panel-header {
+  border-bottom: 1px solid lightgrey !important;
+}
+
+.p-toggleable-content {
+  margin-top: 15px;
+}
+
+.p-accordion .p-accordion-tab.p-accordion-tab-active {
+  margin-bottom: 0 !important;
+}
