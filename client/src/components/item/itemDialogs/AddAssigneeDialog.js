@@ -1,12 +1,11 @@
 import {Dialog} from "primereact/dialog";
 import {DataView} from "primereact/dataview";
-import {Avatar} from "primereact/avatar";
 
 export function AddAssigneeDialog({members, assigneeTemplate, addAssignee, display, setDisplay}){
 
     const assigneeTemplateCustom = (member) => {
         return (
-            assigneeTemplate(member, "pi-plus", ()=>console.log("add ass"))
+            assigneeTemplate(member, "pi-plus", () => addAssignee(member))
         )
     }
 
@@ -15,7 +14,7 @@ export function AddAssigneeDialog({members, assigneeTemplate, addAssignee, displ
                 header="Assign to..."
                 visible={ display }
                 onHide={ () => setDisplay(false) }
-                dismissableMask={true} closable={false} >
+                dismissableMask={true} >
 
             <DataView
                 value={ members }

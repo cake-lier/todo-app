@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Avatar } from 'primereact/avatar';
 import {DataView} from "primereact/dataview";
 import {ManageItemDialog} from "./ManageItemDialog";
@@ -41,7 +41,7 @@ export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
 
     const assigneeTemplateCustom = (member) => {
         return (
-            assigneeTemplate(member, "pi-times", ()=>console.log("remove ass"))
+            assigneeTemplate(member, "pi-times", () => removeAssignee(member))
         )
     }
 
