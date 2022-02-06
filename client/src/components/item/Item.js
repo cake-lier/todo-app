@@ -6,7 +6,6 @@ import {ItemCount} from "./ItemCount";
 import {DueDateDialog} from "./itemDialogs/DueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
 import {ItemTag} from "./itemTag/ItemTag";
-import {AddTagDialog} from "./itemDialogs/AddTagDialog";
 import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 import {DueDateTag} from "./itemTag/DueDateTag";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
@@ -70,9 +69,7 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
                             })
                         }
                         <DueDateTag
-                            itemId={item._id}
                             dueDate={dueDate}
-                            setDueDate={setDueDate}
                         />
                     </div>
                 </div>

@@ -8,7 +8,7 @@ export function SetReminderDialog({itemId, displayCalendar, setDisplayCalendar})
 
     const reminderFooter = (btn_text, display) => {
         return (
-            <div  className="flex justify-content-center">
+            <div  className="flex justify-content-center pb-4">
                 <Button label={btn_text} onClick={() => {
                     onHide(display);
                     // TODO socket
@@ -24,8 +24,21 @@ export function SetReminderDialog({itemId, displayCalendar, setDisplayCalendar})
     }
 
     return (
-        <Dialog footer={reminderFooter('Set reminder', 'display2')} dismissableMask={true} closable={false} visible={displayCalendar} onHide={() => setDisplayCalendar(false)}>
-            <Calendar id="time24" value={date} onChange={(e) => setDate(e.value)} showTime inline stepMinute={2} />
+        <Dialog
+            footer={reminderFooter('Set reminder', 'display2')}
+            dismissableMask={true}
+            closable={false}
+            visible={displayCalendar}
+            onHide={() => setDisplayCalendar(false)}>
+            <Calendar
+                id="time24"
+                value={date}
+                onChange={(e) => setDate(e.value)}
+                showTime
+                inline
+                showButtonBar={true}
+                minDate={new Date()}
+                stepMinute={2} />
         </Dialog>
     )
 }

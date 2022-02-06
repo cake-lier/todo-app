@@ -1,16 +1,6 @@
-import { Chip } from 'primereact/chip';
-import "./ItemTag.scss";
-import axios from "axios";
+import {Tag} from "primereact/tag";
 
-export function DueDateTag({itemId, dueDate, setDueDate}){
-    const onRemove = () => {
-        axios.put("/items/" + itemId + "/date")
-            .then(r => {
-                    setDueDate(null);
-                },
-                // TODO error
-            )
-    };
+export function DueDateTag({dueDate}){
 
     function toDayMonth(date) {
         return date.toLocaleString('default', { month: 'short' }) + " " + date.getDate();
@@ -20,13 +10,11 @@ export function DueDateTag({itemId, dueDate, setDueDate}){
         let date = toDayMonth(new Date(dueDate));
 
         return (
-            <Chip
-                className="mr-2 mb-2 p-1 custom-chip"
-                label={date}
-                removable
-                onRemove={onRemove}
-                icon={<i key={date} className={"pi mr-1 pi-calendar" } />}
-            />
+            <Tag className="flex m-1 p-tag-rounded"
+                 icon={<i key={date} className={"pi mr-1 pi-calendar" } />}
+            >
+                {date}
+            </Tag>
         )
     } else {
         return null;
