@@ -5,6 +5,7 @@ import "./MyDayItem.scss"
 import EmptyTaskSVG from "../EmptyTaskSVG";
 import Moment from "moment";
 import {useEffect, useState} from "react";
+import {ItemsContainer} from "../item/itemsContainer/ItemsContainer";
 
 export default function MyDayItem({displayError}) {
     const [pastDue, setPastDue] = useState([]);
@@ -68,7 +69,7 @@ export default function MyDayItem({displayError}) {
                 titleElement="P"
                 collapsed
                 toggleable>
-                <p>Past due tasks list</p>
+                <ItemsContainer listId={null} myDayItems={pastDue} />
             </Panel>
             <Panel
                 id="due-today"
@@ -76,7 +77,7 @@ export default function MyDayItem({displayError}) {
                 headerTemplate={template}
                 collapsed
                 toggleable>
-                <p>Due today tasks list</p>
+                <ItemsContainer listId={null} myDayItems={dueToday} />
             </Panel>
             <Panel
                 id="upcoming"
@@ -84,7 +85,7 @@ export default function MyDayItem({displayError}) {
                 headerTemplate={template}
                 collapsed
                 toggleable>
-                <p>Upcoming tasks list</p>
+                <ItemsContainer listId={null} myDayItems={upcoming} />
             </Panel>
             <div className={(tasksPresent ? "hidden" : null)}>
                 <EmptyTaskSVG/>

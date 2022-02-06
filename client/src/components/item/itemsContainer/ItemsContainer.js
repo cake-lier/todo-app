@@ -5,7 +5,7 @@ import {Item} from "../Item";
 import axios from "axios";
 import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
 
-export function ItemsContainer({listId}) {
+export function ItemsContainer({listId, myDayItems}) {
     // checklist
     const [items, setItems] = useState([]);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
@@ -14,14 +14,18 @@ export function ItemsContainer({listId}) {
 
     // init items from database
     useEffect(() => {
-        axios.get("/items/")
-            .then(allItems => {
-                let i = allItems.data.filter(i => i.listId === listId);
-                    setItems(i);
-                    setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
-                },
-                // TODO error
-            );
+        if (listId) {
+            axios.get("/items/")
+                .then(allItems => {
+                        let i = allItems.data.filter(i => i.listId === listId);
+                        setItems(i);
+                        setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
+                    },
+                    // TODO error
+                );
+        } else {
+            setItems(myDayItems);
+        }
     }, [listId]);
 
     // when checkbox is checked/unchecked, update selectedItems[]
@@ -68,7 +72,10 @@ export function ItemsContainer({listId}) {
     return (
         <>
             <div>
-                <Button label="New Task" icon="pi pi-plus" onClick={() => setDisplayDialog(true)}/>
+                <Button className={myDayItems ? "hidden" : null}
+                        label="New Task" icon="pi pi-plus"
+                        onClick={() => setDisplayDialog(true)}
+                />
                 {
                     items.map((item) => {
                         return (<Item key={item._id}
