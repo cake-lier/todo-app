@@ -494,12 +494,41 @@ function enablingNotification(request, response) {
         )
 }
 
+function enablingListNotification(request, response) {
+    if (!validateRequest(request, response, [], [], true)) {
+        return;
+    }
+
+    User.findByIdAndUpdate(
+        request.session.userId,
+        (request.body.enabled
+                ? {$pull: {disabledListNotification: request.body.listId}}
+                : {$push: {disabledListNotification: request.body.listId}}),
+        { context: "query", new: true })
+        .exec()
+        .then(
+            user => {
+                console.log(user)
+                if (user === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                response.json(user)
+            },
+            error => {
+                console.log(error);
+                sendError(response, Error.GeneralError);
+            }
+        )
+}
+
 module.exports = {
     signup,
     getUser,
     updateAccount,
     updatePassword,
     enablingNotification,
+    enablingListNotification,
     unregister,
     login,
     logout

@@ -8,7 +8,7 @@ import ListItem from "../../components/listItem/ListItem";
 import { Divider } from "primereact/divider";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
 
-export default function MyLists({ user, unsetUser, notifications, setNotifications, socket }) {
+export default function MyLists({ user, setUser, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -47,7 +47,14 @@ export default function MyLists({ user, unsetUser, notifications, setNotificatio
                 />
                 <MyListsHeader appendList={ appendList } displayError={ displayError } />
                 <Divider className="p-0 mb-0" />
-                <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } socket={ socket } />
+                <ListItem
+                    setUser={ setUser }
+                    lists={ lists }
+                    setLists={ setLists }
+                    displayError={ displayError }
+                    socket={ socket }
+                    disabledListNotification={user.disabledListNotification}
+                />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
                 <div className="col-1 p-0 h-full absolute justify-content-center">
@@ -72,7 +79,13 @@ export default function MyLists({ user, unsetUser, notifications, setNotificatio
                     />
                     <MyListsHeader appendList={ appendList } displayError={ displayError } />
                     <Divider className="p-0 m-0" />
-                    <ListItem lists={ lists } setLists={ setLists } displayError={ displayError } socket={ socket } />
+                    <ListItem
+                        setUser={ setUser }
+                        lists={ lists }
+                        setLists={ setLists }
+                        displayError={ displayError }
+                        socket={ socket }
+                        disabledListNotification={user.disabledListNotification}/>
                 </div>
             </div>
         </div>

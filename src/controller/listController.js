@@ -28,7 +28,8 @@ function createList(request, response) {
             const text = `The list "${ list.title }" has just been created`;
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                text
+                text,
+                listId: listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -68,7 +69,8 @@ function deleteList(request, response) {
                                const text = `The list "${ list.title }" has just been deleted`;
                                Notification.create({
                                    users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                                   text
+                                   text,
+                                   listId: listId
                                })
                                .catch(error => console.log(error))
                                .then(_ => {
@@ -254,7 +256,8 @@ function updateTitle(request, response) {
             const text = `The list "${ list.title }" had its title changed to "${ request.body.title }"`;
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                text
+                text,
+                listId: listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -283,7 +286,8 @@ function updateVisibility(request, response) {
             const text = `The list "${ list.title }" is now ${ request.body.isVisible ? "" : "not " }visible to non members`;
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                text
+                text,
+                listId: listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -344,7 +348,8 @@ function addMember(request, response) {
                                 const text = `The list "${ list.title }" has a new member`;
                                 Notification.create({
                                     users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                                    text
+                                    text,
+                                    listId: listId
                                 })
                                 .catch(error => console.log(error))
                                 .then(_ => {
@@ -377,7 +382,8 @@ function addMember(request, response) {
             const text = `The list "${ list.title }" has a new member`;
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                text
+                text,
+                listId: listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -434,7 +440,8 @@ function removeMember(request, response) {
             if (list.members[memberIndex].userId !== null) {
                 Notification.create({
                     users: [list.members[memberIndex].userId].map(m=> m.userId),
-                    text: userText
+                    text: userText,
+                    listId: listId
                 })
                 .catch(error => console.log(error))
                 .then(_ => {
@@ -448,7 +455,8 @@ function removeMember(request, response) {
             const text = `A member has left the list "${ list.title }"`;
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
-                text
+                text,
+                listId: listId
             })
             .catch(error => console.log(error))
             .then(_ => {

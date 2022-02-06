@@ -59,6 +59,7 @@ export default function SignupForm(props) {
             .then(
                 user => {
                     props.setUser(user.data)
+                    console.log(user.data)
                 },
                 error => {
                     props.displayError(error.response.data.error);

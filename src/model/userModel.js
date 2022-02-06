@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
     enableNotification: {
         type: Boolean,
         default: true
+    },
+    disabledListNotification: {
+        type: [mongoose.ObjectId],
+        default: []
     }
 });
 

@@ -215,6 +215,7 @@ class App extends Component {
                         element={
                             this.state.user !== null
                                 ? <MyLists
+                                    setUser={this.setUser}
                                     user={ this.state.user }
                                     unsetUser={ this.unsetUser }
                                     notifications={ this.state.notifications }
@@ -229,6 +230,7 @@ class App extends Component {
                         element={
                             this.state.user !== null
                                 ? <SharedWithMe
+                                    setUser={this.setUser}
                                     user={ this.state.user }
                                     unsetUser={ this.unsetUser }
                                     notifications={ this.state.notifications }

@@ -6,14 +6,16 @@ import { DataScroller } from 'primereact/datascroller';
 import axios from "axios";
 import "./Notifications.scss"
 
-export default function Notification({notifications, setNotifications, socket, displayError, notificationEnabled}) {
+export default function Notification({notifications, setNotifications, socket, displayError, notificationEnabled, listNotification}) {
 
     const toast = useRef(null);
     const panel = useRef(null);
     const [showUnread, setShowUnread] = useState(false);
 
+    console.log(listNotification)
+
     useEffect(() => {
-        if (notifications.length) {
+        if (notifications.length && notificationEnabled) {
             setShowUnread(true);
         }
     }, [])
@@ -25,7 +27,7 @@ export default function Notification({notifications, setNotifications, socket, d
                     .then(
                         notifications => {
                             setNotifications(notifications.data);
-                            if (notificationEnabled) {
+                            if (notificationEnabled && !(listNotification.includes(notifications.data[notifications.data.length-1].listId))) {
                                 toast.current.show({
                                     severity: 'info',
                                     detail: notifications.data[notifications.data.length-1].text,
@@ -40,7 +42,7 @@ export default function Notification({notifications, setNotifications, socket, d
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [displayError, socket, setNotifications, notifications, toast]);
+    }, [displayError, socket, setNotifications, notifications, toast, listNotification]);
 
     const deleteNotification = (id) => {
         axios.delete(`/users/me/notifications/${id}`)
@@ -99,7 +101,7 @@ export default function Notification({notifications, setNotifications, socket, d
                    setShowUnread(false);
                } }
             >
-                <Badge className={notificationEnabled && showUnread && notifications.length? null : "hidden"} severity="danger" />
+                <Badge className={showUnread? null : "hidden"} severity="danger" />
             </i>
         </>
     )
