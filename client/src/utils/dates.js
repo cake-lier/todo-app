@@ -29,7 +29,10 @@ const monthNames = [
 export function getLabelsByDateRange(rangeType) {
     switch (rangeType) {
         case 0:
-            return monthNames.slice(new Date().getMonth() + 1).concat(monthNames.slice(0, new Date().getMonth() + 1));
+            return monthNames.slice(new Date().getMonth())
+                             .map(m => `${ m } ${ new Date().getFullYear() - 1 }`)
+                             .concat(monthNames.slice(0, new Date().getMonth() + 1)
+                                               .map(m => `${ m } ${ new Date().getFullYear() }`));
         case 1:
             const monthLabels = [];
             const monthEnd = new Date();
@@ -54,12 +57,13 @@ export function getLabelsByDateRange(rangeType) {
 }
 
 export function groupByDateRange(rangeType, date) {
+    const currentDate = new Date(date);
     switch (rangeType) {
         case 0:
-            return monthNames[new Date(date).getMonth()];
+            return `${ monthNames[currentDate.getMonth()] } ${ currentDate.getFullYear() }`;
         case 1:
         case 2:
-            return new Date(date).toLocaleDateString("en-GB");
+            return currentDate.toLocaleDateString("en-GB");
         default:
             return null;
     }

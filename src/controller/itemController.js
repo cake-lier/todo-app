@@ -275,7 +275,6 @@ function updateCompletion(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
-
     updateItemAtomicProperty(
         request,
         response,

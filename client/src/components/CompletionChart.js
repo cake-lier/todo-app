@@ -1,7 +1,7 @@
 import { Component } from "react";
 import { Chart } from "primereact/chart";
 import _ from "lodash";
-import { filterByDateRange } from "../utils/dates";
+import {filterByDateRange} from "../utils/dates";
 
 class CompletionChart extends Component {
 
@@ -20,17 +20,17 @@ class CompletionChart extends Component {
                 const listTitle = this.props.lists.filter(l => l._id === k)[0].title;
                 if (this.props.filter > 2) {
                     return [
-                        [ listTitle + " (Done)", v.filter(i => i.completionDate !== null).length ],
-                        [ listTitle + " (To be done)", v.filter(i => i.completionDate === null).length ]
+                        { title: listTitle + " (Done)", key: k + "_d", value: v.filter(i => i.completionDate !== null).length },
+                        { title: listTitle + " (To do)", key: k + "_t", value: v.filter(i => i.completionDate === null).length }
                     ];
                 }
-                return [ [ listTitle + " (Done)", v.filter(i => i.completionDate !== null).length ] ];
+                return [ { title: listTitle + " (Done)", key: k, value: v.filter(i => i.completionDate !== null).length } ];
             });
         const chartData = {
-            labels: datasets.map(([k]) => k),
+            labels: datasets.map(e => e.title),
             datasets: [
                 {
-                    data: datasets.map(([, v]) => v),
+                    data: datasets.map(e => e.value),
                     backgroundColor:
                         this.props.filter < 3
                         ? [ "#FB9DB1", "#B5A9EF", "#9FD7F9", "#FFF599", "#E9F5A3" ]
@@ -68,12 +68,27 @@ class CompletionChart extends Component {
                 }
             }
         };
-        return <Chart
-            id="completionRate"
-            type="doughnut"
-            options={ options }
-            data={ chartData }
-        />;
+        return (
+            <>
+                <Chart id="completionRate" type="doughnut" options={ options } data={ chartData } />
+                <table className="absolute opacity-0" style={{ zIndex: -1 }}>
+                    <caption className="opacity-0">
+                        {
+                            this.props.filter > 2
+                            ? "Percentage of completed and non-completed items by list"
+                            : ("Percentage of completed items by list in the last "
+                               + (this.props.filter === 0 ? "year" : (this.props.filter === 1 ? "month" : "week")))
+                        }
+                    </caption>
+                    <thead>
+                        <tr>{ datasets.map(e => <th key={ e.key } scope="col">{ e.title }</th>) }</tr>
+                    </thead>
+                    <tbody>
+                        <tr>{ datasets.map(e => <td key={ e.key }>{ e.value }</td>) }</tr>
+                    </tbody>
+                </table>
+            </>
+        );
     }
 }
 

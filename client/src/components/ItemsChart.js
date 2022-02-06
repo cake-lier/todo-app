@@ -33,19 +33,23 @@ class ItemsChart extends Component {
                     })
                 )
             );
+        const colors = [ "#FB9DB1", "#B5A9EF", "#9FD7F9", "#FFF599", "#E9F5A3" ];
         const chartData = {
             labels: getLabelsByDateRange(this.props.filter),
-            datasets: listIds.map(listId => ({
+            datasets: listIds.map((listId, index) => ({
                 label: this.props.lists.filter(l => l._id === listId)[0].title,
                 data: datasets,
                 parsing: {
                     yAxisKey: listId
                 },
-                backgroundColor: [ "#FB9DB1", "#B5A9EF", "#9FD7F9", "#FFF599", "#E9F5A3" ]
+                backgroundColor: colors[index]
             }))
         };
         const options = {
             scales: {
+                x: {
+                    stacked: true
+                },
                 y: {
                     stacked: true
                 }
@@ -84,12 +88,44 @@ class ItemsChart extends Component {
                 }
             }
         };
-        return <Chart
-            id="itemsCompleted"
-            type="bar"
-            options={ options }
-            data={ chartData }
-        />;
+        return (
+            <>
+                <Chart id="itemsCompleted" type="bar" options={ options } data={ chartData } />
+                <table className="absolute opacity-0" style={{ zIndex: -1 }}>
+                    <caption className="opacity-0">
+                        Items completed during the last
+                        { this.props.filter === 0 ? " year " : (this.props.filter === 1 ? " month " : " week ") }
+                        by list
+                    </caption>
+                    <thead>
+                        <tr className="opacity-0">
+                            <td />
+                            {
+                                listIds.map(listId => {
+                                    const listName = this.props.lists.filter(l => l._id === listId)[0].title;
+                                    return <th key={ listId } scope="col">{ listName }</th>;
+                                })
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            getLabelsByDateRange(this.props.filter).map(dateLabel =>
+                                <tr key={ dateLabel }>
+                                    <th scope="row">{ dateLabel }</th>
+                                    { listIds.map(listId =>
+                                        <td key={ listId }>{
+                                            datasets.filter(i => i.x === dateLabel && i.hasOwnProperty(listId))[0]?.[listId] ?? 0
+                                        }</td>
+                                    ) }
+                                </tr>
+                            )
+                        }
+                    </tbody>
+                </table>
+            </>
+        );
+
     }
 }
 

@@ -38,9 +38,6 @@ export default function Reports({ user, unsetUser, tab, socket }) {
         visible: "false"
     };
     const getTabElement = tabName => {
-        if (items.length === 0) {
-            return <p>Nothing to show here.</p>;
-        }
         if (tabName === "items-completed") {
             return <ItemsChart lists={ lists } items={ items } filter={ filter } />;
         }
@@ -107,9 +104,18 @@ export default function Reports({ user, unsetUser, tab, socket }) {
                             unselectable={ false }
                         />
                     </div>
-                    <div className="col-12 flex flex-grow-1 justify-content-center align-items-center">
-                        { getTabElement(tab) }
-                    </div>
+                    {
+                        items.filter(i => i.completionDate !== null).length === 0
+                            ? <div className="col-12 flex flex-grow-1 flex-column justify-content-center">
+                                  <p className="col-12 flex justify-content-center text-xl lg:text-3xl">Here be dragons!</p>
+                                  <p className="col-12 flex justify-content-center text-xl lg:text-3xl">
+                                      Complete your first item in a list and then come back here!
+                                  </p>
+                              </div>
+                            : <div className="col-12 flex flex-grow-1 justify-content-center align-items-center">
+                                  { getTabElement(tab) }
+                              </div>
+                    }
                 </div>
             </div>
             <div id="reportsPageContainer" className="mx-0 p-0 flex flex-column w-full flex-1 md:hidden">
@@ -138,9 +144,18 @@ export default function Reports({ user, unsetUser, tab, socket }) {
                             unselectable={ false }
                         />
                     </div>
-                    <div className="col-12 flex flex-grow-1 align-items-center justify-content-center">
-                        { getTabElement(tab) }
-                    </div>
+                    {
+                        items.filter(i => i.completionDate !== null).length === 0
+                            ? <div className="col-12 flex flex-grow-1 flex-column justify-content-center">
+                                <p className="col-12 flex justify-content-center text-lg sm:text-xl">Here be dragons!</p>
+                                <p className="col-12 flex justify-content-center text-center text-lg sm:text-xl">
+                                    Complete your first item in a list and then come back here!
+                                </p>
+                            </div>
+                            : <div className="col-12 flex flex-grow-1 justify-content-center align-items-center">
+                                { getTabElement(tab) }
+                            </div>
+                    }
                 </div>
             </div>
         </div>
