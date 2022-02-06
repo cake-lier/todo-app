@@ -1,20 +1,19 @@
 import React, { useState, useCallback } from "react";
 import { Avatar } from 'primereact/avatar';
 import {DataView} from "primereact/dataview";
-import {Dialog} from "primereact/dialog";
 import {ManageItemDialog} from "./ManageItemDialog";
+import {AddAssigneeDialog} from "./AddAssigneeDialog";
 
 export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
 
     const [addDialog, setAddDialog] = useState(false);
 
-    const [assignees, setAssignees] = useState();   // assigned members
-    const [members, setMembers] = useState();       // { userId, username, profilePicturePath }
+    const [assignees, setAssignees] = useState(Array.prototype);   // assigned members
     const addAssignee = useCallback(assignee => setAssignees(assignees.concat(assignee)), [assignees, setAssignees]);
     const removeAssignee = useCallback(assignee => setAssignees(assignees.filter(i => i._id !== assignee._id)), [assignees, setAssignees]);
 
-    const iconTemplate = (member) => {
+    const assigneeTemplate = (member, icon, onClickAction) => {
         return (
             <div className="col-12 flex flex-row justify-content-between">
                 <div className="flex align-items-center mb-2" >
@@ -32,11 +31,17 @@ export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
                 </div>
                 <div className="flex align-items-center  mb-2">
                     <i
-                        className={"pi pi-times cursor-pointer mr-1"}
-                        onClick={ () => console.log("remove assignee") }
+                        className={"pi " + icon + " cursor-pointer mr-1"}
+                        onClick={ onClickAction }
                     />
                 </div>
             </div>
+        )
+    }
+
+    const assigneeTemplateCustom = (member) => {
+        return (
+            assigneeTemplate(member, "pi-times", ()=>console.log("remove ass"))
         )
     }
 
@@ -48,21 +53,20 @@ export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
                 setDisplay={setDisplay}
                 setAddDialog={setAddDialog}>
                 <DataView
-                    value={ listMembers }
-                    itemTemplate={ iconTemplate }
+                    value={ assignees }
+                    itemTemplate={assigneeTemplateCustom}
                     rows={ 10 }
-                    paginator={ listMembers.length > 10 }
+                    paginator={ assignees.length > 10 }
                     alwaysShowPaginator={ false }
-                    emptyMessage="There are no list members."
+                    emptyMessage="There is no one assigned to this task."
                 />
             </ManageItemDialog>
-
-            <Dialog className="w-27rem m-3"
-                    header="Assign to..."
-                    visible={ addDialog }
-                    onHide={ () => setAddDialog(false) }>
-                <span>This is content.</span>
-            </Dialog>
+            <AddAssigneeDialog
+                members={listMembers.filter(x => !assignees.includes(x))}
+                assigneeTemplate={assigneeTemplate}
+                addAssignee={addAssignee}
+                display={addDialog}
+                setDisplay={setAddDialog} />
         </>
     )
 
