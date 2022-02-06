@@ -16,7 +16,7 @@ export default function Notification({notifications, setNotifications, socket, d
         if (notifications.length && notificationEnabled) {
             setShowUnread(true);
         }
-    }, [])
+    }, [notificationEnabled, notifications.length]);
 
     useEffect(() => {
         function handleUpdates(event) {
@@ -40,7 +40,7 @@ export default function Notification({notifications, setNotifications, socket, d
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [displayError, socket, setNotifications, notifications, toast, listNotification]);
+    }, [displayError, socket, setNotifications, notifications, toast, listNotification, notificationEnabled]);
 
     const deleteNotification = (id) => {
         axios.delete(`/users/me/notifications/${id}`)

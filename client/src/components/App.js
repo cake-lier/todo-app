@@ -13,6 +13,7 @@ import Join from "../pages/join/Join";
 import MyLists from "../pages/myLists/MyLists";
 import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
 import List from "../pages/list/List";
+import Reports from "../pages/reports/Reports";
 
 class App extends Component {
 
@@ -249,6 +250,33 @@ class App extends Component {
                                 socket={ this.state.socket }
                               />
                             : <Navigate to="/"/>
+                        }
+                    />
+                    <Route path="/reports" element={ <Navigate to="/reports/completion-rate" /> } />
+                    <Route
+                        path="/reports/completion-rate"
+                        element={
+                            this.state.user !== null
+                            ? <Reports
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  tab="completion-rate"
+                                  socket={ this.state.socket }
+                              />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/reports/items-completed"
+                        element={
+                            this.state.user !== null
+                            ? <Reports
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  tab="items-completed"
+                                  socket={ this.state.socket }
+                              />
+                            : <Navigate to="/" />
                         }
                     />
                 </Routes>

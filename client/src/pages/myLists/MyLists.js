@@ -7,6 +7,7 @@ import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
 import { Divider } from "primereact/divider";
 import { useOnClickOutside } from "../../components/ClickOutsideHook";
+import "./MyLists.scss";
 
 export default function MyLists({ user, setUser, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
@@ -63,7 +64,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         <MainMenu selected={ "My lists" } open={open}/>
                     </div>
                 </div>
-                <div id="myListsContainer-mobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                <div id="myListsContainerMobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
                      style={{ backgroundColor: "white" }}>
                     <div className={ "black-overlay absolute h-full w-full z-20 " + (open ? "" : "hidden") } />
                     <PageHeader

@@ -12,12 +12,6 @@
     border: none !important;
 }
 
-#myListsContainer-mobile {
-  & .p-dataview.p-dataview-list .p-dataview-content > .p-grid > div {
-    padding-top: 35vh;
-  }
-}
-
 .p-dataview .p-dataview-content {
   padding: 0 !important;
 }
@@ -29,15 +23,11 @@
 }
 
 .green-list {
-  color: $pastel-green !important;
+  color: $pastel-green;
 }
 
 .yellow-list {
   color: $pastel-yellow;
-}
-
-.green-list {
-    color: $pastel-green !important;
 }
 
 .blue-list {

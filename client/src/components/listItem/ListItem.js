@@ -96,9 +96,11 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership= 
                      .then(
                          lists => {
                              setLists(lists.data);
-                             const chosenList = lists.data.filter(l => l._id === list._id);
                              menu.current.hide();
-                             setList(chosenList.length > 0 ? chosenList[0] : null);
+                             if (list !== null) {
+                                 const chosenList = lists.data.filter(l => l._id === list._id);
+                                 setList(chosenList.length > 0 ? chosenList[0] : null);
+                             }
                          },
                          error => displayError(error.response.data.error)
                      );
