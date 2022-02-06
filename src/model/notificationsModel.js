@@ -14,6 +14,10 @@ const notificationsSchema = new mongoose.Schema({
     insertionDate: {
         type: Date,
         default: Date.now
+    },
+    listId: {
+        type: mongoose.ObjectId,
+        required: true
     }
 });
 

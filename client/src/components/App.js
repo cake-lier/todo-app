@@ -211,7 +211,14 @@ class App extends Component {
                         exact path="/my-lists"
                         element={
                             this.state.user !== null
-                                ? <MyLists user={ this.state.user } unsetUser={ this.unsetUser } socket={ this.state.socket } />
+                                ? <MyLists
+                                    setUser={this.setUser}
+                                    user={ this.state.user }
+                                    unsetUser={ this.unsetUser }
+                                    notifications={ this.state.notifications }
+                                    setNotifications={ this.setNotifications }
+                                    socket={ this.state.socket }
+                                  />
                                 : <Navigate to="/" />
                         }
                     />
@@ -220,8 +227,11 @@ class App extends Component {
                         element={
                             this.state.user !== null
                                 ? <SharedWithMe
+                                    setUser={this.setUser}
                                     user={ this.state.user }
                                     unsetUser={ this.unsetUser }
+                                    notifications={ this.state.notifications }
+                                    setNotifications={ this.setNotifications }
                                     socket={ this.state.socket }
                                   />
                                 : <Navigate to="/" />
@@ -231,7 +241,13 @@ class App extends Component {
                         path="/my-lists/:id"
                         element={
                             this.state.user !== null
-                            ? <List user={this.state.user} unsetUser={ this.unsetUser } socket={ this.state.socket } />
+                            ? <List
+                                user={this.state.user}
+                                unsetUser={ this.unsetUser }
+                                notifications={ this.state.notifications }
+                                setNotifications={ this.setNotifications }
+                                socket={ this.state.socket }
+                              />
                             : <Navigate to="/"/>
                         }
                     />

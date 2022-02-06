@@ -7,7 +7,7 @@ import ListItem from "../../components/listItem/ListItem";
 import {Divider} from "primereact/divider";
 import SharedWithMeHeader from "../../components/SharedWithMeHeader";
 
-export default function SharedWithMe({ user, unsetUser, socket }) {
+export default function SharedWithMe({ setUser, user, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -33,17 +33,22 @@ export default function SharedWithMe({ user, unsetUser, socket }) {
                     title="Shared with me"
                     showDate={ false }
                     isResponsive={ false }
+                    notifications={ notifications }
+                    setNotifications={ setNotifications }
+                    socket={ socket }
                     displayError={ displayError }
                 />
                 <SharedWithMeHeader />
                 <Divider className="p-0" />
                 <ListItem
+                    setUser={ setUser }
                     lists={ lists }
                     setLists={ setLists }
                     userId={ user._id }
                     ownership={ false }
                     displayError={ displayError }
                     socket={ socket }
+                    disabledListNotification={user.disabledListNotification}
                 />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
@@ -62,17 +67,22 @@ export default function SharedWithMe({ user, unsetUser, socket }) {
                         title="Shared with me"
                         showDate={ false }
                         isResponsive={ true }
+                        notifications={ notifications }
+                        setNotifications={ setNotifications }
+                        socket={ socket }
                         displayError={ displayError }
                     />
                     <SharedWithMeHeader />
                     <Divider className="p-0" />
                     <ListItem
+                        setUser={ setUser }
                         lists={ lists }
                         setLists={ setLists }
                         userId={ user._id }
                         ownership={ false }
                         displayError={ displayError }
                         socket={ socket }
+                        disabledListNotification={user.disabledListNotification}
                     />
                 </div>
             </div>
