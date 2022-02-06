@@ -12,7 +12,7 @@ import ItemsChart from "../../components/ItemsChart";
 import CompletionChart from "../../components/CompletionChart";
 import {SelectButton} from "primereact/selectbutton";
 
-export default function Reports({ user, unsetUser, tab, socket }) {
+export default function Reports({ user, unsetUser, tab, socket, notifications, setNotifications }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -90,6 +90,9 @@ export default function Reports({ user, unsetUser, tab, socket }) {
                         { label: "Items completed", command: useOnTabClicked("items-completed") }
                     ] }
                     activeTabIndex={ tab === "completion-rate" ? 0 : 1 }
+                    notifications={ notifications }
+                    setNotifications={ setNotifications }
+                    socket={ socket }
                     displayError={ displayError }
                 />
                 <div className="grid flex-column flex-grow-1">
@@ -130,6 +133,9 @@ export default function Reports({ user, unsetUser, tab, socket }) {
                         { label: "Items completed", command: useOnTabClicked("items-completed") }
                     ] }
                     activeTabIndex={ tab === "completion-rate" ? 0 : 1 }
+                    notifications={ notifications }
+                    setNotifications={ setNotifications }
+                    socket={ socket }
                     displayError={ displayError }
                 />
                 <div className="grid flex-column flex-grow-1">

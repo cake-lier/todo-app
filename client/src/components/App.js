@@ -262,6 +262,8 @@ class App extends Component {
                                   unsetUser={ this.unsetUser }
                                   tab="completion-rate"
                                   socket={ this.state.socket }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
                               />
                             : <Navigate to="/" />
                         }
@@ -275,6 +277,8 @@ class App extends Component {
                                   unsetUser={ this.unsetUser }
                                   tab="items-completed"
                                   socket={ this.state.socket }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
                               />
                             : <Navigate to="/" />
                         }
