@@ -1,7 +1,7 @@
 import {ManageItemDialog} from "./ManageItemDialog";
 import {DataView} from "primereact/dataview";
 import React, {useState} from "react";
-import {ItemTag} from "../itemTag/ItemTag";
+import {ItemTag} from "../ItemTag";
 import axios from "axios";
 import {AddTagDialog} from "./AddTagDialog";
 

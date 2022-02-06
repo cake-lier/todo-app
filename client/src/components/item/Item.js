@@ -5,9 +5,9 @@ import {Menu} from "primereact/menu";
 import {ItemCount} from "./ItemCount";
 import {DueDateDialog} from "./itemDialogs/DueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
-import {ItemTag} from "./itemTag/ItemTag";
+import {ItemTag} from "./ItemTag";
 import {EditItemDialog} from "./itemDialogs/EditItemDialog";
-import {DueDateTag} from "./itemTag/DueDateTag";
+import {DueDateTag} from "./DueDateTag";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 import {EditTagDialog} from "./itemDialogs/EditTagDialog";
 
