@@ -57,7 +57,7 @@ export default function PageHeader({ user, unsetUser, title, showDate, tabs, act
                         : null
                     }
                 </div>
-                <div className="col-12 p-0 z-1 pb-3">
+                <div className="col-12 p-0 z-1">
                     <Divider className="my-0" />
                 </div>
             </div>

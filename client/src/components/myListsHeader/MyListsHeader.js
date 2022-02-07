@@ -6,7 +6,7 @@ import CreateListDialog from "../listDialogs/CreateListDialog";
 export default function MyListsHeader({ appendList, displayError }) {
     const [display, setDisplay] = useState(false);
     return (
-        <div className="grid pb-2">
+        <div className="grid py-3">
             <CreateListDialog
                 display={ display }
                 setDisplay={ setDisplay }
