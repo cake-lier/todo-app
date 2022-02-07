@@ -8,6 +8,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const bcrypt = require("bcrypt");
 const fs = require("fs");
+const mongoose = require("mongoose");
 const rounds = 12;
 
 function decodeImage(encodedImage, response) {
@@ -270,7 +271,7 @@ function updatePassword(request, response) {
 function sendNotification(userId, list, eventName, text) {
     const listId = list._id.toString();
     return Notification.create({
-        users: list.members.filter(m => m.userId !== null && m.userId !== userId).map(m => m.userId),
+        users: list.members.filter(m => m.userId !== null && m.userId.toString() !== userId).map(m => m.userId),
         text,
         listId
     })
@@ -364,7 +365,7 @@ function deleteUserData(request, response, session, user) {
                )
                .then(_ =>
                    Notification.find(
-                       { users: { $elemMatch: { userId: request.session.userId } } },
+                       { users: mongoose.Types.ObjectId(request.session.userId) },
                        undefined,
                        { session }
                    )
@@ -383,7 +384,7 @@ function deleteUserData(request, response, session, user) {
                            updateIds.length > 0
                            ? Notification.updateMany(
                                { _id: { $in: updateIds } },
-                               { $pull: { users: request.session.userId } },
+                               { $pull: { users: mongoose.Types.ObjectId(request.session.userId) } },
                                { session }
                              )
                              .exec()
@@ -391,7 +392,7 @@ function deleteUserData(request, response, session, user) {
                        ).then(_ => (
                            deleteIds.length > 0
                            ? Notification.deleteMany(
-                               { _id: { $in: updateIds } },
+                               { _id: { $in: deleteIds } },
                                { session }
                              ).exec()
                            : Promise.resolve()

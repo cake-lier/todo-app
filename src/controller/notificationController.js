@@ -1,6 +1,7 @@
 "use strict";
 
 const { validateRequest, sendError, Error } = require("../utils/validation");
+const mongoose = require("mongoose");
 const Notification = require("../model/notificationsModel").createNotificationModel();
 
 function getUserNotifications(request, response) {
@@ -24,40 +25,47 @@ function deleteNotification(request, response) {
     }
     Notification.startSession()
                 .then(session => session.withTransaction(() =>
-                    Notification.find({ _id: request.params.id, users: request.session.userId }, undefined, { session })
-                                .exec()
-                                .then(notification => {
-                                    if (notification === null) {
-                                        sendError(response, Error.ResourceNotFound);
-                                        return Promise.resolve();
-                                    }
-                                    if (notification.users.length === 1) {
-                                        return Notification.findByIdAndDelete(notification._id, { session })
-                                                           .exec()
-                                                           .then(deletedNotification => {
-                                                               if (deletedNotification === null) {
-                                                                   sendError(response, Error.ResourceNotFound);
-                                                               } else {
-                                                                   response.json(deletedNotification);
-                                                               }
-                                                               return Promise.resolve();
-                                                           });
-                                    }
-                                    return Notification.findByIdAndUpdate(
-                                        notification._id,
-                                        { $pull: { users: request.session.userId } },
-                                        { runValidators: true, context: "query", new: true, session }
-                                    )
-                                    .exec()
-                                    .then(notification => {
-                                        if (notification === null) {
-                                            sendError(response, Error.ResourceNotFound);
-                                        } else {
-                                            response.json(notification);
-                                        }
-                                        return Promise.resolve();
-                                    });
-                                })
+                    Notification.findOne(
+                        {
+                            _id: mongoose.Types.ObjectId(request.params.id),
+                            users: mongoose.Types.ObjectId(request.session.userId)
+                        },
+                        undefined,
+                        { session }
+                    )
+                    .exec()
+                    .then(notification => {
+                        if (notification === null) {
+                            sendError(response, Error.ResourceNotFound);
+                            return Promise.resolve();
+                        }
+                        if (notification.users.length === 1) {
+                            return Notification.findByIdAndDelete(notification._id, { session })
+                                               .exec()
+                                               .then(deletedNotification => {
+                                                   if (deletedNotification === null) {
+                                                       sendError(response, Error.ResourceNotFound);
+                                                   } else {
+                                                       response.json(deletedNotification);
+                                                   }
+                                                   return Promise.resolve();
+                                               });
+                        }
+                        return Notification.findByIdAndUpdate(
+                            notification._id,
+                            { $pull: { users: mongoose.Types.ObjectId(request.session.userId) } },
+                            { runValidators: true, context: "query", new: true, session }
+                        )
+                        .exec()
+                        .then(notification => {
+                            if (notification === null) {
+                                sendError(response, Error.ResourceNotFound);
+                            } else {
+                                response.json(notification);
+                            }
+                            return Promise.resolve();
+                        });
+                    })
                 ))
                 .catch(error => {
                     console.log(error);
@@ -72,7 +80,7 @@ function deleteAllNotifications(request, response) {
     Notification.startSession()
                 .then(session => session.withTransaction(() =>
                         Notification.find(
-                            { users: request.session.userId },
+                            { users: mongoose.Types.ObjectId(request.session.userId) },
                             undefined,
                             { session }
                         )
@@ -91,7 +99,7 @@ function deleteAllNotifications(request, response) {
                                 updateIds.length > 0
                                 ? Notification.updateMany(
                                     { _id: { $in: updateIds } },
-                                    { $pull: { users: request.session.userId } },
+                                    { $pull: { users: mongoose.Types.ObjectId(request.session.userId) } },
                                     { session }
                                   )
                                   .exec()
@@ -99,7 +107,7 @@ function deleteAllNotifications(request, response) {
                             ).then(_ => (
                                 deleteIds.length > 0
                                 ? Notification.deleteMany(
-                                    { _id: { $in: updateIds } },
+                                    { _id: { $in: deleteIds } },
                                     { session }
                                   ).exec()
                                 : Promise.resolve()
