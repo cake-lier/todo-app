@@ -2,6 +2,7 @@ import React, {useCallback, useRef, useState} from "react";
 import {Checkbox} from "primereact/checkbox";
 import {Button} from "primereact/button";
 import {Menu} from "primereact/menu";
+import { AvatarGroup } from 'primereact/avatargroup';
 import {ItemCount} from "./ItemCount";
 import {DueDateDialog} from "./itemDialogs/DueDateDialog";
 import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
@@ -10,6 +11,7 @@ import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 import {DueDateTag} from "./DueDateTag";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 import {EditTagDialog} from "./itemDialogs/EditTagDialog";
+import {AssigneeTag} from "./AssigneeTag";
 
 export function Item({socket, item, listMembers, onItemChange, selectedItems, deleteItem, updateItem}){
     // item dot menu
@@ -36,6 +38,9 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
     const [dueDate, setDueDate] = useState(item.dueDate);
     const updateTags = useCallback(t => setTags(t), [tags, setTags]);
     const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
+
+    // assignees
+    const [assignees, setAssignees] = useState(item.assignees);
 
     // priority star
     const [priority, setPriority] = useState(item.priority);
@@ -71,6 +76,17 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
                         <DueDateTag
                             dueDate={dueDate}
                         />
+                        <AvatarGroup>
+                        {
+                            assignees.map((assignee) => {
+                                return (
+                                    <AssigneeTag
+                                        key={assignee._id}
+                                        assignee={assignee} />
+                                )
+                            })
+                        }
+                        </AvatarGroup>
                     </div>
                 </div>
                 <Button icon="pi pi-ellipsis-v"
@@ -104,9 +120,12 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
                 setDisplayDialog={setDisplayEdit} />
 
             <AssigneesDialog
+                itemId={item._id}
                 display={displayAssignees}
                 setDisplay={setDisplayAssignees}
-                listMembers={listMembers}/>
+                listMembers={listMembers}
+                assignees={assignees}
+                setAssignees={setAssignees}/>
         </>
     )
 }

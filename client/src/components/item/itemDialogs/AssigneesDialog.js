@@ -1,17 +1,43 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { Avatar } from 'primereact/avatar';
 import {DataView} from "primereact/dataview";
 import {ManageItemDialog} from "./ManageItemDialog";
 import {AddAssigneeDialog} from "./AddAssigneeDialog";
+import axios from "axios";
 
-export function AssigneesDialog({itemId, listMembers, display, setDisplay}) {
+export function AssigneesDialog({itemId, listMembers, display, setDisplay, assignees, setAssignees}) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
 
     const [addDialog, setAddDialog] = useState(false);
 
-    const [assignees, setAssignees] = useState(Array.prototype);   // assigned members
-    const addAssignee = useCallback(assignee => setAssignees(assignees.concat(assignee)), [assignees, setAssignees]);
-    const removeAssignee = useCallback(assignee => setAssignees(assignees.filter(i => i._id !== assignee._id)), [assignees, setAssignees]);
+    const addAssignee = useCallback(member => {
+        axios.post( // TODO post new assignee not working
+            "/items/" + itemId + "/assignees",
+            {
+                userId: member._id,
+                anonymousId: null,
+                isAnonymous: false,
+                count: 1 // TODO assignee count
+            }
+        ).then(assignee => {
+                console.log("posted new assignee");
+                setAssignees(assignees.concat(assignee.data));
+            },
+            // TODO error msg
+        );
+    }, [assignees, setAssignees]);
+
+    const removeAssignee = useCallback(assignee => {
+        setAssignees(assignees.filter(i => i._id !== assignee._id));
+        // TODO delete assignee
+        axios.delete("/items/" + itemId + "/assignees/" + (assignee.userId !== null ? assignee.userId : assignee.anonymousId))
+            .then(r => {
+                    console.log("removed assignee");
+                    console.log(assignees);
+                },
+                // TODO error msg
+            )
+    }, [assignees, setAssignees]);
 
     const assigneeTemplate = (member, icon, onClickAction) => {
         return (
