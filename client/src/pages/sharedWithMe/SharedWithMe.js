@@ -48,7 +48,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                     ownership={ false }
                     displayError={ displayError }
                     socket={ socket }
-                    userDisabledNotificationsLists={ user.disabledNotificationsLists }
+                    disabledNotificationsLists={ user.disabledNotificationsLists }
                 />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
@@ -82,7 +82,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         ownership={ false }
                         displayError={ displayError }
                         socket={ socket }
-                        userDisabledNotificationsLists={ user.disabledNotificationsLists }
+                        disabledNotificationsLists={ user.disabledNotificationsLists }
                     />
                 </div>
             </div>

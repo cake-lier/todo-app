@@ -10,13 +10,12 @@ import EditListDialog from "../listDialogs/EditListDialog";
 import { TieredMenu } from "primereact/tieredmenu";
 import MembersDialog from "../listDialogs/MembersDialog";
 
-export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, userDisabledNotificationsLists }) {
+export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, disabledNotificationsLists }) {
     const menu = useRef(null);
     const [list, setList] = useState(null);
     const [displayJoinCodeDialog, setDisplayJoinCodeDialog] = useState(false);
     const [displayEditDialog, setDisplayEditDialog] = useState(false);
     const [displayMembersDialog, setDisplayMemberDialog] = useState(false);
-    const [disabledNotificationsLists, setDisabledNotificationsLists] = useState(userDisabledNotificationsLists);
     const listColor = [ "red-list", "purple-list", "blue-list", "green-list", "yellow-list" ];
 
     const openEditDialog = () => {
@@ -55,8 +54,7 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
             { enabled: disabledNotificationsLists.includes(list?._id), listId: list?._id }
         ).then(
             user => {
-                setDisabledNotificationsLists(user.data.disabledListNotification);
-                setUser(user.data)
+                setUser(user.data);
                 menu.current.toggle();
             },
             error => displayError(error.response.data.error)

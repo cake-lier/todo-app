@@ -524,7 +524,7 @@ function enableNotifications(request, response) {
                 sendError(response, Error.ResourceNotFound);
                 return;
             }
-            response.json(user);
+            response.json(createUserObject(user));
         },
         error => {
             console.log(error);
@@ -551,7 +551,7 @@ function enableListNotifications(request, response) {
                 sendError(response, Error.ResourceNotFound);
                 return;
             }
-            response.json(user)
+            response.json(createUserObject(user));
         },
         error => {
             console.log(error);

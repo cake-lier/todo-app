@@ -81,6 +81,14 @@ function deleteList(request, response) {
                                });
                                return Promise.resolve();
                            })
+                           .then(_ =>
+                               User.updateMany(
+                                   { disabledNotificationsLists: list._id },
+                                   { $pull: { disabledNotificationsLists: list._id } },
+                                   { session }
+                               )
+                               .exec()
+                           );
             })
         ))
         .catch(error => {
