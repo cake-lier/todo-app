@@ -47,7 +47,7 @@ function createItem(request, response) {
                     const listId = list._id.toString();
                     const text = `The item "${ item.title }" was added to the list "${ list.title }"`;
                     Notification.create({
-                        users: list.members.filter(m => m.userId !== null),
+                        users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                         text,
                         listId
                     })
@@ -270,7 +270,7 @@ function updateTitle(request, response) {
             const listId = list._id.toString();
             const text = `The item "${ item.title }" had its title changed to "${ request.body.title }"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null),
+                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                 text,
                 listId
             })
@@ -298,7 +298,7 @@ function updateText(request, response) {
             const listId = list._id.toString();
             const text = `The item "${ item.title }" had its text changed`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                 text,
                 listId
             })
@@ -343,7 +343,7 @@ function updateDate(request, response) {
                 scheduleNextReminder(listId, itemId, request.body.reminderString);
             }
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                 text,
                 listId
             })
@@ -368,7 +368,7 @@ function updateCompletion(request, response) {
             const listId = list._id.toString();
             const text = `The item "${item.title}" is now set as ${request.body.isComplete ? "" : "in"}complete`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                 text,
                 listId
             })
@@ -394,7 +394,7 @@ function addTags(request, response) {
             const listId = list._id.toString();
             const text = `Some tags have been added to the item "${item.title}"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                 text,
                 listId
             })
@@ -419,7 +419,7 @@ function removeTags(request, response) {
             const listId = list._id.toString();
             const text = `Some tags have been removed from the item "${item.title}"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                 text,
                 listId
             })
@@ -465,7 +465,7 @@ function updateCount(request, response) {
                             const listId = list._id.toString();
                             const text = `The item "${item.title}" had its count updated`;
                             Notification.create({
-                                users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                                 text,
                                 listId
                             })
@@ -553,7 +553,7 @@ function addAssignee(request, response) {
                                        const listId = lists[0]._id.toString();
                                        const text = `An assignee was added to the item "${item.title}"`;
                                        Notification.create({
-                                           users: lists[0].members.filter(m => m.userId !== null).map(m=> m.userId),
+                                           users: lists[0].members.filter(m => m.userId !== null).map(m => m.userId),
                                            text,
                                            listId
                                        })
@@ -611,7 +611,7 @@ function removeAssignee(request, response) {
                         const listId = list._id.toString();
                         const text = `An assignee was removed from the item "${ item.title }"`;
                         Notification.create({
-                            users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                            users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                             text,
                             listId
                         })
@@ -645,7 +645,7 @@ function deleteItem(request, response) {
                         const listId = list._id.toString();
                         const text = `The item "${item.title}" was deleted`;
                         Notification.create({
-                            users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
+                            users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                             text,
                             listId
                         })

@@ -270,7 +270,7 @@ function updatePassword(request, response) {
 function sendNotification(userId, list, eventName, text) {
     const listId = list._id.toString();
     return Notification.create({
-        users: list.members.filter(m => m.userId !== null && m.userId !== userId),
+        users: list.members.filter(m => m.userId !== null && m.userId !== userId).map(m => m.userId),
         text,
         listId
     })
@@ -290,7 +290,7 @@ function deleteUserData(request, response, session, user) {
                                   const listId = list._id.toString();
                                   const listText = `The list "${ list.title }" has just been deleted`;
                                   return Notification.create({
-                                      users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
+                                      users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId).map(m => m.userId),
                                       text: listText,
                                       listId
                                   })
