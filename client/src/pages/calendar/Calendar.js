@@ -79,8 +79,8 @@ export default function Calendar(props) {
                     socket={ props.socket }
                     displayError={ displayError }
                 />
-                <div className="grid overflow-y-auto">
-                    <div className="col-1 mx-8 mt-3 flex flex-1">
+                <div className="grid overflow-y-auto flex flex-1">
+                    <div className="col-1 md:mx-5 lg:mx-8 mt-3 flex flex-1">
                         <FullCalendar
                             plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
                             buttonText={ {

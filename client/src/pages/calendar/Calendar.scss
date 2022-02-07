@@ -34,6 +34,23 @@ button.fc-button {
     width: 100%;
 }
 
+.fc-col-header {
+    width: 100% !important;
+}
+
+.fc-daygrid-body{
+    width: 100% !important;
+    height: 100% !important;
+}
+
+
+.fc-scrollgrid-sync-table {
+    width: 100% !important;
+    height: 100% !important;
+    overflow-y: auto;
+}
+
+
 div.fc-event-title {
     color: inherit;
 }
