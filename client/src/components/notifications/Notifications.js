@@ -92,7 +92,7 @@ export default function Notification({notifications, setNotifications, socket, d
                 />
             </OverlayPanel>
 
-            <i className="pi pi-bell mr-3 p-text-secondary p-overlay-badge"
+            <i className="pi pi-bell mr-2 p-text-secondary p-overlay-badge"
                style={{ fontSize: '2rem' }}
                onClick={(e) => {
                    panel.current.toggle(e);

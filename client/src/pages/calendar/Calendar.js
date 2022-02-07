@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import BurgerMenu from "../../components/BurgerMenu";
-import { useOnClickOutside } from "../../components/ClickOutsideHook";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import PageHeader from "../../components/pageHeader/PageHeader";
@@ -19,14 +17,6 @@ export default function Calendar(props) {
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
-    const [open, setOpen] = useState(false);
-    const node = useRef();
-    useOnClickOutside(node, () => setOpen(false));
-    const divStyle = {
-        zIndex: "10",
-        position: "relative",
-        visible: "false"
-    }
     const [events, setEvents] = useState([]);
     const updateEvents = useCallback(() => {
         axios.get("/items")
@@ -90,9 +80,6 @@ export default function Calendar(props) {
                     displayError={ displayError }
                 />
                 <div className="grid overflow-y-auto">
-                    <div className="col-12 p-0">
-                        <Divider className="my-0" />
-                    </div>
                     <div className="col-1 mx-8 mt-3 flex flex-1">
                         <FullCalendar
                             plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
@@ -144,16 +131,7 @@ export default function Calendar(props) {
                 </div>
             </div>
             <div className="w-full p-0 md:hidden">
-                <div className="col-1 p-0 h-full absolute justify-content-center">
-                    <div className="h-full w-full" ref={ node } style={ divStyle }>
-                        <BurgerMenu open={ open } setOpen={ setOpen } />
-                        <MainMenu selected={ "My day" } open={open} />
-                    </div>
-                </div>
                 <div id="calendarPageContainer" className="mx-0 p-0 w-full md:block">
-                    <div
-                        className={"black-overlay absolute h-full w-full z-5 " + (open ? null : "hidden")}
-                    />
                     <PageHeader
                         user={ user }
                         unsetUser={ unsetUser }
@@ -165,9 +143,6 @@ export default function Calendar(props) {
                         displayError={ displayError }
                     />
                     <div className="grid">
-                        <div className="col-12 p-0">
-                            <Divider className="my-0" />
-                        </div>
                         <div className="col-12 h-screen flex align-items-stretch">
                             <FullCalendar
                                 plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
