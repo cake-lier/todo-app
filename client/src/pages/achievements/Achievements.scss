@@ -1,0 +1,9 @@
+@import "../../colors";
+
+div#achievementsPageContainer {
+  background-color: $secondary-background;
+}
+
+img.achievementDisabled {
+  filter: grayscale(100%);
+}

@@ -126,7 +126,7 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
                 <PageHeader
                     user={ user }
                     unsetUser={ unsetUser }
-                    title={ "Settings" }
+                    title={ "Reports" }
                     isResponsive={ true }
                     tabs={ [
                         { label: "Completion rate", command: useOnTabClicked("completion-rate") },

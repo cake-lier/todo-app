@@ -43,7 +43,12 @@ export function MainMenu({ open, selected }) {
             disabled: selected === "Reports",
             command: useOnClicked("reports")
         },
-        { label: "Achievements", icon: PrimeIcons.STAR, disabled: selected === "Achievements" }
+        {
+            label: "Achievements",
+            icon: PrimeIcons.STAR,
+            disabled: selected === "Achievements",
+            command: useOnClicked("achievements")
+        }
     ];
 
     const subItems = [

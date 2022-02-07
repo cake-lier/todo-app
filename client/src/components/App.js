@@ -14,6 +14,7 @@ import MyLists from "../pages/myLists/MyLists";
 import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
 import List from "../pages/list/List";
 import Reports from "../pages/reports/Reports";
+import Achievements from "../pages/achievements/Achievements";
 
 class App extends Component {
 
@@ -206,6 +207,20 @@ class App extends Component {
                                   socket={ this.state.socket }
                               />
                             : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/achievements"
+                        element={
+                            this.state.user !== null
+                                ? <Achievements
+                                    user={ this.state.user }
+                                    unsetUser={ this.unsetUser }
+                                    notifications={ this.state.notifications }
+                                    setNotifications={ this.setNotifications }
+                                    socket={ this.state.socket }
+                                />
+                                : <Navigate to="/" />
                         }
                     />
                     <Route
