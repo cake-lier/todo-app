@@ -271,14 +271,15 @@ function sendNotification(userId, list, eventName, text) {
     const listId = list._id.toString();
     return Notification.create({
         users: list.members.filter(m => m.userId !== null && m.userId !== userId),
-        text: text
+        text,
+        listId
     })
     .catch(error => console.log(error))
     .then(_ => io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName, listId, text));
 }
 
 function deleteUserData(request, response, session, user) {
-    return List.find({ members: { $elemMatch: { userId: user._id, role: "owner" } } }, { session })
+    return List.find({ members: { $elemMatch: { userId: user._id, role: "owner" } } }, undefined, { session })
                .exec()
                .then(lists => {
                    const listIds = lists.map(l => l._id);
@@ -290,14 +291,15 @@ function deleteUserData(request, response, session, user) {
                                   const listText = `The list "${ list.title }" has just been deleted`;
                                   return Notification.create({
                                       users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId),
-                                      text: listText
+                                      text: listText,
+                                      listId
                                   })
                                   .catch(error => console.log(error))
                                   .then(_ => {
                                       io.in(`list:${ listId }`)
                                         .except(`user:${ request.session.userId }`)
                                         .emit("listDeleted", listId, listText);
-                                      return Item.find({ listId: list._id }, { session })
+                                      return Item.find({ listId: list._id }, undefined, { session })
                                                  .exec()
                                                  .then(items => Promise.all(items.map(item => {
                                                      jobs[item._id.toString()]?.cancel();
@@ -316,7 +318,7 @@ function deleteUserData(request, response, session, user) {
                               })));
                })
                .then(_ =>
-                   List.find({ members: { $elemMatch: { userId: user._id, role: "member" } } }, { session })
+                   List.find({ members: { $elemMatch: { userId: user._id, role: "member" } } }, undefined, { session })
                        .exec()
                        .then(lists =>
                            List.updateMany(
@@ -334,7 +336,7 @@ function deleteUserData(request, response, session, user) {
                        )
                )
                .then(_ =>
-                   Item.find({ assignees: { $elemMatch: { userId: user._id } } }, { session })
+                   Item.find({ assignees: { $elemMatch: { userId: user._id } } }, undefined, { session })
                        .exec()
                        .then(items =>
                            Item.updateMany(
@@ -360,6 +362,42 @@ function deleteUserData(request, response, session, user) {
                                )))
                        )
                )
+               .then(_ =>
+                   Notification.find(
+                       { users: { $elemMatch: { userId: request.session.userId } } },
+                       undefined,
+                       { session }
+                   )
+                   .exec()
+                   .then(notifications => {
+                       const updateIds = [];
+                       const deleteIds = [];
+                       notifications.forEach(notification => {
+                           if (notification.users.length === 1) {
+                               deleteIds.push(notification._id);
+                           } else {
+                               updateIds.push(notification._id);
+                           }
+                       });
+                       return (
+                           updateIds.length > 0
+                           ? Notification.updateMany(
+                               { _id: { $in: updateIds } },
+                               { $pull: { users: request.session.userId } },
+                               { session }
+                             )
+                             .exec()
+                           : Promise.resolve()
+                       ).then(_ => (
+                           deleteIds.length > 0
+                           ? Notification.deleteMany(
+                               { _id: { $in: updateIds } },
+                               { session }
+                             ).exec()
+                           : Promise.resolve()
+                       ));
+                   })
+               )
                .then(_ => {
                    io.in(`user:${ user._id.toString() }`).disconnectSockets();
                    request.session.destroy(_ => response.send({}));
@@ -371,39 +409,40 @@ function unregister(request, response) {
     if (!validateRequest(request, response, ["password"], [], true)) {
         return;
     }
-    User.findById(userId)
-        .exec()
-        .then(user => {
-            if (user === null) {
-                sendError(response, Error.ResourceNotFound);
-                return Promise.resolve();
-            }
-            return bcrypt.compare(request.body.password, user.password)
-                         .then(areEqual => {
-                             if (!areEqual) {
-                                 sendError(response, Error.PasswordError);
-                                 return Promise.resolve();
-                             }
-                             return User.startSession(session => session.withTransaction(() =>
-                                 User.findByIdAndDelete(userId, { session })
-                                     .exec()
-                                     .then(deletedUser => {
-                                         if (deletedUser === null) {
-                                             sendError(response, Error.GeneralError);
-                                             return Promise.resolve();
-                                         }
-                                         if (user.profilePicturePath !== null) {
-                                             fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
-                                                 if (error !== null) {
-                                                     console.log(error);
-                                                 }
-                                             });
-                                         }
-                                         return deleteUserData(request, response, session, user);
-                                     })
-                             ));
-                         });
-        })
+    User.startSession()
+        .then(session => session.withTransaction(() =>
+            User.findById(userId, undefined, { session })
+                .exec()
+                .then(user => {
+                    if (user === null) {
+                        sendError(response, Error.ResourceNotFound);
+                        return Promise.resolve();
+                    }
+                    return bcrypt.compare(request.body.password, user.password)
+                                 .then(areEqual => {
+                                     if (!areEqual) {
+                                         sendError(response, Error.PasswordError);
+                                         return Promise.resolve();
+                                     }
+                                     return User.findByIdAndDelete(userId, {session})
+                                         .exec()
+                                         .then(deletedUser => {
+                                             if (deletedUser === null) {
+                                                 sendError(response, Error.GeneralError);
+                                                 return Promise.resolve();
+                                             }
+                                             if (user.profilePicturePath !== null) {
+                                                 fs.rm(appRoot + "/public" + user.profilePicturePath, error => {
+                                                     if (error !== null) {
+                                                         console.log(error);
+                                                     }
+                                                 });
+                                             }
+                                             return deleteUserData(request, response, session, user);
+                                         });
+                                 });
+                })
+        ))
         .catch(error => {
             console.log(error);
             sendError(response, Error.GeneralError);
@@ -468,57 +507,56 @@ function logout(request, response) {
     request.session.destroy(_ => response.send({}));
 }
 
-function enablingNotification(request, response) {
+function enableNotifications(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-
     User.findByIdAndUpdate(
         request.session.userId,
-        { $set: { enableNotification: request.body.enabled}},
-        { context: "query", new: true })
-        .exec()
-        .then(
-            user => {
-                if (user === null) {
-                    sendError(response, Error.ResourceNotFound);
-                    return Promise.resolve();
-                }
-                response.json(user)
-            },
-            error => {
-                console.log(error);
-                sendError(response, Error.GeneralError);
+        { $set: { notificationsEnabled: request.body.enabled } },
+        { runValidators: true, context: "query", new: true }
+    )
+    .exec()
+    .then(
+        user => {
+            if (user === null) {
+                sendError(response, Error.ResourceNotFound);
+                return;
             }
-        )
+            response.json(user);
+        },
+        error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        }
+    );
 }
 
-function enablingListNotification(request, response) {
+function enableListNotifications(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-
     User.findByIdAndUpdate(
         request.session.userId,
-        (request.body.enabled
-                ? {$pull: {disabledListNotification: request.body.listId}}
-                : {$push: {disabledListNotification: request.body.listId}}),
-        { context: "query", new: true })
-        .exec()
-        .then(
-            user => {
-                console.log(user)
-                if (user === null) {
-                    sendError(response, Error.ResourceNotFound);
-                    return Promise.resolve();
-                }
-                response.json(user)
-            },
-            error => {
-                console.log(error);
-                sendError(response, Error.GeneralError);
+        request.body.enabled
+        ? { $pull: { disabledNotificationsLists: request.body.listId } }
+        : { $push: { disabledNotificationsLists: request.body.listId } },
+        { runValidators: true, context: "query", new: true }
+    )
+    .exec()
+    .then(
+        user => {
+            if (user === null) {
+                sendError(response, Error.ResourceNotFound);
+                return;
             }
-        )
+            response.json(user)
+        },
+        error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        }
+    );
 }
 
 module.exports = {
@@ -526,8 +564,8 @@ module.exports = {
     getUser,
     updateAccount,
     updatePassword,
-    enablingNotification,
-    enablingListNotification,
+    enableNotifications,
+    enableListNotifications,
     unregister,
     login,
     logout

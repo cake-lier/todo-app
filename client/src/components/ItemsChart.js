@@ -46,12 +46,16 @@ class ItemsChart extends Component {
             }))
         };
         const options = {
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     stacked: true
                 },
                 y: {
-                    stacked: true
+                    stacked: true,
+                    ticks: {
+                        precision: 0
+                    }
                 }
             },
             plugins: {

@@ -3,7 +3,8 @@ import Moment from "react-moment";
 import { UserIcon } from "../userIcon/UserIcon";
 import { TabMenu } from 'primereact/tabmenu';
 import "./PageHeader.scss";
-import Notification from "../notifications/Notifications";
+import Notifications from "../notifications/Notifications";
+import { NotificationsContext } from "../../utils/contexts";
 
 export default function PageHeader({ user, unsetUser, title, showDate, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError }) {
     const [activeIndex, setActiveIndex] = useState(activeTabIndex);
@@ -22,14 +23,22 @@ export default function PageHeader({ user, unsetUser, title, showDate, tabs, act
                     </div>
                 </div>
                 <div className="col-3 pr-3 flex justify-content-end align-items-center">
-                    <Notification
-                        displayError={ displayError }
-                        notifications={ notifications }
-                        setNotifications={ setNotifications }
-                        socket={ socket }
-                        notificationEnabled = { user.enableNotification }
-                        listNotification={ user.disabledListNotification }
-                    />
+                    <NotificationsContext.Consumer>
+                        {
+                            ({ notificationsUnread, setNotificationsUnread }) => (
+                                <Notifications
+                                    displayError={ displayError }
+                                    notifications={ notifications }
+                                    setNotifications={ setNotifications }
+                                    socket={ socket }
+                                    notificationsEnabled={ user.notificationsEnabled }
+                                    disabledNotificationsLists={ user.disabledNotificationsLists }
+                                    notificationsUnread={ notificationsUnread }
+                                    setNotificationsUnread={ setNotificationsUnread }
+                                />
+                            )
+                        }
+                    </NotificationsContext.Consumer>
                     <UserIcon
                         user={ user }
                         unsetUser={ unsetUser }
@@ -76,14 +85,22 @@ export default function PageHeader({ user, unsetUser, title, showDate, tabs, act
                     }
                 </div>
                 <div className="col-3 pr-3 flex justify-content-end align-items-center">
-                    <Notification
-                        displayError={ displayError }
-                        notifications={ notifications }
-                        setNotifications={ setNotifications }
-                        socket={ socket }
-                        notificationEnabled = { user.enableNotification }
-                        listNotification={ user.disabledListNotification }
-                    />
+                    <NotificationsContext.Consumer>
+                        {
+                            ({ notificationsUnread, setNotificationsUnread }) => (
+                                <Notifications
+                                    displayError={ displayError }
+                                    notifications={ notifications }
+                                    setNotifications={ setNotifications }
+                                    socket={ socket }
+                                    notificationsEnabled={ user.notificationsEnabled }
+                                    disabledNotificationsLists={ user.disabledNotificationsLists }
+                                    notificationsUnread={ notificationsUnread }
+                                    setNotificationsUnread={ setNotificationsUnread }
+                                />
+                            )
+                        }
+                    </NotificationsContext.Consumer>
                     <UserIcon
                         user={ user }
                         unsetUser={ unsetUser }

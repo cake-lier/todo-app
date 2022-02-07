@@ -10,14 +10,14 @@ import EditListDialog from "../listDialogs/EditListDialog";
 import { TieredMenu } from "primereact/tieredmenu";
 import MembersDialog from "../listDialogs/MembersDialog";
 
-export default function ListItem({ setUser, lists, setLists, userId, ownership= true, displayError, socket, disabledListNotification }) {
+export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, userDisabledNotificationsLists }) {
     const menu = useRef(null);
     const [list, setList] = useState(null);
     const [displayJoinCodeDialog, setDisplayJoinCodeDialog] = useState(false);
     const [displayEditDialog, setDisplayEditDialog] = useState(false);
     const [displayMembersDialog, setDisplayMemberDialog] = useState(false);
-    const [listNotification, setListNotification] = useState(disabledListNotification);
-    const listColor = ["red-list", "purple-list", "blue-list", "green-list", "yellow-list"];
+    const [disabledNotificationsLists, setDisabledNotificationsLists] = useState(userDisabledNotificationsLists);
+    const listColor = [ "red-list", "purple-list", "blue-list", "green-list", "yellow-list" ];
 
     const openEditDialog = () => {
         setDisplayEditDialog(true);
@@ -49,30 +49,40 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership= 
                  error => displayError(error.response.data.error)
              );
     };
-    const enableNotification = () => {
+    const enableNotifications = () => {
         axios.put(
             "/users/me/enableListNotifications",
-            {enabled: listNotification.includes(list?._id), listId: list?._id}
+            { enabled: disabledNotificationsLists.includes(list?._id), listId: list?._id }
         ).then(
             user => {
-                setListNotification(user.data.disabledListNotification);
+                setDisabledNotificationsLists(user.data.disabledListNotification);
                 setUser(user.data)
                 menu.current.toggle();
             },
-            error => displayError(error)
-        )
+            error => displayError(error.response.data.error)
+        );
     }
     const items = [
         { label: "Edit", icon: PrimeIcons.PENCIL, command: openEditDialog },
         { label: (ownership ? "Modify members" : "Show members"), icon: PrimeIcons.USER_EDIT, command: openMembersDialog },
         { label: "Share", icon: PrimeIcons.USER_PLUS, className: ( list?.joinCode ? null : "hidden" ), command: openShareDialog },
         {
-            label: (listNotification.includes(list?._id) ? "Unmute notifications" : "Mute notifications"),
-            icon: (listNotification.includes(list?._id) ? PrimeIcons.VOLUME_UP : PrimeIcons.VOLUME_OFF),
-            command:enableNotification
+            label: (disabledNotificationsLists.includes(list?._id) ? "Unmute notifications" : "Mute notifications"),
+            icon: (disabledNotificationsLists.includes(list?._id) ? PrimeIcons.VOLUME_UP : PrimeIcons.VOLUME_OFF),
+            command: enableNotifications
         },
-        { label: "Delete", icon: PrimeIcons.TRASH, className: "red-color " + ( ownership ? null: "hidden" ), command: deleteList },
-        { label: "Leave list", icon: PrimeIcons.SIGN_OUT, className: "red-color " + ( ownership ? "hidden" : null ), command: leaveList }
+        {
+            label: "Delete",
+            icon: PrimeIcons.TRASH,
+            className: "red-color " + ( ownership ? null : "hidden" ),
+            command: deleteList
+        },
+        {
+            label: "Leave list",
+            icon: PrimeIcons.SIGN_OUT,
+            className: "red-color " + ( ownership ? "hidden" : null ),
+            command: leaveList
+        }
     ];
     useEffect(() => {
         axios.get(ownership ? "/lists" : "/lists?shared=true")

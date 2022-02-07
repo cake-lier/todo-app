@@ -15,6 +15,7 @@ import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
 import List from "../pages/list/List";
 import Reports from "../pages/reports/Reports";
 import Achievements from "../pages/achievements/Achievements";
+import { NotificationsContext } from "../utils/contexts";
 
 class App extends Component {
 
@@ -23,6 +24,10 @@ class App extends Component {
         this.state = {
             user: null,
             notifications: [],
+            notificationsUnread: false,
+            setNotificationsUnread: notificationsUnread => {
+                this.setState({ notificationsUnread });
+            },
             displayError: false,
             ready: false,
             socket: null
@@ -111,7 +116,7 @@ class App extends Component {
             return null;
         }
         return (
-            <>
+            <NotificationsContext.Provider value={ this.state }>
                 <Dialog
                     header={ <h2>It seems quite an error to me.</h2> }
                     visible={ this.state.displayError }
@@ -299,7 +304,7 @@ class App extends Component {
                         }
                     />
                 </Routes>
-            </>
+            </NotificationsContext.Provider>
         );
     }
 }

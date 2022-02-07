@@ -29,7 +29,7 @@ function createList(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -70,7 +70,7 @@ function deleteList(request, response) {
                                Notification.create({
                                    users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                                    text,
-                                   listId: listId
+                                   listId
                                })
                                .catch(error => console.log(error))
                                .then(_ => {
@@ -257,7 +257,7 @@ function updateTitle(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -287,7 +287,7 @@ function updateVisibility(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -349,7 +349,7 @@ function addMember(request, response) {
                                 Notification.create({
                                     users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                                     text,
-                                    listId: listId
+                                    listId
                                 })
                                 .catch(error => console.log(error))
                                 .then(_ => {
@@ -383,7 +383,7 @@ function addMember(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -441,7 +441,7 @@ function removeMember(request, response) {
                 Notification.create({
                     users: [list.members[memberIndex].userId].map(m=> m.userId),
                     text: userText,
-                    listId: listId
+                    listId
                 })
                 .catch(error => console.log(error))
                 .then(_ => {
@@ -456,7 +456,7 @@ function removeMember(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {

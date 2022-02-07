@@ -49,7 +49,7 @@ function createItem(request, response) {
                     Notification.create({
                         users: list.members.filter(m => m.userId !== null),
                         text,
-                        listId: listId
+                        listId
                     })
                     .catch(error => console.log(error))
                     .then(_ => {
@@ -272,7 +272,7 @@ function updateTitle(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -300,7 +300,7 @@ function updateText(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -345,7 +345,7 @@ function updateDate(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -370,7 +370,7 @@ function updateCompletion(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -396,7 +396,7 @@ function addTags(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -421,7 +421,7 @@ function removeTags(request, response) {
             Notification.create({
                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                 text,
-                listId: listId
+                listId
             })
             .catch(error => console.log(error))
             .then(_ => {
@@ -467,7 +467,7 @@ function updateCount(request, response) {
                             Notification.create({
                                 users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                                 text,
-                                listId: listId
+                                listId
                             })
                             .catch(error => console.log(error))
                             .then(_ => {
@@ -555,7 +555,7 @@ function addAssignee(request, response) {
                                        Notification.create({
                                            users: lists[0].members.filter(m => m.userId !== null).map(m=> m.userId),
                                            text,
-                                           listId: listId
+                                           listId
                                        })
                                        .catch(error => console.log(error))
                                        .then(_ => {
@@ -613,7 +613,7 @@ function removeAssignee(request, response) {
                         Notification.create({
                             users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                             text,
-                            listId: listId
+                            listId
                         })
                         .catch(error => console.log(error))
                         .then(_ => {
@@ -647,7 +647,7 @@ function deleteItem(request, response) {
                         Notification.create({
                             users: list.members.filter(m => m.userId !== null).map(m=> m.userId),
                             text,
-                            listId: listId
+                            listId
                         })
                         .catch(error => console.log(error))
                         .then(_ => {

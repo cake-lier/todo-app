@@ -1,6 +1,7 @@
 "use strict";
 
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -23,13 +24,17 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    enableNotification: {
+    notificationsEnabled: {
         type: Boolean,
         default: true
     },
-    disabledListNotification: {
+    disabledNotificationsLists: {
         type: [mongoose.ObjectId],
         default: []
+    },
+    achievements: {
+        type: [Boolean],
+        default: _.range(0, 14).map(_ => false)
     }
 });
 

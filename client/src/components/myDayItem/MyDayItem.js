@@ -14,28 +14,25 @@ export default function MyDayItem({displayError}) {
     const [tasksPresent, setTasksPresent] = useState(false);
 
     useEffect(() => {
-        axios.get(
-            "/items"
-        ).then(
-            res => {
-                if (res.data.length) {
-                    const today = Moment(Date.now())
-                    const dueTask = res.data.filter(i => i.dueDate !== null)
-                    const pastDue = dueTask.filter(i => Moment(i.dueDate).isBefore(today, 'day'))
-                    const dueToday = dueTask.filter(i => Moment(i.dueDate).isSame(today, 'day'))
-                    const upcoming = dueTask.filter(i => Moment(i.dueDate).isAfter(today, 'day'))
-                    setPastDue(pastDue);
-                    setDueToday(dueToday);
-                    setUpcoming(upcoming);
-                    setTasksPresent(true);
-                } else {
-                    setTasksPresent(false);
-                }
-            },
-            errors => {
-                displayError(errors);
-            }
-        )
+        axios.get("/items")
+             .then(
+                 res => {
+                     if (res.data.length) {
+                         const today = Moment(Date.now())
+                         const dueTask = res.data.filter(i => i.dueDate !== null)
+                         const pastDue = dueTask.filter(i => Moment(i.dueDate).isBefore(today, 'day'))
+                         const dueToday = dueTask.filter(i => Moment(i.dueDate).isSame(today, 'day'))
+                         const upcoming = dueTask.filter(i => Moment(i.dueDate).isAfter(today, 'day'))
+                         setPastDue(pastDue);
+                         setDueToday(dueToday);
+                         setUpcoming(upcoming);
+                         setTasksPresent(true);
+                     } else {
+                         setTasksPresent(false);
+                     }
+                 },
+                 error => displayError(error.response.data.error)
+             );
     }, [displayError, setPastDue, setDueToday, setUpcoming, setTasksPresent]);
 
     const template = (options) => {

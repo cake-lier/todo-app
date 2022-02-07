@@ -15,7 +15,7 @@ import {useOnClickOutside} from "../../components/ClickOutsideHook";
 import axios from "axios";
 
 export default function Settings(props) {
-    const [notificationEnabled, setNotificationEnabled] = useState(props.user.enableNotification);
+    const [notificationEnabled, setNotificationsEnabled] = useState(props.user.enableNotifications);
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -31,15 +31,13 @@ export default function Settings(props) {
         );
     }
 
-    const changeNotification = (enabled) => {
-        setNotificationEnabled(enabled)
-        axios.put(
-            "/users/me/enabledNotifications",
-            {enabled: enabled}
-        ).then(
-            user => props.setUser(user.data),
-            error => displayError(error)
-        )
+    const changeNotification = enabled => {
+        setNotificationsEnabled(enabled);
+        axios.put("/users/me/enableNotifications", { enabled })
+             .then(
+                 user => props.setUser(user.data),
+                 error => displayError(error.response.data.error)
+             );
     }
 
     const getTabElement = tabName => {
