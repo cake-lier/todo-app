@@ -1,6 +1,6 @@
 import { Badge } from "primereact/badge";
 import { Toast } from 'primereact/toast';
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { DataScroller } from 'primereact/datascroller';
 import axios from "axios";
@@ -13,7 +13,7 @@ export default function Notifications({ notifications, setNotifications, socket,
 
     useEffect(() => {
         function handleUpdates(event) {
-            if (event.includes("list") || event.includes("item")) {
+            if (event.toString().match(`^[list|item].*(?<!Reload)$`)) {
                 axios.get("/users/me/notifications")
                      .then(
                          notifications => {

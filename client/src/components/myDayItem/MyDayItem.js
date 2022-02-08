@@ -4,14 +4,16 @@ import { Ripple } from 'primereact/ripple';
 import "./MyDayItem.scss"
 import EmptyPlaceholder from "../EmptyPlaceholder";
 import Moment from "moment";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {ItemsContainer} from "../item/itemsContainer/ItemsContainer";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 export default function MyDayItem({ socket, displayError }) {
     const [pastDue, setPastDue] = useState([]);
     const [dueToday, setDueToday] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
     const [tasksPresent, setTasksPresent] = useState(false);
+    const [loading, setLoading] = useState(true);
     const getItems = useCallback(() => {
         axios.get("/items")
             .then(
@@ -31,8 +33,9 @@ export default function MyDayItem({ socket, displayError }) {
                     }
                 },
                 error => displayError(error.response.data.error)
-            );
-    }, [displayError, setPastDue, setDueToday, setUpcoming, setTasksPresent]);
+            )
+            .then(_ => setLoading(false));
+    }, [displayError, setPastDue, setDueToday, setUpcoming, setTasksPresent, setLoading]);
     useEffect(getItems, [getItems]);
     useEffect(() => {
         function handleUpdates(event) {
@@ -66,14 +69,22 @@ export default function MyDayItem({ socket, displayError }) {
             </div>
         )
     }
+    console.log(loading)
     return (
         <div id="my-day-items"
              className={ "card flex flex-grow-1 flex-column "
-                         + (tasksPresent ? "" : "justify-content-center align-items-center") }
+                         + (tasksPresent ? "overflow-y-auto" : "justify-content-center align-items-center") }
         >
+            <ProgressSpinner
+                className={loading? null : "hidden"}
+                style={{width: '50px', height: '50px'}}
+                strokeWidth="2"
+                fill="var(--surface-ground)"
+                animationDuration=".5s"
+            />
             <Panel
                 id="past-due"
-                className={ pastDue.length > 0 ? "" : "hidden" }
+                className={ !loading && pastDue.length > 0 ? "" : "hidden" }
                 headerTemplate={ template }
                 titleElement="P"
                 collapsed
@@ -82,7 +93,7 @@ export default function MyDayItem({ socket, displayError }) {
             </Panel>
             <Panel
                 id="due-today"
-                className={ dueToday.length > 0 ? "" : "hidden" }
+                className={ !loading && dueToday.length > 0 ? "" : "hidden" }
                 headerTemplate={ template }
                 collapsed
                 toggleable>
@@ -90,16 +101,17 @@ export default function MyDayItem({ socket, displayError }) {
             </Panel>
             <Panel
                 id="upcoming"
-                className={ upcoming.length > 0 ? "" : "hidden" }
+                className={ !loading && upcoming.length > 0 ? "" : "hidden" }
                 headerTemplate={template}
                 collapsed
                 toggleable>
                 <ItemsContainer listId={ null } myDayItems={ upcoming } />
             </Panel>
-            <div className={ (tasksPresent ? "hidden" : null) }>
+            <div className={ ( !loading && !tasksPresent ? null : "hidden") }>
                 <EmptyPlaceholder
                     title={ "No items to display" }
-                    subtitle={ "Items that have a due date will show up here" }
+                    subtitle={ "Items that have a due date will show up here." }
+                    type={"items"}
                 />
             </div>
         </div>

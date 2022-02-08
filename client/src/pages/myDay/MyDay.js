@@ -50,9 +50,7 @@ export default function MyDay(props) {
                         socket={ props.socket }
                         displayError={ displayError }
                     />
-                    <div className="grid overflow-y-auto">
-                        <MyDayItem socket={ props.socket } displayError={ displayError } />
-                    </div>
+                    <MyDayItem socket={ props.socket } displayError={ displayError } />
                 </div>
             </div>
         </div>
