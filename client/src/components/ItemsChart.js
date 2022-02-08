@@ -28,7 +28,7 @@ class ItemsChart extends Component {
                     { x: k },
                     ...listIds.map(listId => {
                         const barObject = {};
-                        barObject[listId] = v.filter(i => i.listId === listId).length;
+                        barObject[listId] = _.sum(v.filter(i => i.listId === listId).map(i => i.count));
                         return barObject;
                     })
                 )
@@ -46,12 +46,16 @@ class ItemsChart extends Component {
             }))
         };
         const options = {
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     stacked: true
                 },
                 y: {
-                    stacked: true
+                    stacked: true,
+                    ticks: {
+                        precision: 0
+                    }
                 }
             },
             plugins: {

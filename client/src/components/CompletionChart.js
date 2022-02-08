@@ -20,11 +20,23 @@ class CompletionChart extends Component {
                 const listTitle = this.props.lists.filter(l => l._id === k)[0].title;
                 if (this.props.filter > 2) {
                     return [
-                        { title: listTitle + " (Done)", key: k + "_d", value: v.filter(i => i.completionDate !== null).length },
-                        { title: listTitle + " (To do)", key: k + "_t", value: v.filter(i => i.completionDate === null).length }
+                        {
+                            title: listTitle + " (Done)",
+                            key: k + "_d",
+                            value: _.sum(v.filter(i => i.completionDate !== null).map(i => i.count))
+                        },
+                        {
+                            title: listTitle + " (To do)",
+                            key: k + "_t",
+                            value: _.sum(v.filter(i => i.completionDate === null).map(i => i.count))
+                        }
                     ];
                 }
-                return [ { title: listTitle + " (Done)", key: k, value: v.filter(i => i.completionDate !== null).length } ];
+                return [ {
+                    title: listTitle + " (Done)",
+                    key: k,
+                    value: _.sum(v.filter(i => i.completionDate !== null).map(i => i.count))
+                } ];
             });
         const chartData = {
             labels: datasets.map(e => e.title),

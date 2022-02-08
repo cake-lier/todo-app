@@ -10,7 +10,7 @@ export default function MyDay(props) {
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
-    return(
+    return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block sticky top-0">
@@ -31,7 +31,7 @@ export default function MyDay(props) {
                     displayError={ displayError }
                 />
                 <div className="grid h-full overflow-y-auto">
-                    <MyDayItem/>
+                    <MyDayItem socket={ props.socket } displayError={ displayError } />
                 </div>
             </div>
             <div className="w-full p-0 md:hidden">
@@ -51,7 +51,7 @@ export default function MyDay(props) {
                         displayError={ displayError }
                     />
                     <div className="grid overflow-y-auto">
-                        <MyDayItem/>
+                        <MyDayItem socket={ props.socket } displayError={ displayError } />
                     </div>
                 </div>
             </div>

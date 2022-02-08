@@ -42,7 +42,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                     setLists={ setLists }
                     displayError={ displayError }
                     socket={ socket }
-                    disabledListNotification={user.disabledListNotification}
+                    disabledNotificationsLists={ user.disabledNotificationsLists }
                 />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
@@ -66,7 +66,8 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         setLists={ setLists }
                         displayError={ displayError }
                         socket={ socket }
-                        disabledListNotification={user.disabledListNotification}/>
+                        disabledNotificationsLists={ user.disabledNotificationsLists }
+                    />
                 </div>
             </div>
         </div>
