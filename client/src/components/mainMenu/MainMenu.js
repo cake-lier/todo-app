@@ -62,7 +62,7 @@ export function MainMenu({ selected }) {
 
     return (
         <div className="grid h-full w-min align-content-between"
-             style={{backgroundColor: "#FFF"}}>
+             style={{backgroundColor: "#FFF", borderRight: "1px solid lightgrey"}}>
             <div className="col-12 p-0 flex">
                 <Menu id="mainMenu" className="border-none p-0 flex-shrink-1 border-noround" model={ mainItems } />
             </div>
