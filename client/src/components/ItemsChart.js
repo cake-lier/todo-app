@@ -28,7 +28,7 @@ class ItemsChart extends Component {
                     { x: k },
                     ...listIds.map(listId => {
                         const barObject = {};
-                        barObject[listId] = v.filter(i => i.listId === listId).length;
+                        barObject[listId] = _.sum(v.filter(i => i.listId === listId).map(i => i.count));
                         return barObject;
                     })
                 )

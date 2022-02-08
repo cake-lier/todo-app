@@ -276,7 +276,10 @@ function sendNotification(userId, list, eventName, text) {
         listId
     })
     .catch(error => console.log(error))
-    .then(_ => io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName, listId, text));
+    .then(_ => {
+        io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName, listId, text);
+        io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName + "Reload", listId);
+    });
 }
 
 function deleteUserData(request, response, session, user) {
@@ -300,6 +303,9 @@ function deleteUserData(request, response, session, user) {
                                       io.in(`list:${ listId }`)
                                         .except(`user:${ request.session.userId }`)
                                         .emit("listDeleted", listId, listText);
+                                      io.in(`list:${ listId }`)
+                                        .except(`user:${ request.session.userId }`)
+                                        .emit("listDeletedReload", listId);
                                       return Item.find({ listId: list._id }, undefined, { session })
                                                  .exec()
                                                  .then(items => Promise.all(items.map(item => {

@@ -25,18 +25,9 @@ function createList(request, response) {
     .then(
         list => {
             const listId = list._id.toString();
-            const text = `The list "${ list.title }" has just been created`;
-            Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
-                io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
-                io.in(`list:${ listId }`).emit("listCreated", listId, text);
-            });
+            io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
+            io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
+            io.in(`list:${ listId }`).emit("listCreatedReload", listId);
             response.json(list);
         },
         error => {
@@ -67,19 +58,22 @@ function deleteList(request, response) {
                            .then(_ => {
                                const listId = list._id.toString();
                                const text = `The list "${ list.title }" has just been deleted`;
-                               Notification.create({
-                                   users: list.members.filter(m => m.userId !== null).map(m => m.userId),
+                               return Notification.create({
+                                   users: list.members
+                                              .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                              .map(m => m.userId),
                                    text,
                                    listId
                                })
                                .catch(error => console.log(error))
                                .then(_ => {
-                                   io.in(`list:${ listId }`).emit("listDeleted", listId, text);
+                                   io.in(`list:${ listId }`)
+                                     .except(`user:${ request.session.userId }`)
+                                     .emit("listDeleted", listId, text);
+                                   io.in(`list:${ listId }`).emit("listDeletedReload", listId);
                                    io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
                                    io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
-                                   response.send({});
                                });
-                               return Promise.resolve();
                            })
                            .then(_ =>
                                User.updateMany(
@@ -88,7 +82,8 @@ function deleteList(request, response) {
                                    { session }
                                )
                                .exec()
-                           );
+                           )
+                           .then(_ => response.json(list));
             })
         ))
         .catch(error => {
@@ -263,13 +258,16 @@ function updateTitle(request, response) {
             const listId = list._id.toString();
             const text = `The list "${ list.title }" had its title changed to "${ request.body.title }"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
+                users: list.members
+                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                           .map(m => m.userId),
                 text,
                 listId
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).emit("listTitleChanged", listId, text);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listTitleChanged", listId, text);
+                io.in(`list:${ listId }`).emit("listTitleChangedReload", listId);
                 const updatedList = JSON.parse(JSON.stringify(list));
                 updatedList.title = request.body.title;
                 response.json(updatedList);
@@ -293,13 +291,16 @@ function updateVisibility(request, response) {
             const listId = list._id.toString();
             const text = `The list "${ list.title }" is now ${ request.body.isVisible ? "" : "not " }visible to non members`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
+                users: list.members
+                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                           .map(m => m.userId),
                 text,
                 listId
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).emit("listVisibilityChanged", listId, text);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, text);
+                io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
                 response.json(list);
             });
         }
@@ -352,18 +353,34 @@ function addMember(request, response) {
                             { new: true, session },
                             (response, list) => {
                                 const listId = list._id.toString();
-                                io.in(`user:${ userId }`).socketsJoin(`list:${ listId }`);
-                                const text = `The list "${ list.title }" has a new member`;
+                                const newMemberText = `You have been added to the the list "${ list.title }"`;
+                                const oldMembersText = `The list "${ list.title }" has a new member`;
                                 Notification.create({
-                                    users: list.members.filter(m => m.userId !== null).map(m => m.userId),
-                                    text,
+                                    users: [userId],
+                                    text: newMemberText,
                                     listId
                                 })
                                 .catch(error => console.log(error))
                                 .then(_ => {
-                                    io.in(`list:${ listId }`).emit("listMemberAdded", listId, text);
-                                    response.json(list);
+                                    io.in(`user:${ userId }`).emit("listSelfAdded", listId, newMemberText);
+                                    io.in(`user:${ userId }`).emit("listSelfAddedReload", listId);
+                                })
+                                .then(_ => Notification.create({
+                                    users: list.members
+                                               .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                               .map(m => m.userId),
+                                    text: oldMembersText,
+                                    listId
+                                }))
+                                .catch(error => console.log(error))
+                                .then(_ => {
+                                    io.in(`list:${ listId }`)
+                                      .except(`user:${ request.session.userId }`)
+                                      .emit("listMemberAdded", listId, oldMembersText);
+                                    io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
+                                    io.in(`user:${ userId }`).socketsJoin(`list:${ listId }`);
                                 });
+                                response.json(list);
                             }
                         );
                     })
@@ -389,13 +406,16 @@ function addMember(request, response) {
             const listId = list._id.toString();
             const text = `The list "${ list.title }" has a new member`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
+                users: list.members
+                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                           .map(m => m.userId),
                 text,
                 listId
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).emit("listMemberAdded", listId, text);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberAdded", listId, text);
+                io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
                 io.in(request.body.socketId).socketsJoin(`list:${ list._id.toString() }`);
                 response.json(list);
             });
@@ -447,28 +467,33 @@ function removeMember(request, response) {
             const userText = `You have been removed from the list "${ list.title }"`;
             if (list.members[memberIndex].userId !== null) {
                 Notification.create({
-                    users: [list.members[memberIndex].userId].map(m => m.userId),
+                    users: [list.members[memberIndex].userId],
                     text: userText,
                     listId
                 })
                 .catch(error => console.log(error))
                 .then(_ => {
                     io.in(`user:${ list.members[memberIndex].userId }`).socketsLeave(`list:${ listId }`);
-                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemoved", userText);
+                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemoved", listId, userText);
+                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemovedReload", listId);
                 });
             } else {
-                io.in(`user:${ list.members[memberIndex].anonymousId }`).emit("listSelfRemoved", userText);
+                io.in(`anon:${ list.members[memberIndex].anonymousId }`).emit("listSelfRemoved", userText, listId);
+                io.in(`anon:${ list.members[memberIndex].userId }`).emit("listSelfRemovedReload", listId);
                 io.in(`anon:${ list.members[memberIndex].anonymousId }`).disconnectSockets();
             }
             const text = `A member has left the list "${ list.title }"`;
             Notification.create({
-                users: list.members.filter(m => m.userId !== null).map(m => m.userId),
+                users: list.members
+                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                           .map(m => m.userId),
                 text,
                 listId
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).emit("listMemberRemoved", listId, text);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberRemoved", listId, text);
+                io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
                 const updatedList = JSON.parse(JSON.stringify(list));
                 updatedList.members.splice(memberIndex, 1);
                 response.json(updatedList);

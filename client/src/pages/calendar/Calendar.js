@@ -39,13 +39,13 @@ export default function Calendar(props) {
                              backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
                              borderColor: item.completionDate === null ? "#E61950" : "#555661",
                              start: item.dueDate,
-                             title: item.title,
+                             title: item.completionDate === null ? item.title : "\u{2611}️ " + item.title,
                              url: "/lists/" + item.listId
                          };
                      }
                      return {
                          id: item._id,
-                         title: item.title,
+                         title: item.completionDate === null ? item.title : "\u{2611} " + item.title,
                          allDay: !item.reminderString.includes("FREQ=HOURLY"),
                          backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
                          borderColor: item.completionDate === null ? "#E61950" : "#555661",
@@ -59,7 +59,10 @@ export default function Calendar(props) {
     useEffect(updateEvents, [updateEvents]);
     useEffect(() => {
         function handleUpdates(event) {
-            if (["itemCreated", "itemTitleChanged", "itemDateChanged", "itemCompletionChanged", "itemDeleted"].includes(event)) {
+            if (new RegExp(
+                    "/^(?:list(?:Deleted|Self(?:Added|Removed))|"
+                    + "item(?:Created|(?:Title|Date|Completion)Changed|Deleted))Reload$/"
+                ).test(event)) {
                 updateEvents();
             }
         }

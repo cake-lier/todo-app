@@ -91,15 +91,8 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
     }, [ownership, setLists, displayError]);
     useEffect(() => {
         function handleUpdates(event) {
-            if ([
-                "listCreated",
-                "listDeleted",
-                "listTitleChanged",
-                "listVisibilityChanged",
-                "listMemberAdded",
-                "listSelfRemoved",
-                "listMemberRemoved"
-            ].includes(event)) {
+            if ((/^list(?:Created|Deleted|(?:Title|Visibility)Changed|Member(?:Added|Removed))Reload$/.test(event))
+                || (/^listSelf(?:Added|Removed)Reload$/.test(event) && !ownership)) {
                 axios.get(ownership ? "/lists" : "/lists?shared=true")
                      .then(
                          lists => {

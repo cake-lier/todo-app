@@ -56,7 +56,10 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
     useEffect(updateItems, [updateItems]);
     useEffect(() => {
         function handleUpdates(event) {
-            if (["listTitleChanged", "itemCreated", "itemCompletionChanged", "itemDeleted"].includes(event)) {
+            if (new RegExp(
+                    "^(?:list(?:Deleted|TitleChanged|Self(?:Added|Removed))"
+                    + "|item(?:Created|(?:Completion|Count)Changed|Deleted))Reload$"
+                ).test(event)) {
                 updateItems();
             }
         }
@@ -146,25 +149,25 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
                     <div className="col-12 p-0">
                         <Divider className="my-0" />
                     </div>
-                    <div id="filters" className="col-12 flex justify-content-center">
-                        <SelectButton
-                            value={ filter }
-                            options={ filterSelectItems }
-                            onChange={ e => setFilter(e.value) }
-                            unselectable={ false }
-                        />
-                    </div>
                     {
                         items.filter(i => i.completionDate !== null).length === 0
-                            ? <div className="col-12 flex flex-grow-1 flex-column justify-content-center">
-                                <p className="col-12 flex justify-content-center text-lg sm:text-xl">Here be dragons!</p>
-                                <p className="col-12 flex justify-content-center text-center text-lg sm:text-xl">
-                                    Complete your first item in a list and then come back here!
-                                </p>
-                            </div>
-                            : <div className="col-12 flex flex-grow-1 justify-content-center align-items-center">
-                                { getTabElement(tab) }
-                            </div>
+                        ? <EmptyPlaceholder
+                              title={ "No reports to display" }
+                              subtitle={ "Complete your first item and then come back here" }
+                          />
+                        : <>
+                              <div id="filters" className="col-12 flex justify-content-center">
+                                  <SelectButton
+                                      value={ filter }
+                                      options={ filterSelectItems }
+                                      onChange={ e => setFilter(e.value) }
+                                      unselectable={ false }
+                                  />
+                              </div>
+                              <div className="col-12 flex flex-grow-1 justify-content-center align-items-center">
+                                  { getTabElement(tab) }
+                              </div>
+                          </>
                     }
                 </div>
             </div>

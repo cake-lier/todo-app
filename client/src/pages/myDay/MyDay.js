@@ -20,7 +20,7 @@ export default function MyDay(props) {
         position: "relative",
         visible: "false"
     }
-    return(
+    return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block sticky top-0">
@@ -40,15 +40,12 @@ export default function MyDay(props) {
                     socket={ props.socket }
                     displayError={ displayError }
                 />
-
                 <div className="grid h-full overflow-y-auto">
-                    <MyDayItem/>
+                    <MyDayItem socket={ props.socket } displayError={ displayError } />
                 </div>
             </div>
             <div className="w-full p-0 md:hidden">
-                <div
-                    className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")}
-                />
+                <div className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")} />
                 <div className="col-1 p-0 h-full absolute justify-content-center ">
                     <div className="h-full w-full" ref={ node } style={ divStyle }>
                         <BurgerMenu open={ open } setOpen={ setOpen } />
@@ -70,9 +67,8 @@ export default function MyDay(props) {
                         socket={ props.socket }
                         displayError={ displayError }
                     />
-
                     <div className="grid overflow-y-auto">
-                        <MyDayItem/>
+                        <MyDayItem socket={ props.socket } displayError={ displayError } />
                     </div>
                 </div>
             </div>
