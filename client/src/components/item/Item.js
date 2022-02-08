@@ -89,9 +89,9 @@ export function Item({socket, item, listMembers, onItemChange, selectedItems, de
                         </AvatarGroup>
                     </div>
                 </div>
-                <Button icon="pi pi-ellipsis-v"
+                <Button icon="pi pi-ellipsis-h"
                         onClick={(e) => menu.current.toggle(e)}
-                        className="p-button-rounded p-button-icon-only p-button-text" />
+                        className="p-button-rounded p-button-icon-only p-button-text three-dots"/>
                 <Menu model={menuItems} popup ref={menu} />
             </div>
 

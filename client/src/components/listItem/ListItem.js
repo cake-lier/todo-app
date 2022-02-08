@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { PrimeIcons } from 'primereact/api';
 import { DataView } from 'primereact/dataview';
@@ -9,6 +9,7 @@ import JoinCodeMessage from "../listDialogs/JoinCodeMessage";
 import EditListDialog from "../listDialogs/EditListDialog";
 import { TieredMenu } from "primereact/tieredmenu";
 import MembersDialog from "../listDialogs/MembersDialog";
+import {Button} from "primereact/button";
 
 export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, disabledNotificationsLists }) {
     const menu = useRef(null);
@@ -134,7 +135,9 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
                     <h1 className="ml-2 cursor-pointer" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
                 </div>
                 <div className="col-1 flex flex-row-reverse align-items-center">
-                    <i className="pi pi-ellipsis-h mr-2 cursor-pointer" onClick={ handleClick } />
+                    <Button icon="pi pi-ellipsis-h"
+                            onClick={ handleClick }
+                            className="p-button-rounded p-button-icon-only p-button-text three-dots"/>
                 </div>
             </div>
         );

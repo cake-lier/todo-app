@@ -45,7 +45,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
             <ErrorMessages ref={ errors } />
             <JoinDialog listId={ id } socket={ socket } />
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
-                <MainMenu selected={ "My lists" } open={ true } />
+                <MainMenu selected={null} open={ true } />
             </div>
             <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 flex-1 hidden md:block">
                 <PageHeader

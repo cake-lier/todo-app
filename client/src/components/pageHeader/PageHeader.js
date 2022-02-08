@@ -19,7 +19,7 @@ export default function PageHeader({ user, unsetUser, title, showDate, tabs, act
                 <div className="col-9 p-0 m-0 flex flex-columns justify-content-right">
                     <Button id="burger-menu" icon="pi pi-bars cursor-pointer" onClick={() => setVisible(true)}/>
                     <Sidebar className="p-0 m-0 md:hidden" showCloseIcon={false} visible={visible} onHide={() => setVisible(false)}>
-                        <MainMenu selected={(title ? title : "My lists")} />
+                        <MainMenu selected={(title ? title : null)} />
                     </Sidebar>
                     <div className="w-max m-0 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{ title }</h3>
