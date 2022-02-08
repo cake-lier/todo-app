@@ -128,16 +128,16 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
             setList(list);
         }
         return (
-            <div className="col-12 m-0 p-0 flex flex-row align-items-center list-item">
+            <div className="col-12 m-0 p-0 pl-2 flex flex-row align-items-center list-item">
                 <div className="col-11 flex align-items-center" id="list-icon">
-                    <i className={ "pi pi-circle-fill " + (listColor[list.colorIndex]) } />
-                    <i className="pi pi-list ml-2" />
-                    <h1 className="ml-2 cursor-pointer" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
+                    <i className={ "pi pi-circle-fill item " + (listColor[list.colorIndex]) } />
+                    <i className="pi pi-list item ml-2 pl-1" />
+                    <h1 className="ml-2 cursor-pointer text-xl" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
                 </div>
                 <div className="col-1 flex flex-row-reverse align-items-center">
                     <Button icon="pi pi-ellipsis-h"
                             onClick={ handleClick }
-                            className="p-button-rounded p-button-icon-only p-button-text three-dots"/>
+                            className="p-button-rounded p-button-icon-only p-button-text three-dots text-3xl"/>
                 </div>
             </div>
         );

@@ -21,7 +21,7 @@ a, button {
     padding: 0;
     margin: 0;
     line-height: normal;
-    font-size: medium;
+    font-size: large;
     cursor: pointer;
 }
 
@@ -63,6 +63,9 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
     &.three-dots{
         color: $text-color !important;
+        .pi {
+            font-size: x-large;
+        }
     }
 }
 

@@ -6,16 +6,16 @@ import CreateListDialog from "../listDialogs/CreateListDialog";
 export default function MyListsHeader({ appendList, displayError }) {
     const [display, setDisplay] = useState(false);
     return (
-        <div className="grid py-3">
+        <div className="grid">
             <CreateListDialog
                 display={ display }
                 setDisplay={ setDisplay }
                 appendList={ appendList }
                 displayError={ displayError }
             />
-            <div className="col-6 m-0 p-0 pl-1 flex align-content-center">
+            <div className="col-6 flex align-content-center">
                 <Button
-                    className="py-0 px-2"
+                    className="m-2"
                     id="create-button"
                     label="Add new list"
                     icon="pi pi-plus"

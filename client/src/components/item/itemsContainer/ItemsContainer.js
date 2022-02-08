@@ -80,7 +80,7 @@ export function ItemsContainer({listId, myDayItems}) {
     return (
         <>
             <div>
-                <Button className={myDayItems ? "hidden" : null}
+                <Button className={"m-3 " + (myDayItems ? "hidden" : null)}
                         label="New Task" icon="pi pi-plus"
                         onClick={() => setDisplayDialog(true)}
                 />
