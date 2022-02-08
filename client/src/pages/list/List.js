@@ -47,7 +47,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
                 <MainMenu selected={null} open={ true } />
             </div>
-            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 flex-1 hidden md:block">
+            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex">
                 <PageHeader
                     user={ user }
                     unsetUser={ unsetUser }

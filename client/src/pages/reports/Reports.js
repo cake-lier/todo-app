@@ -139,6 +139,15 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
                 />
                 <div className="grid flex-column flex-grow-1">
                     {
+                        loading ?
+                            <ProgressSpinner
+                                className={"col-12 flex flex-grow-1 flex-column justify-content-center align-content-center " + (loading? null : "hidden")}
+                                style={{width: '50px', height: '50px'}}
+                                strokeWidth="2"
+                                fill="var(--surface-ground)"
+                                animationDuration=".5s"
+                            />
+                            :
                         items.filter(i => i.completionDate !== null).length === 0
                         ? <EmptyPlaceholder
                               title={ "No reports to display" }

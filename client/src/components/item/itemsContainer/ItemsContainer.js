@@ -4,10 +4,13 @@ import "./ItemsContainer.scss";
 import {Item} from "../Item";
 import axios from "axios";
 import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
+import { ProgressSpinner } from 'primereact/progressspinner';
+import EmptyPlaceholder from "../../EmptyPlaceholder";
 
 export function ItemsContainer({listId, myDayItems}) {
     // checklist
     const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
@@ -24,7 +27,8 @@ export function ItemsContainer({listId, myDayItems}) {
                         setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
                     },
                     // TODO error msg
-                );
+                )
+                .then(_ => setLoading(false))
 
             // init list members
             axios.get("/lists/" + listId + "/members")
@@ -34,7 +38,7 @@ export function ItemsContainer({listId, myDayItems}) {
         } else {
             setItems(myDayItems);
         }
-    }, [listId]);
+    }, [listId, setLoading]);
 
     // when checkbox is checked/unchecked, update selectedItems[]
     const [selectedItems, setSelectedItems] = useState([]);
@@ -79,21 +83,39 @@ export function ItemsContainer({listId, myDayItems}) {
 
     return (
         <>
-            <div>
-                <Button className={"m-3 " + (myDayItems ? "hidden" : null)}
-                        label="New Task" icon="pi pi-plus"
-                        onClick={() => setDisplayDialog(true)}
-                />
+            <div className="grid flex-column flex-grow-1">
+                <div className="col-12 m-0 p-0 flex">
+                    <Button className={"m-3 " + (myDayItems ? "hidden" : null)}
+                            label="New Task" icon="pi pi-plus"
+                            onClick={() => setDisplayDialog(true)}
+                    />
+                </div>
                 {
-                    items.map((item) => {
-                        return (<Item key={item._id}
+                    loading ?
+                        <ProgressSpinner
+                            className={"col-12 flex flex-grow-1 flex-column justify-content-center align-content-center " + (loading? null : "hidden")}
+                            style={{width: '50px', height: '50px'}}
+                            strokeWidth="2"
+                            fill="var(--surface-ground)"
+                            animationDuration=".5s"
+                        />
+                        : items.length ?
+                            items.map((item) => {
+                                return (<Item key={item._id}
                                       item={item}
                                       listMembers={listMembers}
                                       onItemChange={onItemChange}
                                       selectedItems={selectedItems}
                                       deleteItem={deleteItem}
                                       updateItem={updateItem} />)
-                    })
+                            })
+                        : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
+                                <EmptyPlaceholder
+                                    title={ "No items to display" }
+                                    subtitle={ "Items that have a due date will show up here." }
+                                    type={"items"}
+                                />
+                            </div>
                 }
             </div>
             <CreateItemDialog
