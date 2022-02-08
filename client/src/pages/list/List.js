@@ -13,11 +13,15 @@ export default function List({ user, unsetUser, notifications, setNotifications,
         errors.current.displayError(lastErrorCode);
     }, [errors]);
     const { id } = useParams();
+    const [members, setMembers] = useState();
     const [title, setTitle] = useState("");
     const getTitle = useCallback(() => {
         axios.get(`/lists/${ id }`)
             .then(
-                list => setTitle(list.data.title),
+                list => {
+                    setTitle(list.data.title);
+                    setMembers(list.data.members);
+                },
                 error => displayError(error.response.data.error)
             );
     }, [id, setTitle, displayError]);
@@ -55,7 +59,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <ItemsContainer listId={ id } />
+                <ItemsContainer listId={id} listMembers={members}/>
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}}>
                 <PageHeader

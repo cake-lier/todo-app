@@ -1,7 +1,6 @@
 import {ItemDialog} from "./ItemDialog";
 import axios from "axios";
 
-
 export function CreateItemDialog({listId, appendItem, displayDialog, setDisplayDialog}) {
 
     const action = (data) => {
