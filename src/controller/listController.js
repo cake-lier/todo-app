@@ -314,7 +314,12 @@ function updateColorIndex(request, response) {
     updateUnprivilegedListProperty(
         request,
         response,
-        request.body.colorIndex ? { $set: { colorIndex: request.body.colorIndex } } : { $unset: { colorIndex: "" } }
+        request.body.colorIndex ? { $set: { colorIndex: request.body.colorIndex } } : { $unset: { colorIndex: "" } },
+        { new: true },
+        (response, list) => {
+            const listId = list._id.toString();
+            io.in(`list:${ listId }`).emit("listColorChangedReload", listId);
+        }
     );
 }
 

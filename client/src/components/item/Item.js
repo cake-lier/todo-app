@@ -10,10 +10,10 @@ import {EditItemDialog} from "./itemDialogs/EditItemDialog";
 import {DueDateTag} from "./DueDateTag";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 import {EditTagDialog} from "./itemDialogs/EditTagDialog";
-import {AssigneeTag} from "./AssigneeTag";
 import axios from "axios";
+import {Avatar} from "primereact/avatar";
 
-export function Item({ item, listMembers, onItemChange, selectedItems, deleteItem, updateItem, displayError }){
+export function Item({ item, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
     const menu = useRef(null);
 
@@ -45,6 +45,15 @@ export function Item({ item, listMembers, onItemChange, selectedItems, deleteIte
              );
     };
 
+    const onCheckboxChecked = e => {
+        console.log(e);
+        axios.put(`/items/${ e.value._id }/complete`, { isComplete: e.checked })
+            .then(
+                item => updateItem(item.data),
+                error => displayError(error.response.data.error)
+            );
+    };
+
     const menuItems = [
         { label: 'Edit', icon: 'pi pi-pencil', command: () => { setDisplayEdit(true) } },
         { label: 'Due date', icon: 'pi pi-calendar', command: () => { setDisplayCalendar1(true) } },
@@ -62,8 +71,8 @@ export function Item({ item, listMembers, onItemChange, selectedItems, deleteIte
                         <Checkbox inputId={ item._id }
                                   name="item"
                                   value={ item }
-                                  onChange={ onItemChange }
-                                  checked={ selectedItems.some((i) => i._id === item._id) }
+                                  onChange={ onCheckboxChecked }
+                                  checked={ !!item.completionDate }
                         />
                         <label htmlFor={ item._id }>{ item.title }</label>
                         <div className="flex align-items-center">
@@ -90,9 +99,16 @@ export function Item({ item, listMembers, onItemChange, selectedItems, deleteIte
                         <AvatarGroup>
                         {
                             assignees.map(assignee =>
-                                <AssigneeTag
-                                    key={assignee._id}
-                                    assignee={assignee}
+                                <Avatar
+                                    key={ assignee._id }
+                                    size='small'
+                                    className={ 'p-avatar-circle avatar-assignee' + assignee._id }
+                                    image={
+                                        assignee.profilePicturePath
+                                        ? assignee.profilePicturePath
+                                        : "/static/images/default_profile_picture.jpg"
+                                    }
+                                    alt={ assignee.username + " profile picture" }
                                 />
                             )
                         }
@@ -100,9 +116,9 @@ export function Item({ item, listMembers, onItemChange, selectedItems, deleteIte
                     </div>
                 </div>
                 <Button
-                    icon="pi pi-ellipsis-v"
-                    onClick={(e) => menu.current.toggle(e)}
-                    className="p-button-rounded p-button-icon-only p-button-text"
+                    icon="pi pi-ellipsis-h"
+                    onClick={ e => menu.current.toggle(e) }
+                    className="p-button-rounded p-button-icon-only p-button-text three-dots"
                 />
                 <Menu model={ menuItems } popup ref={ menu } />
             </div>

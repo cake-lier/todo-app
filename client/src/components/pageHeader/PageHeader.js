@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Moment from "react-moment";
 import { UserIcon } from "../userIcon/UserIcon";
 import { TabMenu } from 'primereact/tabmenu';
@@ -9,8 +9,10 @@ import {MainMenu} from "../mainMenu/MainMenu";
 import {Divider} from "primereact/divider";
 import Notifications from "../notifications/Notifications";
 import { NotificationsContext } from "../../utils/contexts";
+import {AvatarGroup} from "primereact/avatargroup";
+import {Avatar} from "primereact/avatar";
 
-export default function PageHeader({ user, unsetUser, title, showDate, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError }) {
+export default function PageHeader({ user, unsetUser, title, showDate, members, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError }) {
     const [activeIndex, setActiveIndex] = useState(activeTabIndex);
     const [visible, setVisible] = useState(false);
     if (isResponsive) {
@@ -19,7 +21,7 @@ export default function PageHeader({ user, unsetUser, title, showDate, tabs, act
                 <div className="col-9 p-0 m-0 flex flex-columns justify-content-right">
                     <Button id="burger-menu" icon="pi pi-bars cursor-pointer" onClick={() => setVisible(true)}/>
                     <Sidebar className="p-0 m-0 md:hidden" showCloseIcon={false} visible={visible} onHide={() => setVisible(false)}>
-                        <MainMenu selected={(title ? title : "My lists")} />
+                        <MainMenu selected={(title ? title : null)} />
                     </Sidebar>
                     <div className="w-max m-0 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{ title }</h3>
@@ -84,7 +86,27 @@ export default function PageHeader({ user, unsetUser, title, showDate, tabs, act
                         }
                     </div>
                     {
-                         tabs && tabs.length
+                        members && members.length > 0
+                        ? <AvatarGroup>
+                            {
+                                members.map(member =>
+                                    <Avatar
+                                        key={ member._id }
+                                        className="p-avatar-circle"
+                                        image={
+                                            member.profilePicturePath
+                                            ? member.profilePicturePath
+                                            : "/static/images/default_profile_picture.jpg"
+                                        }
+                                        alt={ member.username + "'s profile picture" }
+                                    />
+                                )
+                            }
+                            </AvatarGroup>
+                        : null
+                    }
+                    {
+                         tabs && tabs.length > 0
                          ? <TabMenu
                                id="headerTabMenu"
                                className="border-none ml-2 mt-2 flex align-items-center overflow-hidden"

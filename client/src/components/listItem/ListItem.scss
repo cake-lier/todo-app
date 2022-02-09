@@ -1,7 +1,15 @@
 @import "../../colors";
 
 .pi-circle-fill {
-  font-size: xx-large !important;
+  &.item {
+    font-size: 3rem !important;
+  }
+}
+
+.pi-list {
+  &.item {
+    font-size: x-large !important;
+  }
 }
 
 #list-icon .pi-list {

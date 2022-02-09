@@ -21,7 +21,7 @@ a, button {
     padding: 0;
     margin: 0;
     line-height: normal;
-    font-size: medium;
+    font-size: large;
     cursor: pointer;
 }
 
@@ -60,6 +60,13 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
 .p-button.p-button-text {
     color: $primary-color !important;
+
+    &.three-dots{
+        color: $text-color !important;
+        .pi {
+            font-size: x-large;
+        }
+    }
 }
 
 .p-button.p-button-text:enabled:hover, .p-button.p-button-text:not(button):not(a):not(.p-disabled):hover {

@@ -13,14 +13,18 @@ export default function List({ user, unsetUser, notifications, setNotifications,
         errors.current.displayError(lastErrorCode);
     }, [errors]);
     const { id } = useParams();
-    const [members, setMembers] = useState();
+    const [members, setMembers] = useState([]);
     const [title, setTitle] = useState("");
     const getTitle = useCallback(() => {
         axios.get(`/lists/${ id }`)
             .then(
                 list => {
                     setTitle(list.data.title);
-                    setMembers(list.data.members);
+                    axios.get(`/lists/${ id }/members`)
+                        .then(
+                            members => setMembers(members.data),
+                            error => displayError(error.response.data.error)
+                        );
                 },
                 error => displayError(error.response.data.error)
             );
@@ -45,13 +49,14 @@ export default function List({ user, unsetUser, notifications, setNotifications,
             <ErrorMessages ref={ errors } />
             <JoinDialog listId={ id } socket={ socket } />
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
-                <MainMenu open={ true } />
+                <MainMenu selected={ null } />
             </div>
-            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 flex-1 hidden md:block">
+            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex">
                 <PageHeader
                     user={ user }
                     unsetUser={ unsetUser }
                     title={ title }
+                    members={ members }
                     showDate={ false }
                     isResponsive={ false }
                     notifications={ notifications }
@@ -62,18 +67,20 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                 <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}}>
-                <PageHeader
-                    user={ user }
-                    unsetUser={ unsetUser }
-                    title={ title }
-                    showDate={ false }
-                    isResponsive={ true }
-                    notifications={ notifications }
-                    setNotifications={ setNotifications }
-                    socket={ socket }
-                    displayError={ displayError }
-                />
-                <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
+                <div className="mx-0 p-0 h-full flex-column flex-1 flex">
+                    <PageHeader
+                        user={ user }
+                        unsetUser={ unsetUser }
+                        title={ title }
+                        showDate={ false }
+                        isResponsive={ true }
+                        notifications={ notifications }
+                        setNotifications={ setNotifications }
+                        socket={ socket }
+                        displayError={ displayError }
+                    />
+                    <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
+                </div>
             </div>
         </div>
     );

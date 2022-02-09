@@ -11,7 +11,7 @@ export default function Notifications({ notifications, setNotifications, socket,
     const panel = useRef(null);
     useEffect(() => {
         function handleUpdates(event) {
-            if (event.includes("list") || event.includes("item")) {
+            if (event.toString().match(`^[list|item].*(?<!Reload)$`)) {
                 axios.get("/users/me/notifications")
                      .then(
                          notifications => {
