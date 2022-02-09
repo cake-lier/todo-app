@@ -62,18 +62,20 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                 <ItemsContainer listId={id} listMembers={members}/>
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}}>
-                <PageHeader
-                    user={ user }
-                    unsetUser={ unsetUser }
-                    title={ title }
-                    showDate={ false }
-                    isResponsive={ true }
-                    notifications={ notifications }
-                    setNotifications={ setNotifications }
-                    socket={ socket }
-                    displayError={ displayError }
-                />
-                <ItemsContainer listId={ id } />
+                <div className="mx-0 p-0 h-full flex-column flex-1 flex">
+                    <PageHeader
+                        user={ user }
+                        unsetUser={ unsetUser }
+                        title={ title }
+                        showDate={ false }
+                        isResponsive={ true }
+                        notifications={ notifications }
+                        setNotifications={ setNotifications }
+                        socket={ socket }
+                        displayError={ displayError }
+                    />
+                    <ItemsContainer listId={ id } />
+                </div>
             </div>
         </div>
     );

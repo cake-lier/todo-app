@@ -40,7 +40,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                 />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
-                <div id="myListsContainer" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                <div id="myListsContainer" className="mx-0 p-0 h-full flex-column flex-1 flex"
                      style={{backgroundColor: "white"}}>
                     <PageHeader
                         user={ user }

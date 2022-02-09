@@ -60,8 +60,8 @@ export default function EmptyPlaceholder(props) {
     return (
         <div id="empty-task-svg" className="grid flex flex-column justify-content-center align-items-center">
             {props.type === "items" ? emptyItems() : props.type === "lists" ? emptyLists() : emptyReports()}
-            <h1 className="pt-4 text-xl">{ props.title }</h1>
-            <p className="pt-2 text-lg" style={{color: "grey"}}>{ props.subtitle }</p>
+            <h1 className="pt-4 text-xl text-center">{ props.title }</h1>
+            <p className="pt-2 text-lg text-center" style={{color: "grey"}}>{ props.subtitle }</p>
         </div>
     );
 }

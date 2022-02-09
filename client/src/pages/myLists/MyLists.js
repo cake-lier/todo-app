@@ -46,7 +46,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                 />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
-                <div id="myListsContainerMobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                <div id="myListsContainerMobile" className="mx-0 p-0 h-full flex-column flex-1 flex"
                      style={{ backgroundColor: "white" }}>
                     <PageHeader
                         user={ user }

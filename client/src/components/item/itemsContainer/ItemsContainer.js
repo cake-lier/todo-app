@@ -37,6 +37,7 @@ export function ItemsContainer({listId, myDayItems}) {
             );
         } else {
             setItems(myDayItems);
+            setLoading(false);
         }
     }, [listId, setLoading]);
 

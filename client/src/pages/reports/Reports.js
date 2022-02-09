@@ -137,7 +137,7 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <div className="grid flex-column flex-grow-1">
+                <div className="mx-0 p-0 h-full flex-column flex-1 flex">
                     {
                         loading ?
                             <ProgressSpinner
@@ -149,11 +149,13 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
                             />
                             :
                         items.filter(i => i.completionDate !== null).length === 0
-                        ? <EmptyPlaceholder
-                              title={ "No reports to display" }
-                              subtitle={ "Complete your first item and then come back here" }
-                              type={"reports"}
-                          />
+                        ?
+                            <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
+                                <EmptyPlaceholder
+                                    title={ "No reports to display" }
+                                    subtitle={ "Complete your first item and then come back here" }
+                                    type={"reports"}/>
+                            </div>
                         : <>
                               <div id="filters" className="col-12 flex justify-content-center">
                                   <SelectButton

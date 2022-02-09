@@ -28,6 +28,7 @@ export default function MyDayItem({ socket, displayError }) {
                         setDueToday(dueToday);
                         setUpcoming(upcoming);
                         setTasksPresent(true);
+                        setLoading(false);
                     } else {
                         setTasksPresent(false);
                     }
