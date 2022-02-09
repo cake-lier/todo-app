@@ -1,4 +1,4 @@
-import {useCallback, useRef, useState} from "react";
+import { useCallback, useRef } from "react";
 import { MainMenu } from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import "./MyDay.scss";

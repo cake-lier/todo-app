@@ -45,7 +45,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
             <ErrorMessages ref={ errors } />
             <JoinDialog listId={ id } socket={ socket } />
             <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
-                <MainMenu selected={ "My lists" } open={ true } />
+                <MainMenu open={ true } />
             </div>
             <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 flex-1 hidden md:block">
                 <PageHeader
@@ -59,7 +59,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <ItemsContainer listId={id} listMembers={members}/>
+                <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}}>
                 <PageHeader
@@ -73,7 +73,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <ItemsContainer listId={ id } />
+                <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
             </div>
         </div>
     );

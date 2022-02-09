@@ -5,40 +5,38 @@ import {Item} from "../Item";
 import axios from "axios";
 import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
 
-export function ItemsContainer({listId, myDayItems}) {
+export function ItemsContainer({ listId, myDayItems, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
+    const [listMembers, setListMembers] = useState([]);
+    // when checkbox is checked/unchecked, update selectedItems[]
+    const [selectedItems, setSelectedItems] = useState([]);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
-
-    const [listMembers, setListMembers] = useState([]);
-
     // init items from database
     useEffect(() => {
         if (listId) {
-            axios.get("/items/")
-                .then(allItems => {
-                        let i = allItems.data.filter(i => i.listId === listId);
-                        setItems(i);
-                        setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
+            axios.get(`/lists/${ listId }/items/`)
+                 .then(
+                     items => {
+                        setItems(items.data);
+                        setSelectedItems(items.data.filter(j => j.completionDate !== null));
                     },
-                    // TODO error msg
+                    error => displayError(error.response.data.error)
                 );
-
-            // init list members
-            axios.get("/lists/" + listId + "/members")
-            .then(members => setListMembers(members.data),
-            // TODO error msg
-            );
         } else {
             setItems(myDayItems);
         }
-    }, [listId]);
+        axios.get(`/lists/${ listId }/members`)
+             .then(
+                  members => setListMembers(members.data),
+                  error => displayError(error.response.data.error)
+             );
+    }, [listId, myDayItems, setItems, setSelectedItems, setListMembers, displayError]);
 
-    // when checkbox is checked/unchecked, update selectedItems[]
-    const [selectedItems, setSelectedItems] = useState([]);
-    const onItemChange = (e) => {
+    console.log(items);
+    const onItemChange = e => {
         let _selectedItems = [...selectedItems];
 
         if (e.checked) {
@@ -70,9 +68,11 @@ export function ItemsContainer({listId, myDayItems}) {
 
     // delete item
     const deleteItem = (item) => {
-        axios.delete("/items/" + item._id).then(r => removeItem(item),
-            // TODO error msg
-        );
+        axios.delete("/items/" + item._id)
+             .then(
+                 _ => removeItem(item),
+                 error => displayError(error.response.data.error)
+             );
     }
 
     const [displayDialog, setDisplayDialog] = useState(false);
@@ -81,19 +81,23 @@ export function ItemsContainer({listId, myDayItems}) {
         <>
             <div>
                 <Button className={myDayItems ? "hidden" : null}
-                        label="New Task" icon="pi pi-plus"
+                        label="New Task"
+                        icon="pi pi-plus"
                         onClick={() => setDisplayDialog(true)}
                 />
                 {
-                    items.map((item) => {
-                        return (<Item key={item._id}
-                                      item={item}
-                                      listMembers={listMembers}
-                                      onItemChange={onItemChange}
-                                      selectedItems={selectedItems}
-                                      deleteItem={deleteItem}
-                                      updateItem={updateItem} />)
-                    })
+                    items.map(item =>
+                        <Item
+                            key={ item._id }
+                            item={ item }
+                            listMembers={ listMembers }
+                            onItemChange={ onItemChange }
+                            selectedItems={ selectedItems }
+                            deleteItem={ deleteItem }
+                            updateItem={ updateItem }
+                            displayError={ displayError }
+                        />
+                    )
                 }
             </div>
             <CreateItemDialog

@@ -10,7 +10,7 @@ import {Divider} from "primereact/divider";
 import Notifications from "../notifications/Notifications";
 import { NotificationsContext } from "../../utils/contexts";
 
-export default function PageHeader({ user, unsetUser, title, showDate, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError}) {
+export default function PageHeader({ user, unsetUser, title, showDate, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError }) {
     const [activeIndex, setActiveIndex] = useState(activeTabIndex);
     const [visible, setVisible] = useState(false);
     if (isResponsive) {

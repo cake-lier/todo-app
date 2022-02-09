@@ -1,16 +1,14 @@
 import { Badge } from "primereact/badge";
 import { Toast } from 'primereact/toast';
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef} from "react";
 import { OverlayPanel } from 'primereact/overlaypanel';
 import { DataScroller } from 'primereact/datascroller';
 import axios from "axios";
 import "./Notifications.scss"
 
 export default function Notifications({ notifications, setNotifications, socket, displayError, notificationsEnabled, disabledNotificationsLists, notificationsUnread, setNotificationsUnread }) {
-
     const toast = useRef(null);
     const panel = useRef(null);
-
     useEffect(() => {
         function handleUpdates(event) {
             if (event.includes("list") || event.includes("item")) {
@@ -19,6 +17,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                          notifications => {
                              setNotifications(notifications.data);
                              if (notificationsEnabled
+                                 && notifications.data.length > 0
                                  && !(disabledNotificationsLists.includes(notifications.data[notifications.data.length - 1].listId))) {
                                  toast.current.show({
                                      severity: 'info',
@@ -35,7 +34,7 @@ export default function Notifications({ notifications, setNotifications, socket,
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [displayError, socket, setNotifications, notifications, toast, disabledNotificationsLists, notificationsEnabled]);
+    }, [displayError, socket, setNotifications, notifications, setNotificationsUnread, toast, disabledNotificationsLists, notificationsEnabled]);
 
     const deleteNotification = id => {
         axios.delete(`/users/me/notifications/${ id }`)

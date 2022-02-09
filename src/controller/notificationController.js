@@ -8,7 +8,7 @@ function getUserNotifications(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    Notification.find({ users: request.session.userId })
+    Notification.find({ users: mongoose.Types.ObjectId(request.session.userId) })
                 .exec()
                 .then(
                     notifications => response.json(notifications),

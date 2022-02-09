@@ -78,7 +78,7 @@ export default function MyDayItem({ socket, displayError }) {
                 titleElement="P"
                 collapsed
                 toggleable>
-                <ItemsContainer listId={ null } myDayItems={ pastDue } />
+                <ItemsContainer listId={ null } myDayItems={ pastDue } displayError={ displayError } />
             </Panel>
             <Panel
                 id="due-today"
@@ -86,7 +86,7 @@ export default function MyDayItem({ socket, displayError }) {
                 headerTemplate={ template }
                 collapsed
                 toggleable>
-                <ItemsContainer listId={ null } myDayItems={ dueToday } />
+                <ItemsContainer listId={ null } myDayItems={ dueToday } displayError={ displayError } />
             </Panel>
             <Panel
                 id="upcoming"
@@ -94,7 +94,7 @@ export default function MyDayItem({ socket, displayError }) {
                 headerTemplate={template}
                 collapsed
                 toggleable>
-                <ItemsContainer listId={ null } myDayItems={ upcoming } />
+                <ItemsContainer listId={ null } myDayItems={ upcoming } displayError={ displayError } />
             </Panel>
             <div className={ (tasksPresent ? "hidden" : null) }>
                 <EmptyPlaceholder

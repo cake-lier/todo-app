@@ -99,7 +99,7 @@ function getListItems(request, response) {
                 members: {
                     $elemMatch:
                         request.session.userId !== undefined
-                        ? { userId: request.session.userId }
+                        ? { userId: mongoose.Types.ObjectId(request.session.userId) }
                         : { anonymousId: request.body.anonymousId }
                 }
             }
@@ -469,7 +469,7 @@ function updateCount(request, response) {
                         return Promise.resolve();
                     }
                     return Item.findByIdAndUpdate(
-                        request.params.id,
+                        mongoose.Types.ObjectId(request.params.id),
                         {
                             $set: {
                                 count: request.body.count,
@@ -706,13 +706,27 @@ function updatePriority(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
-    if (typeof request.body.priority !== 'boolean') {
-        sendError(response, Error.RequestError);
-    }
     updateItemAtomicProperty(
         request,
         response,
-        { $set: { priority: request.body.priority} }
+        { $set: { priority: !!request.body.priority } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text = `The item "${ item.title }" had its priority changed`;
+            Notification.create({
+                users: list.members
+                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                           .map(m => m.userId),
+                text,
+                listId
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemPriorityChanged", listId, text);
+                io.in(`list:${ listId }`).emit("itemPriorityChangedReload", listId);
+                response.json(item);
+            });
+        },
     );
 }
 
