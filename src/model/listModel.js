@@ -13,10 +13,6 @@ const memberSchema = new mongoose.Schema({
         default: null,
         validate: v => v === null || uuid.validate(v)
     },
-    username: {
-        type: String,
-        default: null
-    },
     role: {
         type: String,
         enum: ["owner", "member"],
