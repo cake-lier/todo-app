@@ -56,24 +56,36 @@ function deleteList(request, response) {
                 return Item.deleteMany({ listId: list._id }, { session })
                            .exec()
                            .then(_ => {
-                               const listId = list._id.toString();
-                               const text = `The list "${ list.title }" has just been deleted`;
-                               return Notification.create({
-                                   users: list.members
-                                              .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                              .map(m => m.userId),
-                                   text,
-                                   listId
-                               })
-                               .catch(error => console.log(error))
-                               .then(_ => {
-                                   io.in(`list:${ listId }`)
-                                     .except(`user:${ request.session.userId }`)
-                                     .emit("listDeleted", listId, text);
-                                   io.in(`list:${ listId }`).emit("listDeletedReload", listId);
-                                   io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
-                                   io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
-                               });
+                               User.findById(request.session.userId)
+                                   .exec()
+                                   .then(
+                                       user => {
+                                           const authorUsername = user.username;
+                                           const authorProfilePicturePath = user.profilePicturePath;
+                                           const listId = list._id.toString();
+                                           const text = `${authorUsername} deleted the list "${ list.title }"`;
+                                           return Notification.create({
+                                               authorUsername,
+                                               authorProfilePicturePath,
+                                               users: list.members
+                                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                                   .map(m => m.userId),
+                                               text,
+                                               listId
+                                           })
+                                               .catch(error => console.log(error))
+                                               .then(_ => {
+                                                   io.in(`list:${ listId }`)
+                                                       .except(`user:${ request.session.userId }`)
+                                                       .emit("listDeleted", listId, text);
+                                                   io.in(`list:${ listId }`).emit("listDeletedReload", listId);
+                                                   io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
+                                                   io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
+                                               });
+
+                                       },
+                                       error => console.log(error)
+                                   )
                            })
                            .then(_ =>
                                User.updateMany(
@@ -255,23 +267,35 @@ function updateTitle(request, response) {
         { $set: { title: request.body.title } },
         { new: false },
         (response, list) => {
-            const listId = list._id.toString();
-            const text = `The list "${ list.title }" had its title changed to "${ request.body.title }"`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listTitleChanged", listId, text);
-                io.in(`list:${ listId }`).emit("listTitleChangedReload", listId);
-                const updatedList = JSON.parse(JSON.stringify(list));
-                updatedList.title = request.body.title;
-                response.json(updatedList);
-            });
+            User.findById(request.session.userId)
+                .exec()
+                .then(
+                    user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
+                        const listId = list._id.toString();
+                        const text = `${authorUsername} changed the title of the list "${ list.title }" to "${ request.body.title }"`;
+                        Notification.create({
+                            authorUsername,
+                            authorProfilePicturePath,
+                            users: list.members
+                                .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                .map(m => m.userId),
+                            text,
+                            listId
+                        })
+                            .catch(error => console.log(error))
+                            .then(_ => {
+                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listTitleChanged", listId, text);
+                                io.in(`list:${ listId }`).emit("listTitleChangedReload", listId);
+                                const updatedList = JSON.parse(JSON.stringify(list));
+                                updatedList.title = request.body.title;
+                                response.json(updatedList);
+                            });
+
+                    },
+                    error => console.log(error)
+                )
         }
     );
 }
@@ -288,21 +312,33 @@ function updateVisibility(request, response) {
         request.body.isVisible ? { $set: { joinCode } } : { $unset: { joinCode: "" } },
         { new: true },
         (response, list) => {
-            const listId = list._id.toString();
-            const text = `The list "${ list.title }" is now ${ request.body.isVisible ? "" : "not " }visible to non members`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, text);
-                io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
-                response.json(list);
-            });
+            User.findById(request.session.userId)
+                .exec()
+                .then(
+                    user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
+                        const listId = list._id.toString();
+                        const text = `${authorUsername} made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non members`;
+                        Notification.create({
+                            authorUsername,
+                            authorProfilePicturePath,
+                            users: list.members
+                                .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                .map(m => m.userId),
+                            text,
+                            listId
+                        })
+                            .catch(error => console.log(error))
+                            .then(_ => {
+                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, text);
+                                io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
+                                response.json(list);
+                            });
+
+                    },
+                    error => console.log(error)
+                )
         }
     );
 }
@@ -343,7 +379,8 @@ function addMember(request, response) {
                             sendError(response, Error.RequestError);
                             return;
                         }
-                        const userId = user._id.toString();
+                        const newMemberUserId = user._id.toString();
+                        const newMemberUsername = user.username;
                         updateListProperty(
                             request,
                             response,
@@ -357,35 +394,51 @@ function addMember(request, response) {
                             { $push: { members: { userId: user._id } } },
                             { new: true, session },
                             (response, list) => {
-                                const listId = list._id.toString();
-                                const newMemberText = `You have been added to the the list "${ list.title }"`;
-                                const oldMembersText = `The list "${ list.title }" has a new member`;
-                                Notification.create({
-                                    users: [userId],
-                                    text: newMemberText,
-                                    listId
-                                })
-                                .catch(error => console.log(error))
-                                .then(_ => {
-                                    io.in(`user:${ userId }`).emit("listSelfAdded", listId, newMemberText);
-                                    io.in(`user:${ userId }`).emit("listSelfAddedReload", listId);
-                                })
-                                .then(_ => Notification.create({
-                                    users: list.members
-                                               .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                               .map(m => m.userId),
-                                    text: oldMembersText,
-                                    listId
-                                }))
-                                .catch(error => console.log(error))
-                                .then(_ => {
-                                    io.in(`list:${ listId }`)
-                                      .except(`user:${ request.session.userId }`)
-                                      .emit("listMemberAdded", listId, oldMembersText);
-                                    io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
-                                    io.in(`user:${ userId }`).socketsJoin(`list:${ listId }`);
-                                });
-                                response.json(list);
+                                User.findById(request.session.userId)
+                                    .exec()
+                                    .then(
+                                        user => {
+                                            const authorUsername = user.username;
+                                            const authorProfilePicturePath = user.profilePicturePath;
+                                            const listId = list._id.toString();
+                                            const newMemberText = `${authorUsername} added you to the the list "${ list.title }"`;
+                                            const oldMembersText = `${authorUsername} added the new member ${newMemberUsername} to the list "${ list.title }"`;
+                                            Notification.create({
+                                                authorUsername,
+                                                authorProfilePicturePath,
+                                                users: [newMemberUserId],
+                                                text: newMemberText,
+                                                listId
+                                            })
+                                                .catch(error => console.log(error))
+                                                .then(_ => {
+                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAdded", listId, newMemberText);
+                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAddedReload", listId);
+                                                })
+                                                .then(_ => Notification.create({
+                                                    authorUsername,
+                                                    authorProfilePicturePath,
+                                                    users: list.members
+                                                        .filter(m => m.userId !== null
+                                                                && m.userId.toString() !== request.session.userId
+                                                                && m.userId.toString() !== newMemberUserId)
+                                                        .map(m => m.userId),
+                                                    text: oldMembersText,
+                                                    listId
+                                                }))
+                                                .catch(error => console.log(error))
+                                                .then(_ => {
+                                                    io.in(`list:${ listId }`)
+                                                        .except(`user:${ request.session.userId }`)
+                                                        .emit("listMemberAdded", listId, oldMembersText);
+                                                    io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
+                                                    io.in(`user:${ newMemberUserId }`).socketsJoin(`list:${ listId }`);
+                                                });
+                                            response.json(list);
+
+                                        },
+                                        error => console.log(error)
+                                    )
                             }
                         );
                     })
@@ -409,8 +462,10 @@ function addMember(request, response) {
         (response, list) => {
             io.in(request.body.socketId).socketsJoin(`anon:${ anonymousId }`);
             const listId = list._id.toString();
-            const text = `The list "${ list.title }" has a new member`;
+            const text = `The ${request.body.username} joined the list "${ list.title }"`;
             Notification.create({
+                authorUsername: request.body.username,
+                authorProfilePicturePath: null,
                 users: list.members
                            .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
                            .map(m => m.userId),
@@ -467,42 +522,90 @@ function removeMember(request, response) {
                 sendError(response, Error.ResourceNotFound);
                 return;
             }
-            const listId = list._id.toString();
-            const memberIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId);
-            const userText = `You have been removed from the list "${ list.title }"`;
-            if (list.members[memberIndex].userId !== null) {
-                Notification.create({
-                    users: [list.members[memberIndex].userId],
-                    text: userText,
-                    listId
-                })
-                .catch(error => console.log(error))
-                .then(_ => {
-                    io.in(`user:${ list.members[memberIndex].userId }`).socketsLeave(`list:${ listId }`);
-                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemoved", listId, userText);
-                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemovedReload", listId);
-                });
-            } else {
-                io.in(`anon:${ list.members[memberIndex].anonymousId }`).emit("listSelfRemoved", userText, listId);
-                io.in(`anon:${ list.members[memberIndex].userId }`).emit("listSelfRemovedReload", listId);
-                io.in(`anon:${ list.members[memberIndex].anonymousId }`).disconnectSockets();
-            }
-            const text = `A member has left the list "${ list.title }"`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberRemoved", listId, text);
-                io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
-                const updatedList = JSON.parse(JSON.stringify(list));
-                updatedList.members.splice(memberIndex, 1);
-                response.json(updatedList);
-            });
+            User.findById(request.session.userId)
+                .exec()
+                .then(
+                    user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
+                        const listId = list._id.toString();
+
+                        const removedMemberUserId = list.members.filter(m => m._id.toString() === request.params.memberId)[0].userId
+
+                        User.findById(removedMemberUserId)
+                            .exec()
+                            .then(user => {
+                                const removedMemberUsername = user.username;
+                                // if the member didn't leave the list
+                                if (removedMemberUserId.toString() !== request.session.userId) {
+                                    // it the member removed by the list owner was a registered user
+                                    const memberRemovedByOwnerIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId);
+                                    const userText = `${authorUsername} removed you from the list "${ list.title }"`;
+                                    if (removedMemberUserId !== null) {
+                                        Notification.create({
+                                            authorUsername,
+                                            authorProfilePicturePath,
+                                            users: [removedMemberUserId],
+                                            text: userText,
+                                            listId
+                                        })
+                                            .catch(error => console.log(error))
+                                            .then(_ => {
+                                                io.in(`user:${ removedMemberUserId }`).socketsLeave(`list:${ listId }`);
+                                                io.in(`user:${ removedMemberUserId }`).emit("listSelfRemoved", listId, userText);
+                                                io.in(`user:${ removedMemberUserId }`).emit("listSelfRemovedReload", listId);
+                                            });
+
+                                        const removalText = `${authorUsername} removed the member ${removedMemberUsername} from the list "${ list.title }"`;
+                                        Notification.create({
+                                            authorUsername,
+                                            authorProfilePicturePath,
+                                            users: list.members
+                                                .filter(m => m.userId !== null
+                                                    && m.userId.toString() !== request.session.userId
+                                                    && m.userId.toString() !== removedMemberUserId.toString())
+                                                .map(m => m.userId),
+                                            text: removalText,
+                                            listId
+                                        })
+                                            .catch(error => console.log(error))
+                                            .then(_ => {
+                                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberRemoved", listId, removalText);
+                                                io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
+                                                const updatedList = JSON.parse(JSON.stringify(list));
+                                                updatedList.members.splice(memberRemovedByOwnerIndex, 1);
+                                                response.json(updatedList);
+                                            });
+                                    } else {
+                                        io.in(`anon:${ list.members[memberRemovedByOwnerIndex].anonymousId }`).emit("listSelfRemoved", userText, listId);
+                                        io.in(`anon:${ list.members[memberRemovedByOwnerIndex].userId }`).emit("listSelfRemovedReload", listId);
+                                        io.in(`anon:${ list.members[memberRemovedByOwnerIndex].anonymousId }`).disconnectSockets();
+                                    }
+                                } else {
+                                    const memberIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId && m.userId === request.session.userId);
+                                    const text = `The member ${removedMemberUsername} left the list "${ list.title }"`;
+                                    Notification.create({
+                                        authorUsername,
+                                        authorProfilePicturePath,
+                                        users: list.members
+                                            .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                            .map(m => m.userId),
+                                        text,
+                                        listId
+                                    })
+                                        .catch(error => console.log(error))
+                                        .then(_ => {
+                                            io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberRemoved", listId, text);
+                                            io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
+                                            const updatedList = JSON.parse(JSON.stringify(list));
+                                            updatedList.members.splice(memberIndex, 1);
+                                            response.json(updatedList);
+                                        });
+                                }
+                        })
+                    },
+                    error => console.log(error)
+                )
         },
         error => {
             console.log(error);
