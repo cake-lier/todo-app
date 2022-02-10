@@ -5,41 +5,33 @@ import {ManageItemDialog} from "./ManageItemDialog";
 import {AddAssigneeDialog} from "./AddAssigneeDialog";
 import axios from "axios";
 
-export function AssigneesDialog({itemId, listMembers, display, setDisplay, assignees, setAssignees}) {
+export function AssigneesDialog({ itemId, listMembers, display, setDisplay, assignees, setAssignees, displayError }) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
-
     const [addDialog, setAddDialog] = useState(false);
-
     const addAssignee = useCallback(member => {
         setAssignees(assignees.concat(member));
-        axios.post( // TODO post new assignee not working
-            "/items/" + itemId + "/assignees",
-            {
-                userId: member._id,
-                anonymousId: null,
-                isAnonymous: false,
-                count: 1 // TODO assignee count
-            }
-        ).then(assignee => {
-                console.log("posted new assignee");
-                setAssignees(assignees.concat(assignee.data));
-            },
-            // TODO error msg
+        axios.post(
+            `/items/${ itemId }/assignees`,
+            member.userId !== null
+            ? { userId: member.userId, isAnonymous: false, count: 1 }
+            : { anonymousId: member.anonymousId, isAnonymous: true, count: 1 }
+        ).then(
+            assignee => setAssignees(assignees.concat(assignee.data)),
+            error => displayError(error.response.data.error)
         );
     }, [assignees, setAssignees]);
-
     const removeAssignee = useCallback(assignee => {
         setAssignees(assignees.filter(i => i._id !== assignee._id));
         // TODO delete assignee
         axios.delete("/items/" + itemId + "/assignees/" + (assignee.userId !== null ? assignee.userId : assignee.anonymousId))
-            .then(r => {
+             .then(
+                 r => {
                     console.log("removed assignee");
                     console.log(assignees);
-                },
-                // TODO error msg
-            )
+                 },
+                 error => displayError(error.response.data.error)
+            );
     }, [assignees, setAssignees]);
-
     const assigneeTemplate = (member, icon, onClickAction) => {
         return (
             <div className="col-12 flex flex-row justify-content-between">
@@ -65,13 +57,7 @@ export function AssigneesDialog({itemId, listMembers, display, setDisplay, assig
             </div>
         )
     }
-
-    const assigneeTemplateCustom = (member) => {
-        return (
-            assigneeTemplate(member, "pi-times", () => removeAssignee(member))
-        )
-    }
-
+    const assigneeTemplateCustom = member => assigneeTemplate(member, "pi-times", () => removeAssignee(member));
     return (
         <>
             <ManageItemDialog
@@ -93,8 +79,8 @@ export function AssigneesDialog({itemId, listMembers, display, setDisplay, assig
                 assigneeTemplate={assigneeTemplate}
                 addAssignee={addAssignee}
                 display={addDialog}
-                setDisplay={setAddDialog} />
+                setDisplay={setAddDialog}
+            />
         </>
-    )
-
+    );
 }

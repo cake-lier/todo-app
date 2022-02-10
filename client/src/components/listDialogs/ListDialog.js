@@ -19,7 +19,15 @@ export default function ListDialog({ dialogName, display, renderFooter, title, c
     const getLabelErrorClass = name => isFormFieldValid(name) ? "" : "p-error";
     const getFieldErrorClass = name => isFormFieldValid(name) ? "" : "p-invalid";
     return (
-        <Dialog id="list-dialog" className="w-27rem m-3" visible={ display } footer={ renderFooter() } closable={ false } showHeader={ false }>
+        <Dialog
+            id="list-dialog"
+            className="w-27rem m-3"
+            visible={ display }
+            footer={ renderFooter() }
+            closable={ false }
+            showHeader={ false }
+            dismissableMask={ true }
+        >
             <div className="grid">
                 <div className="col-12 mt-3 flex justify-content-center">
                     <h1 className="text-2xl mb-2">{ dialogName }</h1>

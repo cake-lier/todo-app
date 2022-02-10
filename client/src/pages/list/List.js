@@ -15,7 +15,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
     const { id } = useParams();
     const [members, setMembers] = useState([]);
     const [title, setTitle] = useState("");
-    const getTitle = useCallback(() => {
+    const getHeader = useCallback(() => {
         axios.get(`/lists/${ id }`)
             .then(
                 list => {
@@ -29,13 +29,13 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                 error => displayError(error.response.data.error)
             );
     }, [id, setTitle, displayError]);
-    useEffect(getTitle, [getTitle]);
+    useEffect(getHeader, [getHeader]);
     const navigate = useNavigate();
     useEffect(() => {
         function handleUpdates(event, listId) {
             if (listId === id) {
-                if (event === "listTitleChangedReload") {
-                    getTitle();
+                if (new RegExp("^list(?:titleChanged|Member(?:Added|Removed))Reload$").test(event)) {
+                    getHeader();
                 } else if (new RegExp("^list(?:Deleted|SelfRemoved)Reload$").test(event)) {
                     navigate("/my-day");
                 }
@@ -43,7 +43,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [id, socket, getTitle, navigate]);
+    }, [id, socket, getHeader, navigate]);
     return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
@@ -64,7 +64,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
+                <ItemsContainer listId={ id } myDayItems={ null } socket={ socket } displayError={ displayError } />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}}>
                 <div className="mx-0 p-0 h-full flex-column flex-1 flex">
@@ -79,7 +79,7 @@ export default function List({ user, unsetUser, notifications, setNotifications,
                         socket={ socket }
                         displayError={ displayError }
                     />
-                    <ItemsContainer listId={ id } myDayItems={ null } displayError={ displayError } />
+                    <ItemsContainer listId={ id } myDayItems={ null } socket={ socket } displayError={ displayError } />
                 </div>
             </div>
         </div>

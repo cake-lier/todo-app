@@ -1,32 +1,30 @@
 import React, {useCallback, useRef, useState} from "react";
-import {Checkbox} from "primereact/checkbox";
-import {Button} from "primereact/button";
-import {Menu} from "primereact/menu";
-import { AvatarGroup } from 'primereact/avatargroup';
-import {DueDateDialog} from "./itemDialogs/DueDateDialog";
-import {SetReminderDialog} from "./itemDialogs/SetReminderDialog";
+import { Checkbox } from "primereact/checkbox";
+import { Button } from "primereact/button";
+import { Menu } from "primereact/menu";
+import EditDueDateDialog from "./itemDialogs/EditDueDateDialog";
+import EditReminderDateDialog from "./itemDialogs/EditReminderDateDialog";
 import {ItemTag} from "./ItemTag";
-import {EditItemDialog} from "./itemDialogs/EditItemDialog";
-import {DueDateTag} from "./DueDateTag";
+import EditItemDialog from "./itemDialogs/EditItemDialog";
 import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 import {EditTagDialog} from "./itemDialogs/EditTagDialog";
 import axios from "axios";
-import {Avatar} from "primereact/avatar";
+import { Avatar } from "primereact/avatar";
+import { Tag } from "primereact/tag";
 
 export function Item({ item, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
     const menu = useRef(null);
 
     // dialogs
-    const [displayCalendar1, setDisplayCalendar1] = useState(false);
-    const [displayCalendar2, setDisplayCalendar2] = useState(false);
+    const [displayEditDueDate, setDisplayEditDueDate] = useState(false);
+    const [displayEditReminderDate, setDisplayEditReminderDate] = useState(false);
     const [displayEditTag, setDisplayEditTag] = useState(false);
     const [displayEdit, setDisplayEdit] = useState(false);
     const [displayAssignees, setDisplayAssignees] = useState(false);
 
     // tags
     const [tags, setTags] = useState(item.tags);
-    const [dueDate, setDueDate] = useState(item.dueDate);
     const updateTags = useCallback(t => setTags(t), [setTags]);
     const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
 
@@ -56,9 +54,9 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
 
     const menuItems = [
         { label: 'Edit', icon: 'pi pi-pencil', command: () => { setDisplayEdit(true) } },
-        { label: 'Due date', icon: 'pi pi-calendar', command: () => { setDisplayCalendar1(true) } },
+        { label: 'Edit due date', icon: 'pi pi-calendar', command: () => { setDisplayEditDueDate(true) } },
+        { label: 'Edit reminder', icon: 'pi pi-bell', command: () => { setDisplayEditReminderDate(true) } },
         { label: 'Assign to', icon: 'pi pi-user-plus', command: () => { setDisplayAssignees(true) } },
-        { label: 'Add reminder', icon: 'pi pi-bell', command: () => { setDisplayCalendar2(true) } },
         { label: 'Edit tags', icon: 'pi pi-tag', command: () => { setDisplayEditTag(true) } },
         { label: 'Delete', icon: 'pi pi-trash', command: () => { deleteItem(item) } }
     ];
@@ -68,11 +66,12 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
             <div className="flex justify-content-between m-2">
                 <div>
                     <div className="field-checkbox m-1 mb-0">
-                        <Checkbox inputId={ item._id }
-                                  name="item"
-                                  value={ item }
-                                  onChange={ onCheckboxChecked }
-                                  checked={ !!item.completionDate }
+                        <Checkbox
+                            inputId={ item._id }
+                            name="item"
+                            value={ item }
+                            onChange={ onCheckboxChecked }
+                            checked={ !!item.completionDate }
                         />
                         <label htmlFor={ item._id }>{ item.title }</label>
                         <div className="flex align-items-center">
@@ -95,24 +94,43 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                                 />
                             )
                         }
-                        <DueDateTag dueDate={ dueDate } />
-                        <AvatarGroup>
+                        {
+                            item.dueDate
+                            ? <Tag className="flex m-1 p-tag-rounded" icon={ <i className="pi mr-1 pi-calendar" /> }>
+                                  { new Date(item.dueDate).toLocaleDateString("en-GB")}
+                              </Tag>
+                            : null
+                        }
+                        {
+                            item.reminderDate
+                            ? <Tag className="flex m-1 p-tag-rounded" icon={ <i className="pi mr-1 pi-bell" /> }>
+                                  { new Date(item.reminderDate).toLocaleString("en-GB").replace(/:[^:]*$/, "") }
+                              </Tag>
+                            : null
+                        }
                         {
                             assignees.map(assignee =>
-                                <Avatar
+                                <Tag
                                     key={ assignee._id }
-                                    size='small'
-                                    className={ 'p-avatar-circle avatar-assignee' + assignee._id }
-                                    image={
-                                        assignee.profilePicturePath
-                                        ? assignee.profilePicturePath
-                                        : "/static/images/default_profile_picture.jpg"
+                                    className="flex m-1 p-tag-rounded"
+                                    icon={
+                                        <Avatar
+                                            size="small"
+                                            className="p-avatar-circle"
+                                            image={
+                                                assignee.profilePicturePath
+                                                ? assignee.profilePicturePath
+                                                : "/static/images/default_profile_picture.jpg"
+                                            }
+                                            alt={ assignee.username + " profile picture" }
+                                            tooltip={ assignee.username }
+                                        />
                                     }
-                                    alt={ assignee.username + " profile picture" }
-                                />
+                                >
+                                    x{ assignee.count }
+                                </Tag>
                             )
                         }
-                        </AvatarGroup>
                     </div>
                 </div>
                 <Button
@@ -122,38 +140,45 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                 />
                 <Menu model={ menuItems } popup ref={ menu } />
             </div>
-            <DueDateDialog
-                itemId={item._id}
-                displayCalendar={displayCalendar1}
-                setDisplayCalendar={setDisplayCalendar1}
-                setDueDate={setDueDate}
+            <EditDueDateDialog
+                item={ item }
+                updateItem={ updateItem }
+                displayEditDueDate={ displayEditDueDate }
+                setDisplayEditDueDate={ setDisplayEditDueDate }
+                displayError={ displayError }
             />
-            <SetReminderDialog
-                itemId={item._id}
-                displayCalendar={displayCalendar2}
-                setDisplayCalendar={setDisplayCalendar2}
+            <EditReminderDateDialog
+                item={ item }
+                updateItem={ updateItem }
+                displayEditReminderDate={ displayEditReminderDate }
+                setDisplayEditReminderDate={ setDisplayEditReminderDate }
+                displayError={ displayError }
             />
             <EditTagDialog
-                itemId={item._id}
-                removeTag={removeTag}
-                tags={tags}
-                updateTags={updateTags}
-                display={displayEditTag}
-                setDisplay={setDisplayEditTag}
+                itemId={ item._id }
+                removeTag={ removeTag }
+                tags={ tags }
+                updateTags={ updateTags }
+                display={ displayEditTag }
+                setDisplay={ setDisplayEditTag }
+                displayError={ displayError }
             />
             <EditItemDialog
-                item={item}
-                updateItem={updateItem}
-                displayDialog={displayEdit}
-                setDisplayDialog={setDisplayEdit}
+                item={ item }
+                updateItem={ updateItem }
+                displayEdit={ displayEdit }
+                setDisplayEdit={ setDisplayEdit }
+                displayError={ displayError }
             />
             <AssigneesDialog
-                itemId={item._id}
-                display={displayAssignees}
-                setDisplay={setDisplayAssignees}
-                listMembers={listMembers}
-                assignees={assignees}
-                setAssignees={setAssignees}/>
+                itemId={ item._id }
+                display={ displayAssignees }
+                setDisplay={ setDisplayAssignees }
+                listMembers={ listMembers }
+                assignees={ assignees }
+                setAssignees={ setAssignees }
+                displayError={ displayError }
+            />
         </>
     );
 }

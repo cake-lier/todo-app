@@ -36,15 +36,15 @@ function initializeItemRoutes(app) {
     app.route("/items").get(controller.item.getUserItems);
     app.route("/items/:id").delete(controller.item.deleteItem);
     app.route("/items/:id/title").put(controller.item.updateTitle);
-    app.route("/items/:id/text").put(controller.item.updateText);
-    app.route("/items/:id/date").put(controller.item.updateDate);
+    app.route("/items/:id/dueDate").put(controller.item.updateDueDate);
+    app.route("/items/:id/reminderDate").put(controller.item.updateReminderDate);
     app.route("/items/:id/complete").put(controller.item.updateCompletion);
     app.route("/items/:id/tags").post(controller.item.addTags)
                                 .delete(controller.item.removeTags);
     app.route("/items/:id/count").put(controller.item.updateCount);
-    app.route("/items/:id/assignees").get(controller.item.getAssignees)
-                                     .post(controller.item.addAssignee);
-    app.route("/items/:id/assignees/:assigneeId").delete(controller.item.removeAssignee);
+    app.route("/items/:id/assignees").get(controller.item.getAssignees);
+    app.route("/items/:id/assignees/:assigneeId").put(controller.item.upsertAssignee)
+                                                 .delete(controller.item.removeAssignee);
     app.route("/items/:id/priority").put(controller.item.updatePriority);
 }
 

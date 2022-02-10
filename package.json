@@ -12,14 +12,12 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "connect-mongodb-session": "^3.1.1",
-    "create-react-app": "^5.0.0",
     "express": "^4.17.2",
     "express-session": "^1.17.2",
     "lodash": "^4.17.21",
     "mongoose": "^6.1.5",
     "node-schedule": "^2.1.0",
     "otp-generator": "^4.0.0",
-    "rrule": "^2.6.8",
     "run-rs": "^0.7.5",
     "socket.io": "^4.4.1",
     "uuid": "^8.3.2"

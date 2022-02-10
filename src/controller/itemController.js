@@ -6,7 +6,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
-const { scheduleNextReminder, scheduleForDate } = require("../utils/schedule");
+const {scheduleForDate } = require("../utils/schedule");
 
 function createItem(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {
@@ -292,65 +292,22 @@ function updateTitle(request, response) {
     );
 }
 
-function updateText(request, response) {
+function updateDueDate(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
         request,
         response,
-        request.body.text ? { $set: { text: request.body.text } } : { $unset: { text: "" } },
-        (list, item) => {
-            const listId = list._id.toString();
-            const text = `The item "${ item.title }" had its text changed`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTextChanged", listId, text);
-                io.in(`list:${ listId }`).emit("itemTextChangedReload", listId);
-                response.json(item);
-            });
-        },
-    );
-}
-
-function updateDate(request, response) {
-    if (!validateRequest(request, response, [], ["id"])) {
-        return;
-    }
-    if (request.body.dueDate !== undefined && request.body.reminderString !== undefined) {
-        sendError(response, Error.RequestError);
-    }
-    updateItemAtomicProperty(
-        request,
-        response,
-        request.body.dueDate === undefined && request.body.reminderString === undefined
-        ? { $set: { dueDate: "", reminderString: "" } }
-        : (request.body.dueDate === undefined
-           ? { $set: { reminderString: request.body.reminderString, dueDate: "" } }
-           : { $set: { dueDate: request.body.dueDate, reminderString: "" } }),
+        request.body.dueDate
+        ? { $set: { dueDate: new Date(request.body.dueDate) } }
+        : { $unset: { dueDate: "" } },
         (list, item) => {
             const listId = list._id.toString();
             const text =
-                request.body.dueDate !== undefined
-                ? `The item "${ item.title }" has now a due date, possible reminders have been cleared`
-                : (request.body.reminderString !== undefined
-                   ? `The item "${ item.title }" has now a reminder set, possible due dates have been cleared`
-                   : `The item "${ item.title }" has now neither a due date nor a reminder`);
-            const itemId = item._id.toString();
-            jobs[itemId]?.cancel();
-            if (request.body.dueDate !== undefined) {
-                scheduleForDate(itemId, request.body.dueDate);
-            }
-            if (request.body.reminderString !== undefined) {
-                scheduleNextReminder(listId, itemId, request.body.reminderString);
-            }
+                request.body.dueDate
+                ? `The item "${ item.title }" has now a due date.`
+                : `The item "${ item.title }" has no longer a due date.`
             Notification.create({
                 users: list.members
                            .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
@@ -360,8 +317,48 @@ function updateDate(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemDateChanged", listId, text);
-                io.in(`list:${ listId }`).emit("itemDateChangedReload", listId);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemDueDateChanged", listId, text);
+                io.in(`list:${ listId }`).emit("itemDueDateChangedReload", listId);
+                response.json(item);
+            });
+        }
+    );
+}
+
+function updateReminderDate(request, response) {
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    updateItemAtomicProperty(
+        request,
+        response,
+        request.body.reminderDate
+        ? { $set: { reminderDate: new Date(request.body.reminderDate) } }
+        : { $unset: { reminderDate: "" } },
+        (list, item) => {
+            const listId = list._id.toString();
+            const text =
+                request.body.reminderDate
+                ? `The item "${ item.title }" has now a reminder set.`
+                : `The item "${ item.title }" has no longer a reminder set.`
+            const itemId = item._id.toString();
+            jobs[itemId]?.cancel();
+            if (request.body.reminderDate) {
+                scheduleForDate(listId, itemId, new Date(request.body.reminderDate));
+            }
+            Notification.create({
+                users: list.members
+                    .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                    .map(m => m.userId),
+                text,
+                listId
+            })
+            .catch(error => console.log(error))
+            .then(_ => {
+                io.in(`list:${ listId }`)
+                  .except(`user:${ request.session.userId }`)
+                  .emit("itemReminderDateChanged", listId, text);
+                io.in(`list:${ listId }`).emit("itemReminderDateChangedReload", listId);
                 response.json(item);
             });
         }
@@ -375,7 +372,7 @@ function updateCompletion(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        request.body.isComplete ? { $set: { completionDate: Date.now() } } : { $set: { completionDate: "" } },
+        request.body.isComplete ? { $set: { completionDate: new Date() } } : { $set: { completionDate: "" } },
         (list, item) => {
             const listId = list._id.toString();
             const text = `The item "${item.title}" is now set as ${request.body.isComplete ? "" : "in"}complete`;
@@ -507,9 +504,9 @@ function updateCount(request, response) {
     );
 }
 
-function addAssignee(request, response) {
+function upsertAssignee(request, response) {
     const userId = request.session.userId;
-    if (!validateRequest(request, response, ["userId", "isAnonymous", "count"], ["id"])) {
+    if (!validateRequest(request, response, ["count"], ["id", "assigneeId"])) {
         return;
     }
     if (userId === undefined && !request.body.anonymousId) {
@@ -528,17 +525,13 @@ function addAssignee(request, response) {
                             $and: [
                                 {
                                     members: {
-                                        $elemMatch: userId !== undefined ? { userId } : { anonymousId: request.body.anonymousId }
+                                        $elemMatch:
+                                            userId !== undefined
+                                            ? { userId: mongoose.Types.ObjectId(userId) }
+                                            : { anonymousId: request.body.anonymousId }
                                     },
                                 },
-                                {
-                                    members: {
-                                        $elemMatch:
-                                            request.body.isAnonymous
-                                            ? { anonymousId: request.body.userId }
-                                            : { userId: request.body.userId }
-                                    }
-                                }
+                                { members: { $elemMatch: { _id: mongoose.Types.ObjectId(request.body.memberId) } } }
                             ]
                         }
                     }
@@ -554,20 +547,22 @@ function addAssignee(request, response) {
                 return Item.findById(request.params.id, undefined, { session })
                            .exec()
                            .then(item => {
-                               if (item === null || item.remainingCount < request.body.count) {
+                               if (item === null) {
                                    sendError(response, Error.ResourceNotFound);
+                                   return Promise.resolve();
+                               }
+                               const removedCount =
+                                   request.body.count
+                                   - (item.assignees.filter(a => a._id.toString() === request.body.memberId)[0]?.count ?? 0);
+                               if (item.remainingCount < removedCount) {
+                                   sendError(response, Error.GeneralError);
                                    return Promise.resolve();
                                }
                                return Item.findByIdAndUpdate(
                                    request.params.id,
                                    {
-                                       remainingCount: item.remainingCount - request.body.count,
-                                       $push: {
-                                           assignees:
-                                               request.body.isAnonymous
-                                               ? { anonymousId: request.body.userId, count: request.body.count }
-                                               : { userId: request.body.userId, count: request.body.count }
-                                       }
+                                       remainingCount: item.remainingCount - removedCount,
+                                       $push: { assignees: { memberId: request.body.memberId, count: request.body.count } }
                                    },
                                    { session, runValidators: true, new: true, context: "query" }
                                )
@@ -735,13 +730,13 @@ module.exports = {
     getUserItems,
     getListItems,
     updateTitle,
-    updateText,
-    updateDate,
+    updateDueDate,
+    updateReminderDate,
     updateCompletion,
     addTags,
     removeTags,
     updateCount,
-    addAssignee,
+    upsertAssignee,
     removeAssignee,
     getAssignees,
     updatePriority,

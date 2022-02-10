@@ -7,7 +7,7 @@ import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import EmptyPlaceholder from "../../EmptyPlaceholder";
 
-export function ItemsContainer({ listId, myDayItems, displayError }) {
+export function ItemsContainer({ listId, myDayItems, socket, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
     const [listMembers, setListMembers] = useState([]);
@@ -16,11 +16,11 @@ export function ItemsContainer({ listId, myDayItems, displayError }) {
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
     // init items from database
-    useEffect(() => {
+    const getItems = useCallback(() => {
         if (listId) {
             axios.get(`/lists/${ listId }/items/`)
-                 .then(
-                     items => {
+                .then(
+                    items => {
                         setItems(items.data);
                         setLoading(false);
                     },
@@ -32,11 +32,25 @@ export function ItemsContainer({ listId, myDayItems, displayError }) {
         }
         axios.get(`/lists/${ listId }/members`)
              .then(
-                  members => setListMembers(members.data),
-                  error => displayError(error.response.data.error)
+                 members => setListMembers(members.data),
+                 error => displayError(error.response.data.error)
              );
-    }, [listId, myDayItems, setItems, setListMembers, displayError]);
-
+    }, [displayError, listId, myDayItems]);
+    useEffect(getItems, [getItems]);
+    useEffect(() => {
+        function handleUpdates(event, eventListId) {
+            if (listId === eventListId
+                && new RegExp(
+                       "^item(?:Created|(?:Title|DueDate|Reminder|Completion|Count)Changed|Tags(?:Added|Removed)"
+                       + "|Assignee(?:Added|Removed)|Deleted)Reload$"
+                   ).test(event)
+            ) {
+                getItems();
+            }
+        }
+        socket.onAny(handleUpdates);
+        return () => socket.offAny(handleUpdates);
+    }, [socket, listId, getItems]);
     // delete item
     const deleteItem = (item) => {
         axios.delete("/items/" + item._id)
@@ -45,9 +59,7 @@ export function ItemsContainer({ listId, myDayItems, displayError }) {
                  error => displayError(error.response.data.error)
              );
     }
-
     const [displayDialog, setDisplayDialog] = useState(false);
-
     return (
         <>
             <div className="grid flex-column flex-grow-1">
@@ -60,7 +72,10 @@ export function ItemsContainer({ listId, myDayItems, displayError }) {
                 {
                     loading
                     ? <ProgressSpinner
-                          className={"col-12 flex flex-grow-1 flex-column justify-content-center align-content-center " + (loading? null : "hidden")}
+                          className={
+                            "col-12 flex flex-grow-1 flex-column justify-content-center align-content-center "
+                            + (loading ? null : "hidden")
+                          }
                           style={{width: '50px', height: '50px'}}
                           strokeWidth="2"
                           fill="var(--surface-ground)"
@@ -89,11 +104,12 @@ export function ItemsContainer({ listId, myDayItems, displayError }) {
                 }
             </div>
             <CreateItemDialog
-                listId={listId}
-                appendItem={appendItem}
-                displayDialog={displayDialog}
-                setDisplayDialog={setDisplayDialog}
-                />
+                listId={ listId }
+                appendItem={ appendItem }
+                displayDialog={ displayDialog }
+                setDisplayDialog={ setDisplayDialog }
+                displayError={ displayError }
+            />
         </>
     )
 }
