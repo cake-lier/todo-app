@@ -35,7 +35,7 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
             <div className="grid flex flex-row align-items-center">
                 <h1>Members</h1>
                 <Button
-                    className={"ml-3 p-1" + (ownership ? "" : " hidden")}
+                    className={"ml-3 p-2" + (ownership ? "" : " hidden")}
                     id="create-button"
                     label="Add"
                     icon="pi pi-plus"

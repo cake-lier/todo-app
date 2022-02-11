@@ -196,9 +196,9 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background: #555;
 }
 
-.black-overlay {
-    background-color: black;
-    opacity: 50%;
+.p-avatar img{
+    width: inherit;
+    height: 100%;
 }
 
 @keyframes p-progress-spinner-color {

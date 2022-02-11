@@ -12,6 +12,7 @@ import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
 import {EditTagDialog} from "./itemDialogs/EditTagDialog";
 import axios from "axios";
 import {Avatar} from "primereact/avatar";
+import "./Item.scss"
 
 export function Item({ item, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
@@ -46,7 +47,6 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
     };
 
     const onCheckboxChecked = e => {
-        console.log(e);
         axios.put(`/items/${ e.value._id }/complete`, { isComplete: e.checked })
             .then(
                 item => updateItem(item.data),
@@ -60,29 +60,30 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
         { label: 'Assign to', icon: 'pi pi-user-plus', command: () => { setDisplayAssignees(true) } },
         { label: 'Add reminder', icon: 'pi pi-bell', command: () => { setDisplayCalendar2(true) } },
         { label: 'Edit tags', icon: 'pi pi-tag', command: () => { setDisplayEditTag(true) } },
-        { label: 'Delete', icon: 'pi pi-trash', command: () => { deleteItem(item) } }
+        { label: 'Delete', icon: 'pi pi-trash',  className: "red-color ", command: () => { deleteItem(item) } }
     ];
 
     return (
         <>
-            <div className="flex justify-content-between m-2">
+            <div className="flex justify-content-between m-2 mx-3">
                 <div>
                     <div className="field-checkbox m-1 mb-0">
-                        <Checkbox inputId={ item._id }
-                                  name="item"
-                                  value={ item }
-                                  onChange={ onCheckboxChecked }
-                                  checked={ !!item.completionDate }
+                        <Checkbox
+                            inputId={ item._id }
+                            name="item"
+                            value={ item }
+                            onChange={ onCheckboxChecked }
+                            checked={ !!item.completionDate }
                         />
-                        <label htmlFor={ item._id }>{ item.title }</label>
+                        <label className="text-xl" htmlFor={ item._id }>{ item.title }</label>
                         <div className="flex align-items-center">
                             <p className="count-items flex m-1 text-xl" style={{ color: "#E61950" }}>x{ item.count }</p>
                         </div>
-                        <span>
-                            <i className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2" } onClick={ togglePriority } />
+                        <span className={(priority ? "priority-star-fill" : "priority-star")}>
+                            <i className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 text-xl cursor-pointer" } onClick={ togglePriority } />
                         </span>
                     </div>
-                    <div className="flex align-items-center flex-wrap pl-4">
+                    <div className="flex align-items-center flex-wrap pl-5">
                         {
                             tags.map(tag =>
                                 <ItemTag

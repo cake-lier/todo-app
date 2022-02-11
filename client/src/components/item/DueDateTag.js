@@ -10,7 +10,8 @@ export function DueDateTag({dueDate}){
         let date = toDayMonth(new Date(dueDate));
 
         return (
-            <Tag className="flex m-1 p-tag-rounded"
+            <Tag className="flex text-base font-normal m-1 p-2 p-tag-rounded"
+                 style={{border: "1px solid rgb(56, 55, 61, 0.3)"}}
                  icon={<i key={date} className={"pi mr-1 pi-calendar" } />}
             >
                 {date}

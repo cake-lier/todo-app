@@ -70,7 +70,6 @@ export default function MyDayItem({ socket, displayError }) {
             </div>
         )
     }
-    console.log(loading)
     return (
         <div id="my-day-items"
              className={ "card flex flex-grow-1 flex-column "

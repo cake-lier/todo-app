@@ -51,7 +51,7 @@ function createItem(request, response) {
                                 const authorUsername = user.username;
                                 const authorProfilePicturePath = user.profilePicturePath;
                                 const listId = list._id.toString();
-                                const text = `${authorUsername} created the new item "${ item.title }`;
+                                const text = ` created the new item "${ item.title }"`;
                                 Notification.create({
                                     authorUsername,
                                     authorProfilePicturePath,
@@ -289,7 +289,7 @@ function updateTitle(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} changed the title of the item "${ item.title }" to "${ request.body.title }"`;
+                        const text = ` changed the title of the item "${ item.title }" to "${ request.body.title }"`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -332,7 +332,7 @@ function updateText(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} changed the text of the item "${ item.title }"`;
+                        const text = ` changed the text of the item "${ item.title }"`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -382,10 +382,10 @@ function updateDate(request, response) {
                         const listId = list._id.toString();
                         const text =
                             request.body.dueDate !== undefined
-                                ? `${authorUsername} set a due date to the item "${ item.title }"; possible reminders have been cleared`
+                                ? ` set a due date to the item "${ item.title }"; possible reminders have been cleared`
                                 : (request.body.reminderString !== undefined
-                                    ? `${authorUsername} set a reminder set to the item "${ item.title }"; possible due dates have been cleared`
-                                    : `${authorUsername} removed any due date or reminder from the item "${ item.title }"`);
+                                    ? ` set a reminder set to the item "${ item.title }"; possible due dates have been cleared`
+                                    : ` removed any due date or reminder from the item "${ item.title }"`);
                         const itemId = item._id.toString();
                         jobs[itemId]?.cancel();
                         if (request.body.dueDate !== undefined) {
@@ -434,7 +434,7 @@ function updateCompletion(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} set the item "${item.title}" as ${request.body.isComplete ? "" : "in"}complete`;
+                        const text = ` set the item "${item.title}" as ${request.body.isComplete ? "" : "in"}complete`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -475,7 +475,7 @@ function addTags(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} added some tags to the item "${item.title}"`;
+                        const text = ` added some tags to the item "${item.title}"`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -516,7 +516,7 @@ function removeTags(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} removed some tags from the item "${item.title}"`;
+                        const text = ` removed some tags from the item "${item.title}"`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -578,7 +578,7 @@ function updateCount(request, response) {
                                         const authorUsername = user.username;
                                         const authorProfilePicturePath = user.profilePicturePath;
                                         const listId = list._id.toString();
-                                        const text = `${authorUsername} changed the count of the item "${item.title}"`;
+                                        const text = ` changed the count of the item "${item.title}"`;
                                         Notification.create({
                                             authorUsername,
                                             authorProfilePicturePath,
@@ -684,7 +684,7 @@ function addAssignee(request, response) {
                                                    const authorUsername = user.username;
                                                    const authorProfilePicturePath = user.profilePicturePath;
                                                    const listId = lists[0]._id.toString();
-                                                   const text = `${authorUsername} added an assignee to the item "${item.title}"`;
+                                                   const text = ` added an assignee to the item "${item.title}"`;
                                                    Notification.create({
                                                        authorUsername,
                                                        authorProfilePicturePath,
@@ -761,7 +761,7 @@ function removeAssignee(request, response) {
                                     const authorUsername = user.username;
                                     const authorProfilePicturePath = user.profilePicturePath;
                                     const listId = list._id.toString();
-                                    const text = `${authorUsername} removed an assignee from the item "${ item.title }"`;
+                                    const text = ` removed an assignee from the item "${ item.title }"`;
                                     Notification.create({
                                         authorUsername,
                                         authorProfilePicturePath,
@@ -813,7 +813,7 @@ function deleteItem(request, response) {
                                     const authorProfilePicturePath = user.profilePicturePath;
                                     jobs[item._id.toString()]?.cancel();
                                     const listId = list._id.toString();
-                                    const text = `${authorUsername} deleted the item "${item.title}"`;
+                                    const text = ` deleted the item "${item.title}"`;
                                     Notification.create({
                                         authorUsername,
                                         authorProfilePicturePath,
@@ -858,7 +858,7 @@ function updatePriority(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} changed the priority of the item "${ item.title }"`;
+                        const text = ` changed the priority of the item "${ item.title }"`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,

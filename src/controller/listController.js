@@ -274,7 +274,7 @@ function updateTitle(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} changed the title of the list "${ list.title }" to "${ request.body.title }"`;
+                        const text = ` changed the title of the list "${ list.title }" to "${ request.body.title }"`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -319,7 +319,7 @@ function updateVisibility(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = `${authorUsername} made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non members`;
+                        const text = ` made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non members`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -401,8 +401,8 @@ function addMember(request, response) {
                                             const authorUsername = user.username;
                                             const authorProfilePicturePath = user.profilePicturePath;
                                             const listId = list._id.toString();
-                                            const newMemberText = `${authorUsername} added you to the the list "${ list.title }"`;
-                                            const oldMembersText = `${authorUsername} added the new member ${newMemberUsername} to the list "${ list.title }"`;
+                                            const newMemberText = ` added you to the the list "${ list.title }"`;
+                                            const oldMembersText = ` added the new member ${newMemberUsername} to the list "${ list.title }"`;
                                             Notification.create({
                                                 authorUsername,
                                                 authorProfilePicturePath,
@@ -462,7 +462,7 @@ function addMember(request, response) {
         (response, list) => {
             io.in(request.body.socketId).socketsJoin(`anon:${ anonymousId }`);
             const listId = list._id.toString();
-            const text = `The ${request.body.username} joined the list "${ list.title }"`;
+            const text = ` joined the list "${ list.title }"`;
             Notification.create({
                 authorUsername: request.body.username,
                 authorProfilePicturePath: null,
@@ -540,7 +540,7 @@ function removeMember(request, response) {
                                 if (removedMemberUserId.toString() !== request.session.userId) {
                                     // it the member removed by the list owner was a registered user
                                     const memberRemovedByOwnerIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId);
-                                    const userText = `${authorUsername} removed you from the list "${ list.title }"`;
+                                    const userText = ` removed you from the list "${ list.title }"`;
                                     if (removedMemberUserId !== null) {
                                         Notification.create({
                                             authorUsername,
@@ -556,7 +556,7 @@ function removeMember(request, response) {
                                                 io.in(`user:${ removedMemberUserId }`).emit("listSelfRemovedReload", listId);
                                             });
 
-                                        const removalText = `${authorUsername} removed the member ${removedMemberUsername} from the list "${ list.title }"`;
+                                        const removalText = ` removed the member ${removedMemberUsername} from the list "${ list.title }"`;
                                         Notification.create({
                                             authorUsername,
                                             authorProfilePicturePath,
@@ -583,7 +583,7 @@ function removeMember(request, response) {
                                     }
                                 } else {
                                     const memberIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId && m.userId === request.session.userId);
-                                    const text = `The member ${removedMemberUsername} left the list "${ list.title }"`;
+                                    const text = ` left the list "${ list.title }"`;
                                     Notification.create({
                                         authorUsername,
                                         authorProfilePicturePath,

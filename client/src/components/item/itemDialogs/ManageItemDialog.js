@@ -8,7 +8,7 @@ export function ManageItemDialog(props){
             <div className="grid flex flex-row align-items-center">
                 <h1>{props.title}</h1>
                 <Button
-                    className={"ml-3 p-1"}
+                    className={"ml-3 p-2"}
                     id="create-button"
                     label="Add"
                     icon="pi pi-plus"
