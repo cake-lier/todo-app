@@ -6,7 +6,6 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import momentPlugin from "@fullcalendar/moment";
-import rrulePlugin from "@fullcalendar/rrule";
 import axios from "axios";
 import "./Calendar.scss";
 
@@ -20,7 +19,7 @@ export default function Calendar(props) {
     const updateEvents = useCallback(() => {
         axios.get("/items")
              .then(
-                 items => setEvents(items.data.filter(item => item.dueDate !== null || item.reminderString !== null).map(item => {
+                 items => setEvents(items.data.filter(item => item.dueDate !== null || item.reminderDate !== null).map(item => {
                      if (item.dueDate !== null) {
                          return {
                              id: item._id,
@@ -35,10 +34,9 @@ export default function Calendar(props) {
                      return {
                          id: item._id,
                          title: item.completionDate === null ? item.title : "\u{2611} " + item.title,
-                         allDay: !item.reminderString.includes("FREQ=HOURLY"),
                          backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
                          borderColor: item.completionDate === null ? "#E61950" : "#555661",
-                         rrule: item.reminderString,
+                         start: item.reminderDate,
                          url: "/lists/" + item.listId
                      };
                  })),
@@ -50,7 +48,7 @@ export default function Calendar(props) {
         function handleUpdates(event) {
             if (new RegExp(
                     "/^(?:list(?:Deleted|Self(?:Added|Removed))|"
-                    + "item(?:Created|(?:Title|Date|Completion)Changed|Deleted))Reload$/"
+                    + "item(?:Created|(?:Title|DueDate|Reminder|Completion)Changed|Deleted))Reload$/"
                 ).test(event)) {
                 updateEvents();
             }
@@ -84,7 +82,7 @@ export default function Calendar(props) {
                 <div className="grid overflow-y-auto flex flex-1">
                     <div className="col-1 md:mx-5 lg:mx-8 mt-3 flex flex-1">
                         <FullCalendar
-                            plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
+                            plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin ] }
                             buttonText={ {
                                 today: "Today",
                                 month: "Month",
@@ -147,7 +145,7 @@ export default function Calendar(props) {
                     <div className="grid">
                         <div className="col-12 h-screen flex align-items-stretch">
                             <FullCalendar
-                                plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin, rrulePlugin ] }
+                                plugins={ [ dayGridPlugin, interactionPlugin, momentPlugin ] }
                                 buttonText={ {
                                     today: "Today",
                                     month: "Month",

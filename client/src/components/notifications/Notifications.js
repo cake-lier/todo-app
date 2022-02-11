@@ -14,19 +14,24 @@ export default function Notifications({ notifications, setNotifications, socket,
     const toast = useRef(null);
     const panel = useRef(null);
     useEffect(() => {
-        function handleUpdates(event) {
-            if (event.toString().match(`^[list|item].*(?<!Reload)$`)) {
+        function handleUpdates(event, listId, text) {
+            if ((/^(?:list|item)/.test(event) && !/Reload$/.test(event)) || /^reminder|achievement$/.test(event)) {
                 axios.get("/users/me/notifications")
                      .then(
                          notifications => {
                              setNotifications(notifications.data);
-                             if (notificationsEnabled
-                                 && notifications.data.length > 0
-                                 && !(disabledNotificationsLists.includes(notifications.data[notifications.data.length - 1].listId))) {
-                                 const lastNotification = notifications.data[notifications.data.length - 1]
+                             // if (notificationsEnabled
+                             //     && notifications.data.length > 0
+                             //     && !(disabledNotificationsLists.includes(notifications.data[notifications.data.length - 1].listId))) {
+                             //     const lastNotification = notifications.data[notifications.data.length - 1]
+                             //     toast.current.show({
+                             //         severity: 'info',
+                             //         detail: `${lastNotification.authorUsername} ${lastNotification.text}`,
+
+                             if (notificationsEnabled && !(disabledNotificationsLists.includes(listId))) {
                                  toast.current.show({
                                      severity: 'info',
-                                     detail: `${lastNotification.authorUsername} ${lastNotification.text}`,
+                                     detail: text,
                                      closable: false,
                                      life: 2000
                                  });

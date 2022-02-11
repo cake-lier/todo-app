@@ -1,15 +1,22 @@
-import {Tag} from "primereact/tag";
+import { Chip } from "primereact/chip";
+import axios from "axios";
 
-export function ItemTag({text, colorIndex}){
+export default function ItemTag({ itemId, tag, removeTag, displayError }){
     const colors = ["red-list", "purple-list", "blue-list", "green-list", "yellow-list"];
-
-
+    const onRemove = () => {
+        axios.delete(`/items/${ itemId }/tags/${ tag._id }`)
+             .then(
+                 _ => removeTag(tag),
+                 error => displayError(error.response.data.error)
+             );
+    };
     return (
-        <Tag className={"flex text-base font-normal m-1 p-2 p-tag-rounded " + (colors[colorIndex])}
-             style={{border: "1px solid rgb(56, 55, 61, 0.3)"}}
-             icon={<i className={"pi mr-1 pi-circle-on " + (colors[colorIndex]) } />}
-        >
-            {text}
-        </Tag>
-    )
+        <Chip
+            className="flex text-base font-normal m-1 p-2 p-tag-rounded"
+            label={ tag.title }
+            icon={ <i key={ 0 } className={"pi mr-1 pi-circle-on " + (colors[tag.colorIndex]) } /> }
+            removable
+            onRemove={ onRemove }
+        />
+    );
 }

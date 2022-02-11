@@ -6,7 +6,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
-const { scheduleNextReminder, scheduleForDate } = require("../utils/schedule");
+const {scheduleForDate } = require("../utils/schedule");
 
 function createItem(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {
@@ -165,7 +165,7 @@ function getAssignees(request, response) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
-                return Item.findById(request.params.id, { session })
+                return Item.findById(request.params.id, undefined, { session })
                            .exec()
                            .then(item => {
                                if (item === null) {
@@ -173,7 +173,7 @@ function getAssignees(request, response) {
                                    return Promise.resolve();
                                }
                                return Promise.all(item.assignees.map(assignee => {
-                                   if (assignee.anonymousId !== null) {
+                                   if (assignee.anonymousId) {
                                        return Promise.resolve({
                                                _id: assignee._id,
                                                username: lists[0].members
@@ -316,62 +316,16 @@ function updateTitle(request, response) {
     );
 }
 
-function updateText(request, response) {
+function updateDueDate(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
         request,
         response,
-        request.body.text ? { $set: { text: request.body.text } } : { $unset: { text: "" } },
-        (list, item) => {
-            User.findById(request.session.userId)
-                .exec()
-                .then(
-                    user => {
-                        const authorUsername = user.username;
-                        const authorProfilePicturePath = user.profilePicturePath;
-                        const listId = list._id.toString();
-                        const text = ` changed the text of the item "${ item.title }"`;
-                        Notification.create({
-                            authorUsername,
-                            authorProfilePicturePath,
-                            users: list.members
-                                .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                .map(m => m.userId),
-                            text,
-                            listId,
-                            listTitle: list.title
-                        })
-                            .catch(error => console.log(error))
-                            .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTextChanged", listId, text);
-                                io.in(`list:${ listId }`).emit("itemTextChangedReload", listId);
-                                response.json(item);
-                            });
-
-                    },
-                    error => console.log(error)
-                )
-        },
-    );
-}
-
-function updateDate(request, response) {
-    if (!validateRequest(request, response, [], ["id"])) {
-        return;
-    }
-    if (request.body.dueDate !== undefined && request.body.reminderString !== undefined) {
-        sendError(response, Error.RequestError);
-    }
-    updateItemAtomicProperty(
-        request,
-        response,
-        request.body.dueDate === undefined && request.body.reminderString === undefined
-        ? { $set: { dueDate: "", reminderString: "" } }
-        : (request.body.dueDate === undefined
-           ? { $set: { reminderString: request.body.reminderString, dueDate: "" } }
-           : { $set: { dueDate: request.body.dueDate, reminderString: "" } }),
+        request.body.dueDate
+        ? { $set: { dueDate: new Date(request.body.dueDate) } }
+        : { $unset: { dueDate: "" } },
         (list, item) => {
             User.findById(request.session.userId)
                 .exec()
@@ -381,36 +335,80 @@ function updateDate(request, response) {
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
                         const text =
-                            request.body.dueDate !== undefined
-                                ? ` set a due date to the item "${ item.title }"; possible reminders have been cleared`
-                                : (request.body.reminderString !== undefined
-                                    ? ` set a reminder set to the item "${ item.title }"; possible due dates have been cleared`
-                                    : ` removed any due date or reminder from the item "${ item.title }"`);
+                            request.body.dueDate
+                            ? ` set a due date to the item "${ item.title }"`
+                            : ` removed a due date from the item "${ item.title }"`;
                         const itemId = item._id.toString();
                         jobs[itemId]?.cancel();
-                        if (request.body.dueDate !== undefined) {
-                            scheduleForDate(itemId, request.body.dueDate);
-                        }
-                        if (request.body.reminderString !== undefined) {
-                            scheduleNextReminder(listId, itemId, request.body.reminderString);
+                        Notification.create({
+                            authorUsername,
+                            authorProfilePicturePath,
+                            users: list.members
+                                       .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                       .map(m => m.userId),
+                            text,
+                            listId,
+                            listTitle: list.title
+                        })
+                        .catch(error => console.log(error))
+                        .then(_ => {
+                            io.in(`list:${ listId }`)
+                              .except(`user:${ request.session.userId }`)
+                              .emit("itemDueDateChanged", listId, text);
+                            io.in(`list:${ listId }`).emit("itemDueDateChangedReload", listId);
+                            response.json(item);
+                        });
+                    },
+                    error => console.log(error)
+                )
+        }
+    );
+}
+
+function updateReminderDate(request, response) {
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    updateItemAtomicProperty(
+        request,
+        response,
+        request.body.reminderDate
+        ? { $set: { reminderDate: new Date(request.body.reminderDate) } }
+        : { $unset: { reminderDate: "" } },
+        (list, item) => {
+            User.findById(request.session.userId)
+                .exec()
+                .then(
+                    user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
+                        const listId = list._id.toString();
+                        const text = request.body.reminderString
+                            ? ` set a reminder set to the item "${ item.title }"`
+                            : ` removed a reminder from the item "${ item.title }"`;
+                        const itemId = item._id.toString();
+                        jobs[itemId]?.cancel();
+                        if (request.body.reminderString) {
+                            scheduleForDate(listId, itemId, new Date(request.body.reminderString));
                         }
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
                             users: list.members
-                                .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                .map(m => m.userId),
+                                       .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                       .map(m => m.userId),
                             text,
                             listId,
                             listTitle: list.title
                         })
-                            .catch(error => console.log(error))
-                            .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemDateChanged", listId, text);
-                                io.in(`list:${ listId }`).emit("itemDateChangedReload", listId);
-                                response.json(item);
-                            });
-
+                        .catch(error => console.log(error))
+                        .then(_ => {
+                            io.in(`list:${ listId }`)
+                              .except(`user:${ request.session.userId }`)
+                              .emit("itemReminderDateChanged", listId, text);
+                            io.in(`list:${ listId }`).emit("itemReminderDateChangedReload", listId);
+                            response.json(item);
+                        });
                     },
                     error => console.log(error)
                 )
@@ -425,7 +423,7 @@ function updateCompletion(request, response) {
     updateItemAtomicProperty(
         request,
         response,
-        request.body.isComplete ? { $set: { completionDate: Date.now() } } : { $set: { completionDate: "" } },
+        request.body.isComplete ? { $set: { completionDate: new Date() } } : { $set: { completionDate: "" } },
         (list, item) => {
             User.findById(request.session.userId)
                 .exec()
@@ -458,15 +456,14 @@ function updateCompletion(request, response) {
     );
 }
 
-function addTags(request, response) {
-    if (!validateRequest(request, response, [], ["id"])) {
+function addTag(request, response) {
+    if (!validateRequest(request, response, ["title", "colorIndex"], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
         request,
         response,
-        { $addToSet: { tags: { $each: request.body.title ? [{title: request.body.title, colorIndex: request.body.colorIndex}] : [] } } },
-        //{$push: {tags: {text: request.body.title, colorIndex: request.body.colorIndex}}},
+        { $push: { tags: { title: request.body.title, colorIndex: request.body.colorIndex } } },
         (list, item) => {
             User.findById(request.session.userId)
                 .exec()
@@ -500,14 +497,14 @@ function addTags(request, response) {
     );
 }
 
-function removeTags(request, response) {
-    if (!validateRequest(request, response, [], ["id"])) {
+function removeTag(request, response) {
+    if (!validateRequest(request, response, [], ["id", "tagId"])) {
         return;
     }
     updateItemAtomicProperty(
         request,
         response,
-        { $pullAll: { tags: request.body.tags ? request.body.tags : [] } },
+        { $pull: { tags: { _id: mongoose.Types.ObjectId(request.params.tagId) } } },
         (list, item) => {
             User.findById(request.session.userId)
                 .exec()
@@ -533,7 +530,6 @@ function removeTags(request, response) {
                                 io.in(`list:${ listId }`).emit("itemTagsRemovedReload", listId);
                                 response.json(item);
                             });
-
                     },
                     error => console.log(error)
                 )
@@ -608,9 +604,9 @@ function updateCount(request, response) {
     );
 }
 
-function addAssignee(request, response) {
+function upsertAssignee(request, response) {
     const userId = request.session.userId;
-    if (!validateRequest(request, response, ["userId", "isAnonymous", "count"], ["id"])) {
+    if (!validateRequest(request, response, ["count"], ["id", "memberId"])) {
         return;
     }
     if (userId === undefined && !request.body.anonymousId) {
@@ -629,17 +625,13 @@ function addAssignee(request, response) {
                             $and: [
                                 {
                                     members: {
-                                        $elemMatch: userId !== undefined ? { userId } : { anonymousId: request.body.anonymousId }
+                                        $elemMatch:
+                                            userId !== undefined
+                                            ? { userId: mongoose.Types.ObjectId(userId) }
+                                            : { anonymousId: request.body.anonymousId }
                                     },
                                 },
-                                {
-                                    members: {
-                                        $elemMatch:
-                                            request.body.isAnonymous
-                                            ? { anonymousId: request.body.userId }
-                                            : { userId: request.body.userId }
-                                    }
-                                }
+                                { members: { $elemMatch: { _id: mongoose.Types.ObjectId(request.params.memberId) } } }
                             ]
                         }
                     }
@@ -655,20 +647,22 @@ function addAssignee(request, response) {
                 return Item.findById(request.params.id, undefined, { session })
                            .exec()
                            .then(item => {
-                               if (item === null || item.remainingCount < request.body.count) {
+                               if (item === null) {
                                    sendError(response, Error.ResourceNotFound);
+                                   return Promise.resolve();
+                               }
+                               const removedCount =
+                                   request.body.count
+                                   - (item.assignees.filter(a => a._id.toString() === request.body.memberId)[0]?.count ?? 0);
+                               if (item.remainingCount < removedCount) {
+                                   sendError(response, Error.GeneralError);
                                    return Promise.resolve();
                                }
                                return Item.findByIdAndUpdate(
                                    request.params.id,
                                    {
-                                       remainingCount: item.remainingCount - request.body.count,
-                                       $push: {
-                                           assignees:
-                                               request.body.isAnonymous
-                                               ? { anonymousId: request.body.userId, count: request.body.count }
-                                               : { userId: request.body.userId, count: request.body.count }
-                                       }
+                                       remainingCount: item.remainingCount - removedCount,
+                                       $push: { assignees: { memberId: request.body.memberId, count: request.body.count } }
                                    },
                                    { session, runValidators: true, new: true, context: "query" }
                                )
@@ -888,13 +882,13 @@ module.exports = {
     getUserItems,
     getListItems,
     updateTitle,
-    updateText,
-    updateDate,
+    updateDueDate,
+    updateReminderDate,
     updateCompletion,
-    addTags,
-    removeTags,
+    addTag,
+    removeTag,
     updateCount,
-    addAssignee,
+    upsertAssignee,
     removeAssignee,
     getAssignees,
     updatePriority,

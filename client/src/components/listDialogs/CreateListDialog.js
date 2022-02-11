@@ -36,25 +36,15 @@ export default function CreateListDialog({ display, setDisplay, appendList, disp
             );
         }
     });
-    const cancel = () => {
-        formik.resetForm();
-        setDisplay(false);
-    }
     const isFormFieldValid = name => !formik.touched[name] || formik.errors[name] === undefined;
     const getFormErrorMessage =
             name => isFormFieldValid(name) ? "" : <p className="p-error mx-2 text-sm">{ formik.errors[name] }</p>;
     const renderFooter = () => {
         return (
             <div className="grid">
-                <div className="col-6 p-3 flex justify-content-center">
+                <div className="col-12 p-5 flex justify-content-center">
                     <Button
-                        className="w-full p-button-text"
-                        label="Cancel"
-                        onClick={ cancel } />
-                </div>
-                <div className="col-6 p-3 flex justify-content-center">
-                    <Button
-                        className={"w-full p-button" + (formik.isSubmitting ? " p-disabled" : "")}
+                        className={"w-full m-0 p-button" + (formik.isSubmitting ? " p-disabled" : "")}
                         label="Save"
                         type="submit"
                         onClick={ formik.submitForm }
@@ -67,6 +57,7 @@ export default function CreateListDialog({ display, setDisplay, appendList, disp
         <ListDialog
             dialogName="Create a new list"
             display={ display }
+            setDisplay={ setDisplay }
             renderFooter={ renderFooter }
             title={ formik.values.title }
             colorIndex={ formik.values.colorIndex }

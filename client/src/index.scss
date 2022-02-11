@@ -196,9 +196,44 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background: #555;
 }
 
-.p-avatar img{
+.p-avatar img {
     width: inherit;
     height: 100%;
+}
+
+.p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
+    border-color: $primary-color;
+}
+.p-radiobutton .p-radiobutton-box .p-radiobutton-icon {
+    background-color: $primary-color;
+}
+.p-radiobutton .p-radiobutton-box.p-highlight {
+    border-color: $primary-color;
+}
+.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
+    border-color: $primary-color;
+    color: $primary-color;
+}
+
+.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled).p-focus {
+    border-color: $primary-color;
+}
+
+.p-radiobutton.p-radiobutton-checked:not(.p-radiobutton-disabled):hover {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
+}
+.p-radiobutton.p-radiobutton-checked:not(.p-radiobutton-disabled).p-radiobutton-focused {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
+}
+
+.p-datepicker table td > span.p-highlight {
+    color: $primary-color;
+    background: getPrimaryColorWithAlpha(0.12);
+}
+
+.p-datepicker table td.p-datepicker-today > span.p-highlight {
+    color: $primary-color;
+    background: getPrimaryColorWithAlpha(0.12);
 }
 
 @keyframes p-progress-spinner-color {
