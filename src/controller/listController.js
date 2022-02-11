@@ -142,7 +142,14 @@ function getUserLists(request, response) {
         return;
     }
     List.find(
-        { members: { $elemMatch: { userId: request.session.userId, role: request.query.shared ? "member" : "owner" } } }
+        {
+            members: {
+                $elemMatch: Object.assign(
+                    { userId: mongoose.Types.ObjectId(request.session.userId) },
+                    request.query.shared === undefined ? {} : { role: request.query.shared === "true" ? "member" : "owner" }
+                )
+            }
+        }
     )
     .exec()
     .then(

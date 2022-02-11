@@ -7,7 +7,7 @@ import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import EmptyPlaceholder from "../../EmptyPlaceholder";
 
-export function ItemsContainer({ listId, myDayItems, socket, displayError }) {
+export function ItemsContainer({ listId, socket, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
     const [listMembers, setListMembers] = useState([]);
@@ -17,25 +17,20 @@ export function ItemsContainer({ listId, myDayItems, socket, displayError }) {
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
     // init items from database
     const getItems = useCallback(() => {
-        if (listId) {
-            axios.get(`/lists/${ listId }/items/`)
-                .then(
-                    items => {
-                        setItems(items.data);
-                        setLoading(false);
-                    },
-                    error => displayError(error.response.data.error)
-                );
-        } else {
-            setItems(myDayItems);
-            setLoading(false);
-        }
-        axios.get(`/lists/${ listId }/members`)
+        axios.get(`/lists/${ listId }/items/`)
              .then(
-                 members => setListMembers(members.data),
+                 items => setItems(items.data),
+                 error => displayError(error.response.data.error)
+             )
+             .then(_ => axios.get(`/lists/${ listId }/members`))
+             .then(
+                 members => {
+                     setListMembers(members.data);
+                     setLoading(false);
+                 },
                  error => displayError(error.response.data.error)
              );
-    }, [displayError, listId, myDayItems]);
+    }, [displayError, listId]);
     useEffect(getItems, [getItems]);
     useEffect(() => {
         function handleUpdates(event, eventListId) {
@@ -64,7 +59,7 @@ export function ItemsContainer({ listId, myDayItems, socket, displayError }) {
         <>
             <div className="grid flex-column flex-grow-1">
                 <div className="col-12 m-0 p-0 flex">
-                    <Button className={"m-3 " + (myDayItems ? "hidden" : null)}
+                    <Button className="m-3"
                             label="New Item" icon="pi pi-plus"
                             onClick={() => setDisplayDialog(true)}
                     />

@@ -87,7 +87,7 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
         }
     ];
     useEffect(() => {
-        axios.get(ownership ? "/lists" : "/lists?shared=true")
+        axios.get(ownership ? "/lists?shared=false" : "/lists?shared=true")
              .then(
                  lists => {setLists(lists.data)},
                  error => displayError(error.response.data.error)
@@ -98,7 +98,7 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
         function handleUpdates(event) {
             if ((/^list(?:Created|Deleted|(?:Title|Visibility|Color)Changed|Member(?:Added|Removed))Reload$/.test(event))
                 || (/^listSelf(?:Added|Removed)Reload$/.test(event) && !ownership)) {
-                axios.get(ownership ? "/lists" : "/lists?shared=true")
+                axios.get(ownership ? "/lists?shared=false" : "/lists?shared=true")
                      .then(
                          lists => {
                              setLists(lists.data);
