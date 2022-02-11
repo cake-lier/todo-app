@@ -165,7 +165,7 @@ function getAssignees(request, response) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
-                return Item.findById(request.params.id, { session })
+                return Item.findById(request.params.id, undefined, { session })
                            .exec()
                            .then(item => {
                                if (item === null) {
@@ -173,7 +173,7 @@ function getAssignees(request, response) {
                                    return Promise.resolve();
                                }
                                return Promise.all(item.assignees.map(assignee => {
-                                   if (assignee.anonymousId !== null) {
+                                   if (assignee.anonymousId) {
                                        return Promise.resolve({
                                                _id: assignee._id,
                                                username: lists[0].members
@@ -457,15 +457,14 @@ function updateCompletion(request, response) {
     );
 }
 
-function addTags(request, response) {
-    if (!validateRequest(request, response, [], ["id"])) {
+function addTag(request, response) {
+    if (!validateRequest(request, response, ["title", "colorIndex"], ["id"])) {
         return;
     }
     updateItemAtomicProperty(
         request,
         response,
-        { $addToSet: { tags: { $each: request.body.title ? [{title: request.body.title, colorIndex: request.body.colorIndex}] : [] } } },
-        //{$push: {tags: {text: request.body.title, colorIndex: request.body.colorIndex}}},
+        { $push: { tags: { title: request.body.title, colorIndex: request.body.colorIndex } } },
         (list, item) => {
             User.findById(request.session.userId)
                 .exec()
@@ -499,14 +498,14 @@ function addTags(request, response) {
     );
 }
 
-function removeTags(request, response) {
-    if (!validateRequest(request, response, [], ["id"])) {
+function removeTag(request, response) {
+    if (!validateRequest(request, response, [], ["id", "tagId"])) {
         return;
     }
     updateItemAtomicProperty(
         request,
         response,
-        { $pullAll: { tags: request.body.tags ? request.body.tags : [] } },
+        { $pull: { tags: { _id: mongoose.Types.ObjectId(request.params.tagId) } } },
         (list, item) => {
             User.findById(request.session.userId)
                 .exec()
@@ -532,7 +531,6 @@ function removeTags(request, response) {
                                 io.in(`list:${ listId }`).emit("itemTagsRemovedReload", listId);
                                 response.json(item);
                             });
-
                     },
                     error => console.log(error)
                 )
@@ -609,7 +607,7 @@ function updateCount(request, response) {
 
 function upsertAssignee(request, response) {
     const userId = request.session.userId;
-    if (!validateRequest(request, response, ["count"], ["id", "assigneeId"])) {
+    if (!validateRequest(request, response, ["count"], ["id", "memberId"])) {
         return;
     }
     if (userId === undefined && !request.body.anonymousId) {
@@ -634,7 +632,7 @@ function upsertAssignee(request, response) {
                                             : { anonymousId: request.body.anonymousId }
                                     },
                                 },
-                                { members: { $elemMatch: { _id: mongoose.Types.ObjectId(request.body.memberId) } } }
+                                { members: { $elemMatch: { _id: mongoose.Types.ObjectId(request.params.memberId) } } }
                             ]
                         }
                     }
@@ -888,8 +886,8 @@ module.exports = {
     updateDueDate,
     updateReminderDate,
     updateCompletion,
-    addTags,
-    removeTags,
+    addTag,
+    removeTag,
     updateCount,
     upsertAssignee,
     removeAssignee,

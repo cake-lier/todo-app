@@ -3,7 +3,7 @@ import {InputText} from "primereact/inputtext";
 import {SelectButton} from "primereact/selectbutton";
 import "./ListDialog.scss"
 
-export default function ListDialog({ dialogName, display, renderFooter, title, colorIndex, isVisible, handleChange, isFormFieldValid, getFormErrorMessage, ownership }){
+export default function ListDialog({ dialogName, display, setDisplay, renderFooter, title, colorIndex, isVisible, handleChange, isFormFieldValid, getFormErrorMessage, ownership }){
     const colorOptions = [
         { icon: 'pi pi-circle-fill', id: "pastel-red-option", value: 0 },
         { icon: 'pi pi-circle-fill', id: "pastel-purple-option", value: 1 },
@@ -27,6 +27,7 @@ export default function ListDialog({ dialogName, display, renderFooter, title, c
             closable={ false }
             showHeader={ false }
             dismissableMask={ true }
+            onHide={ () => setDisplay(false) }
         >
             <div className="grid">
                 <div className="col-12 mt-3 flex justify-content-center">

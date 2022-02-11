@@ -39,8 +39,8 @@ function initializeItemRoutes(app) {
     app.route("/items/:id/dueDate").put(controller.item.updateDueDate);
     app.route("/items/:id/reminderDate").put(controller.item.updateReminderDate);
     app.route("/items/:id/complete").put(controller.item.updateCompletion);
-    app.route("/items/:id/tags").post(controller.item.addTags)
-                                .delete(controller.item.removeTags);
+    app.route("/items/:id/tags").post(controller.item.addTag);
+    app.route("/items/:id/tags/:tagId").delete(controller.item.removeTag);
     app.route("/items/:id/count").put(controller.item.updateCount);
     app.route("/items/:id/assignees").get(controller.item.getAssignees);
     app.route("/items/:id/assignees/:assigneeId").put(controller.item.upsertAssignee)

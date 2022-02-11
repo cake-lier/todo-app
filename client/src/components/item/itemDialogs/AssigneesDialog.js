@@ -1,85 +1,88 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Avatar } from 'primereact/avatar';
 import {DataView} from "primereact/dataview";
-import {ManageItemDialog} from "./ManageItemDialog";
-import {AddAssigneeDialog} from "./AddAssigneeDialog";
+import AddAssigneeDialog from "./AddAssigneeDialog";
 import axios from "axios";
+import {Button} from "primereact/button";
+import {Dialog} from "primereact/dialog";
 
-export function AssigneesDialog({ itemId, listMembers, display, setDisplay, assignees, setAssignees, displayError }) {
+export default function AssigneesDialog({ itemId, listMembers, display, setDisplay, setAssignees, assignees, displayError }) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
-    const [addDialog, setAddDialog] = useState(false);
-    const addAssignee = useCallback(member => {
-        setAssignees(assignees.concat(member));
-        axios.post(
-            `/items/${ itemId }/assignees`,
-            member.userId !== null
-            ? { userId: member.userId, isAnonymous: false, count: 1 }
-            : { anonymousId: member.anonymousId, isAnonymous: true, count: 1 }
-        ).then(
-            assignee => setAssignees(assignees.concat(assignee.data)),
-            error => displayError(error.response.data.error)
-        );
-    }, [assignees, setAssignees]);
-    const removeAssignee = useCallback(assignee => {
-        setAssignees(assignees.filter(i => i._id !== assignee._id));
-        // TODO delete assignee
-        axios.delete("/items/" + itemId + "/assignees/" + (assignee.userId !== null ? assignee.userId : assignee.anonymousId))
+    const [displayAddAssignee, setDisplayAddAssignee] = useState(false);
+    const addAssignee = useCallback((member, count) => {
+        axios.post(`/items/${ itemId }/assignees/${ member._id }`, { count })
              .then(
-                 r => {
-                    console.log("removed assignee");
-                    console.log(assignees);
-                 },
+                 assignees => setAssignees(assignees.data),
+                 error => displayError(error.response.data.error)
+             );
+    }, [itemId, setAssignees, displayError]);
+    const removeAssignee = useCallback(assignee => {
+        axios.delete(`/items/${ itemId }/assignees/${ assignee._id }`)
+             .then(
+                 assignees => setAssignees(assignees.data),
                  error => displayError(error.response.data.error)
             );
-    }, [assignees, setAssignees]);
-    const assigneeTemplate = (member, icon, onClickAction) => {
+    }, [itemId, setAssignees, displayError]);
+    const assigneeTemplate = assignee => {
         return (
             <div className="col-12 flex flex-row justify-content-between">
                 <div className="flex align-items-center mb-2" >
                     <Avatar
                         size='large'
-                        className={'p-avatar-circle avatar-assignee' + member._id}
-                        image={member.profilePicturePath ? member.profilePicturePath : defaultProfilePicture}
-                        alt={ member.username + "'s profile picture" }
+                        className="p-avatar-circle"
+                        image={ assignee.profilePicturePath ? assignee.profilePicturePath : defaultProfilePicture }
+                        alt={ assignee.username + "'s profile picture" }
                     />
-                    <label
-                        htmlFor={'avatar-assignee' + member._id}
-                        className="ml-2">
-                        {member.username}
-                    </label>
+                    <p className="ml-2">{ assignee.username }</p>
+                    <p className="ml-2">x{ assignee.count }</p>
                 </div>
                 <div className="flex align-items-center  mb-2">
                     <i
-                        className={"pi " + icon + " cursor-pointer mr-1"}
-                        onClick={ onClickAction }
+                        className="pi pi-times cursor-pointer mr-1"
+                        onClick={ () => removeAssignee(assignee) }
                     />
                 </div>
             </div>
-        )
-    }
-    const assigneeTemplateCustom = member => assigneeTemplate(member, "pi-times", () => removeAssignee(member));
+        );
+    };
+    const renderHeader = () => {
+        return (
+            <div className="grid flex flex-row align-items-center">
+                <h1>This task is assigned to...</h1>
+                <Button
+                    className={"ml-3 p-1"}
+                    id="create-button"
+                    label="Add"
+                    icon="pi pi-plus"
+                    iconPos="left"
+                    onClick={ () => setDisplayAddAssignee(true) }
+                />
+            </div>
+        );
+    };
     return (
         <>
-            <ManageItemDialog
-                title="This task is assigned to..."
-                display={display}
-                setDisplay={setDisplay}
-                setAddDialog={setAddDialog}>
+            <Dialog
+                className="w-27rem m-3"
+                visible={ display }
+                dismissableMask={ true }
+                closable={ false }
+                header={ renderHeader() }
+                onHide={ () => setDisplay(false) }>
                 <DataView
                     value={ assignees }
-                    itemTemplate={assigneeTemplateCustom}
+                    itemTemplate={ assigneeTemplate }
                     rows={ 10 }
                     paginator={ assignees.length > 10 }
                     alwaysShowPaginator={ false }
                     emptyMessage="There is no one assigned to this task."
                 />
-            </ManageItemDialog>
+            </Dialog>
             <AddAssigneeDialog
-                members={listMembers.filter(x => !assignees.includes(x))}
-                assigneeTemplate={assigneeTemplate}
-                addAssignee={addAssignee}
-                display={addDialog}
-                setDisplay={setAddDialog}
+                members={ listMembers }
+                addAssignee={ addAssignee }
+                display={ displayAddAssignee }
+                setDisplay={ setDisplayAddAssignee }
             />
         </>
     );

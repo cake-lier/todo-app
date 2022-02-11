@@ -1,16 +1,16 @@
-import React, {useCallback, useRef, useState} from "react";
+import {useCallback, useEffect, useRef, useState} from "react";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
 import { Menu } from "primereact/menu";
 import EditDueDateDialog from "./itemDialogs/EditDueDateDialog";
 import EditReminderDateDialog from "./itemDialogs/EditReminderDateDialog";
-import {ItemTag} from "./ItemTag";
+import ItemTag from "./ItemTag";
 import EditItemDialog from "./itemDialogs/EditItemDialog";
-import {AssigneesDialog} from "./itemDialogs/AssigneesDialog";
-import {EditTagDialog} from "./itemDialogs/EditTagDialog";
+import AssigneesDialog from "./itemDialogs/AssigneesDialog";
 import axios from "axios";
 import { Avatar } from "primereact/avatar";
 import { Tag } from "primereact/tag";
+import AddTagDialog from "./itemDialogs/AddTagDialog";
 
 export function Item({ item, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
@@ -19,7 +19,7 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
     // dialogs
     const [displayEditDueDate, setDisplayEditDueDate] = useState(false);
     const [displayEditReminderDate, setDisplayEditReminderDate] = useState(false);
-    const [displayEditTag, setDisplayEditTag] = useState(false);
+    const [displayAddTag, setDisplayAddTag] = useState(false);
     const [displayEdit, setDisplayEdit] = useState(false);
     const [displayAssignees, setDisplayAssignees] = useState(false);
 
@@ -29,7 +29,15 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
     const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
 
     // assignees
-    const [assignees, setAssignees] = useState(item.assignees);
+    const [assignees, setAssignees] = useState([]);
+    useEffect(() => {
+        axios.get(`/items/${ item._id }/assignees`)
+             .then(
+                 assignees => setAssignees(assignees.data),
+                 error => displayError(error.response.data.error)
+             );
+    }, [setAssignees, displayError, item]);
+    console.log(assignees);
 
     // priority star
     const [priority, setPriority] = useState(item.priority);
@@ -57,8 +65,8 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
         { label: 'Edit due date', icon: 'pi pi-calendar', command: () => { setDisplayEditDueDate(true) } },
         { label: 'Edit reminder', icon: 'pi pi-bell', command: () => { setDisplayEditReminderDate(true) } },
         { label: 'Assign to', icon: 'pi pi-user-plus', command: () => { setDisplayAssignees(true) } },
-        { label: 'Edit tags', icon: 'pi pi-tag', command: () => { setDisplayEditTag(true) } },
-        { label: 'Delete', icon: 'pi pi-trash', command: () => { deleteItem(item) } }
+        { label: 'Add a new tag', icon: 'pi pi-tag', command: () => { setDisplayAddTag(true) } },
+        { label: 'Delete', icon: 'pi pi-trash', className: "red-color", command: () => { deleteItem(item) } }
     ];
 
     return (
@@ -85,12 +93,10 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                         {
                             tags.map(tag =>
                                 <ItemTag
-                                    key={tag._id}
-                                    itemId={item._id}
-                                    tag={tag}
-                                    removeTag={removeTag}
-                                    text={tag.title}
-                                    colorIndex={tag.colorIndex}
+                                    key={ tag._id }
+                                    itemId={ item._id }
+                                    tag={ tag }
+                                    removeTag={ removeTag }
                                 />
                             )
                         }
@@ -112,22 +118,21 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                             assignees.map(assignee =>
                                 <Tag
                                     key={ assignee._id }
-                                    className="flex m-1 p-tag-rounded"
+                                    className="flex m-1 p-tag-rounded assignee"
                                     icon={
                                         <Avatar
                                             size="small"
-                                            className="p-avatar-circle"
+                                            className="p-avatar-circle assignee"
                                             image={
                                                 assignee.profilePicturePath
                                                 ? assignee.profilePicturePath
                                                 : "/static/images/default_profile_picture.jpg"
                                             }
                                             alt={ assignee.username + " profile picture" }
-                                            tooltip={ assignee.username }
                                         />
                                     }
                                 >
-                                    x{ assignee.count }
+                                    { assignee.username } x{ assignee.count }
                                 </Tag>
                             )
                         }
@@ -154,13 +159,11 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                 setDisplayEditReminderDate={ setDisplayEditReminderDate }
                 displayError={ displayError }
             />
-            <EditTagDialog
+            <AddTagDialog
                 itemId={ item._id }
-                removeTag={ removeTag }
-                tags={ tags }
+                display={ displayAddTag }
+                setDisplay={ setDisplayAddTag }
                 updateTags={ updateTags }
-                display={ displayEditTag }
-                setDisplay={ setDisplayEditTag }
                 displayError={ displayError }
             />
             <EditItemDialog
