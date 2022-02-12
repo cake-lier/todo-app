@@ -11,6 +11,7 @@ import AddTagDialog from "./itemDialogs/AddTagDialog";
 import AddAssigneeDialog from "./itemDialogs/AddAssigneeDialog";
 import {Chip} from "primereact/chip";
 import ChipAssignee from "./ChipAssignee";
+import "./Item.scss"
 
 export default function Item({ item, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
@@ -46,7 +47,6 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
     };
 
     const onCheckboxChecked = e => {
-        console.log(e);
         axios.put(`/items/${ e.value._id }/complete`, { isComplete: e.checked })
             .then(
                 item => updateItem(item.data),
@@ -86,7 +86,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
     ];
     return (
         <>
-            <div className="flex justify-content-between m-2">
+            <div className="flex justify-content-between m-2 mx-3">
                 <div>
                     <div className="field-checkbox m-1 mb-0">
                         <Checkbox
@@ -96,15 +96,15 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
                             onChange={ onCheckboxChecked }
                             checked={ !!item.completionDate }
                         />
-                        <label htmlFor={ item._id }>{ item.title }</label>
+                        <label className="text-xl" htmlFor={ item._id }>{ item.title }</label>
                         <div className="flex align-items-center">
                             <p className="count-items flex m-1 text-xl" style={{ color: "#E61950" }}>x{ item.count }</p>
                         </div>
-                        <span>
-                            <i className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2" } onClick={ togglePriority } />
+                        <span className={(priority ? "priority-star-fill" : "priority-star")}>
+                            <i className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 text-xl cursor-pointer" } onClick={ togglePriority } />
                         </span>
                     </div>
-                    <div className="flex align-items-center flex-wrap pl-4">
+                    <div className="flex align-items-center flex-wrap pl-5">
                         {
                             item.tags.map(tag =>
                                 <ChipTag

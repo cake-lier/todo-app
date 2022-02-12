@@ -87,7 +87,7 @@ export default function PageHeader({ user, unsetUser, title, showDate, members, 
                     </div>
                     {
                         members && members.length > 0
-                        ? <AvatarGroup>
+                        ? <AvatarGroup className="mx-2">
                             {
                                 members.map(member =>
                                     <Avatar

@@ -196,6 +196,11 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background: #555;
 }
 
+.p-avatar img {
+    width: inherit;
+    height: 100%;
+}
+
 .p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
     border-color: $primary-color;
 }

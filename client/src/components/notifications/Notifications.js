@@ -5,6 +5,10 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 import { DataScroller } from 'primereact/datascroller';
 import axios from "axios";
 import "./Notifications.scss"
+import {Avatar} from "primereact/avatar";
+import {Divider} from "primereact/divider";
+import {Button} from "primereact/button";
+import Moment from "moment";
 
 export default function Notifications({ notifications, setNotifications, socket, displayError, notificationsEnabled, disabledNotificationsLists, notificationsUnread, setNotificationsUnread }) {
     const toast = useRef(null);
@@ -16,6 +20,14 @@ export default function Notifications({ notifications, setNotifications, socket,
                      .then(
                          notifications => {
                              setNotifications(notifications.data);
+                             // if (notificationsEnabled
+                             //     && notifications.data.length > 0
+                             //     && !(disabledNotificationsLists.includes(notifications.data[notifications.data.length - 1].listId))) {
+                             //     const lastNotification = notifications.data[notifications.data.length - 1]
+                             //     toast.current.show({
+                             //         severity: 'info',
+                             //         detail: `${lastNotification.authorUsername} ${lastNotification.text}`,
+
                              if (notificationsEnabled && !(disabledNotificationsLists.includes(listId))) {
                                  toast.current.show({
                                      severity: 'info',
@@ -51,15 +63,30 @@ export default function Notifications({ notifications, setNotifications, socket,
     }
 
     const itemTemplate = data => {
+        const subtitle = Moment(data.insertionDate).fromNow().toString() + (data.listTitle ? " - List: " + data.listTitle : "");
         return (
-            <div className="grid p-3 pl-3 w-full">
-                <div className="col-12 p-0 m-0 flex justify-content-end">
-                    <i className="pi pi-times"
-                       onClick={ () => deleteNotification(data._id) }
+            <div className="grid p-3 pl-3 w-full" >
+                <div className="col-11 p-0 flex align-items-center justify-content-start">
+                    <Avatar
+                        image={ data.authorProfilePicturePath !== null
+                            ? "/static" + data.authorProfilePicturePath : "/static/images/default_profile_picture.jpg" }
+                        className="p-avatar-circle"
                     />
+                    <div className="mx-2">
+                        <div className="flex align-items-center justify-content-start flex-wrap">
+                            <p><span className="font-semibold">{data.authorUsername}</span> { data.text }</p>
+                        </div>
+                        <div>
+                            <p className="text-sm py-1">{subtitle}</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="col-12">
-                    { data.text }
+                <div className="col-1 px-0 flex justify-content-end align-items-start">
+                    <Button
+                        icon="pi pi-times"
+                        className="p-button-rounded p-button-icon-only p-button-text remove-notification"
+                        onClick={ () => deleteNotification(data._id) }
+                    />
                 </div>
             </div>
         );
@@ -68,21 +95,39 @@ export default function Notifications({ notifications, setNotifications, socket,
     return (
         <>
             <Toast ref={ toast } />
-            <OverlayPanel ref={ panel } id="notifications-overlay-panel" style={{width: '450px'}}>
+            <OverlayPanel ref={ panel } id="notifications-overlay-panel" breakpoints={{'662px': '95vw'}} style={{width: '460px'}}>
                 <DataScroller
                     rows={ 5 }
                     inline
                     header={
                         <div
-                            className={"grid justify-content-start p-0 pl-3 pt-2 underline " + (notifications.length ? null : "hidden")}
+                            className={"notification-header grid p-0 "}
                             onClick={ deleteAllNotifications }
                         >
-                            Delete all notifications
+                            <div className="col-12">
+                                <p>Notifications</p>
+                                <Divider className="mt-3 mb-1"/>
+                            </div>
+                            <div className={"col-12 py-0 " + (notifications.length ? "flex justify-content-start" : "hidden")}>
+                                <Button className="p-button-rounded p-button-text m-0 p-0 pr-1 red-color">Delete all</Button>
+                            </div>
                         </div>
                     }
                     scrollHeight="400px"
                     itemTemplate={ itemTemplate }
-                    emptyMessage={ <p className="p-3 border-0 text-xl">No notifications.</p>}
+                    emptyMessage={
+                        <div className="grid flex flex-1 pt-5 pb-6 flex-column justify-content-center align-items-center">
+                            <svg className="opacity-20" width="150" height="84" viewBox="0 0 150 84" fill="none" xmlns="http://www.w3.org/2000/svg" >
+                                <rect x="5" width="140" height="8" rx="4" fill="#999"/>
+                                <rect x="30" y="13" width="90" height="8" rx="4" fill="#999"/>
+                                <rect x="15" y="31" width="120" height="8" rx="4" fill="#999"/>
+                                <rect x="36" y="44" width="78" height="8" rx="4" fill="#999"/>
+                                <rect x="5" y="62" width="140" height="8" rx="4" fill="#999"/>
+                                <rect x="25" y="75" width="100" height="8" rx="4" fill="#999"/>
+                            </svg>
+                            <p className="pt-4 text-lg text-center">There are no notifications.</p>
+                        </div>
+                    }
                     value={ notifications }
                 />
             </OverlayPanel>

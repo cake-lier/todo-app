@@ -41,7 +41,7 @@ export default function Settings(props) {
         if (tabName === "password") {
             return (
                 <div className="grid ">
-                    <div className="col-12 md:col-5 md:ml-8">
+                    <div className="col-12 md:col-5">
                         <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />
                     </div>
                 </div>
@@ -74,7 +74,7 @@ export default function Settings(props) {
         return (
             <>
                 <div className="grid">
-                    <div className="col-12 md:col-5 md:ml-8">
+                    <div className="col-12 md:col-5 ">
                         <ChangeAccountDataForm
                             user={ props.user }
                             setUser={ props.setUser }
@@ -83,7 +83,7 @@ export default function Settings(props) {
                     </div>
                 </div>
                 <div className="grid">
-                    <div className="col-12 md:col-5 md:ml-8">
+                    <div className="col-12 md:col-5">
                         <DeleteAccountForm unsetUser={ props.unsetUser } displayError={ displayError } />
                     </div>
                 </div>
