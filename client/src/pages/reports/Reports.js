@@ -14,6 +14,13 @@ import {SelectButton} from "primereact/selectbutton";
 import EmptyPlaceholder from "../../components/EmptyPlaceholder";
 
 export default function Reports({ user, unsetUser, tab, socket, notifications, setNotifications }) {
+
+    // achievement
+    useEffect( ()=> {
+        axios.put("/users/me/achievements", {index: 10}).then(r => {});
+    }, []);
+    // ---
+
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);

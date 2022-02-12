@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
+const _ = require("lodash");
 const rounds = 12;
 
 function decodeImage(encodedImage, response) {
@@ -50,28 +51,7 @@ function createUser(request, response, path, hashedPassword) {
 function triggerTimeAchievement(request, response, date, index){
     schedule.scheduleJob(date, function(){
         console.log('The world is going to end today.');
-        User.findById(request.session.userId)
-            .exec()
-            .then(user => {
-                if (user === null) {
-                    sendError(response, Error.ResourceNotFound);
-                    return Promise.resolve();
-                }
-                let achievements = [...user.achievements];
-                achievements[index] = true;
-                User.findByIdAndUpdate(
-                    request.session.userId,
-                    { $set: { achievements: achievements} },
-                    { context: "query" }
-                )
-                    .exec()
-                    .then(
-                        user => { },
-                        error => {
-                            console.log(error);
-                        }
-                    );
-            });
+        updateAchievements(request, response, index);
     });
 }
 
@@ -623,7 +603,47 @@ function getAchievements(request, response) {
                 return Promise.resolve();
             }
             return user.achievements;
-        })
+        });
+}
+
+function addAchievement(request, response) {
+    if (!validateRequest(request, response, [], [], true)) {
+        return;
+    }
+
+    if ( _.inRange(request.body.index, 0, 14) ) {
+            updateAchievements(request, response, request.body.index);
+            return;
+    } else {
+        sendError(response, Error.RequestError);
+    }
+
+}
+
+/* Sets achievement at specified index to true */
+function updateAchievements(request, response, index) {
+    User.findById(request.session.userId)
+        .exec()
+        .then(user => {
+            if (user === null) {
+                sendError(response, Error.ResourceNotFound);
+                return Promise.resolve();
+            }
+            let achievements = [...user.achievements];
+            achievements[index] = true;
+            User.findByIdAndUpdate(
+                request.session.userId,
+                { $set: { achievements: achievements} },
+                { context: "query" }
+            )
+                .exec()
+                .then(
+                    user => { },
+                    error => {
+                        console.log(error);
+                    }
+                );
+        });
 }
 
 module.exports = {
@@ -636,5 +656,6 @@ module.exports = {
     unregister,
     login,
     logout,
-    getAchievements
+    getAchievements,
+    addAchievement
 }
