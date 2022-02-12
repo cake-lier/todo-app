@@ -1,7 +1,7 @@
 import {ItemDialog} from "./ItemDialog";
 import axios from "axios";
 
-export function CreateItemDialog({ listId, appendItem, displayDialog, setDisplayDialog, displayError }) {
+export default function CreateItemDialog({ listId, appendItem, displayDialog, setDisplayDialog, displayError }) {
     const onSubmit = data => {
         axios.post(
             `/lists/${ listId }/items`,

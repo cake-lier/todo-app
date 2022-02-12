@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Button } from 'primereact/button';
-import "./ItemsContainer.scss";
-import {Item} from "../Item";
+import Item from "../Item";
 import axios from "axios";
-import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
+import CreateItemDialog from "../itemDialogs/CreateItemDialog";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import EmptyPlaceholder from "../../EmptyPlaceholder";
+import "./ItemsContainer.scss";
 
 export function ItemsContainer({ listId, socket, displayError }) {
     // checklist
@@ -36,7 +36,7 @@ export function ItemsContainer({ listId, socket, displayError }) {
         function handleUpdates(event, eventListId) {
             if (listId === eventListId
                 && new RegExp(
-                       "^item(?:Created|(?:Title|DueDate|Reminder|Completion|Count)Changed|Tags(?:Added|Removed)"
+                       "^item(?:Created|(?:Title|DueDate|Reminder|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
                        + "|Assignee(?:Added|Removed)|Deleted)Reload$"
                    ).test(event)
             ) {

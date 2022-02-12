@@ -1,18 +1,18 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
 import { Menu } from "primereact/menu";
 import EditDueDateDialog from "./itemDialogs/EditDueDateDialog";
 import EditReminderDateDialog from "./itemDialogs/EditReminderDateDialog";
-import ItemTag from "./ItemTag";
+import ChipTag from "./ChipTag";
 import EditItemDialog from "./itemDialogs/EditItemDialog";
-import AssigneesDialog from "./itemDialogs/AssigneesDialog";
 import axios from "axios";
-import { Avatar } from "primereact/avatar";
-import { Tag } from "primereact/tag";
 import AddTagDialog from "./itemDialogs/AddTagDialog";
+import AddAssigneeDialog from "./itemDialogs/AddAssigneeDialog";
+import {Chip} from "primereact/chip";
+import ChipAssignee from "./ChipAssignee";
 
-export function Item({ item, listMembers, deleteItem, updateItem, displayError }){
+export default function Item({ item, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
     const menu = useRef(null);
 
@@ -23,11 +23,6 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
     const [displayEdit, setDisplayEdit] = useState(false);
     const [displayAssignees, setDisplayAssignees] = useState(false);
 
-    // tags
-    const [tags, setTags] = useState(item.tags);
-    const updateTags = useCallback(t => setTags(t), [setTags]);
-    const removeTag = useCallback(tag => setTags(tags.filter(t => t._id !== tag._id)), [tags, setTags]);
-
     // assignees
     const [assignees, setAssignees] = useState([]);
     useEffect(() => {
@@ -37,7 +32,6 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                  error => displayError(error.response.data.error)
              );
     }, [setAssignees, displayError, item]);
-    console.log(assignees);
 
     // priority star
     const [priority, setPriority] = useState(item.priority);
@@ -60,15 +54,36 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
             );
     };
 
+    const removeDueDate = () => {
+        axios.put(`/items/${ item._id }/dueDate`, { dueDate: null })
+            .then(
+                item => {
+                    updateItem(item.data);
+                    setDisplayEditDueDate(false);
+                },
+                error => displayError(error.response.data.error)
+            );
+    };
+
+    const removeReminderDate = () => {
+        axios.put(`/items/${ item._id }/reminderDate`, { reminderDate: null })
+            .then(
+                item => {
+                    updateItem(item.data);
+                    setDisplayEditReminderDate(false);
+                },
+                error => displayError(error.response.data.error)
+            );
+    };
+
     const menuItems = [
         { label: 'Edit', icon: 'pi pi-pencil', command: () => { setDisplayEdit(true) } },
         { label: 'Edit due date', icon: 'pi pi-calendar', command: () => { setDisplayEditDueDate(true) } },
         { label: 'Edit reminder', icon: 'pi pi-bell', command: () => { setDisplayEditReminderDate(true) } },
-        { label: 'Assign to', icon: 'pi pi-user-plus', command: () => { setDisplayAssignees(true) } },
+        { label: 'Edit assignees', icon: 'pi pi-user-plus', command: () => { setDisplayAssignees(true) } },
         { label: 'Add a new tag', icon: 'pi pi-tag', command: () => { setDisplayAddTag(true) } },
         { label: 'Delete', icon: 'pi pi-trash', className: "red-color", command: () => { deleteItem(item) } }
     ];
-
     return (
         <>
             <div className="flex justify-content-between m-2">
@@ -91,49 +106,46 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                     </div>
                     <div className="flex align-items-center flex-wrap pl-4">
                         {
-                            tags.map(tag =>
-                                <ItemTag
+                            item.tags.map(tag =>
+                                <ChipTag
                                     key={ tag._id }
                                     itemId={ item._id }
                                     tag={ tag }
-                                    removeTag={ removeTag }
+                                    updateItem={ updateItem }
                                 />
                             )
                         }
                         {
                             item.dueDate
-                            ? <Tag className="flex m-1 p-tag-rounded" icon={ <i className="pi mr-1 pi-calendar" /> }>
-                                  { new Date(item.dueDate).toLocaleDateString("en-GB")}
-                              </Tag>
+                            ? <Chip
+                                  className="mr-1 mb-1"
+                                  label={ new Date(item.dueDate).toLocaleDateString("en-GB")}
+                                  icon="pi pi-calendar"
+                                  removable
+                                  onRemove={ removeDueDate }
+                              />
                             : null
                         }
                         {
                             item.reminderDate
-                            ? <Tag className="flex m-1 p-tag-rounded" icon={ <i className="pi mr-1 pi-bell" /> }>
-                                  { new Date(item.reminderDate).toLocaleString("en-GB").replace(/:[^:]*$/, "") }
-                              </Tag>
+                            ? <Chip
+                                  className="mr-1 mb-1"
+                                  label={ new Date(item.reminderDate).toLocaleString("en-GB").replace(/:[^:]*$/, "") }
+                                  icon="pi pi-bell"
+                                  removable
+                                  onRemove={ removeReminderDate }
+                              />
                             : null
                         }
                         {
                             assignees.map(assignee =>
-                                <Tag
+                                <ChipAssignee
                                     key={ assignee._id }
-                                    className="flex m-1 p-tag-rounded assignee"
-                                    icon={
-                                        <Avatar
-                                            size="small"
-                                            className="p-avatar-circle assignee"
-                                            image={
-                                                assignee.profilePicturePath
-                                                ? assignee.profilePicturePath
-                                                : "/static/images/default_profile_picture.jpg"
-                                            }
-                                            alt={ assignee.username + " profile picture" }
-                                        />
-                                    }
-                                >
-                                    { assignee.username } x{ assignee.count }
-                                </Tag>
+                                    itemId={ item._id }
+                                    assignee={ assignee }
+                                    updateItem={ updateItem }
+                                    displayError={ displayError }
+                                />
                             )
                         }
                     </div>
@@ -163,7 +175,7 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                 itemId={ item._id }
                 display={ displayAddTag }
                 setDisplay={ setDisplayAddTag }
-                updateTags={ updateTags }
+                updateItem={ updateItem }
                 displayError={ displayError }
             />
             <EditItemDialog
@@ -173,13 +185,12 @@ export function Item({ item, listMembers, deleteItem, updateItem, displayError }
                 setDisplayEdit={ setDisplayEdit }
                 displayError={ displayError }
             />
-            <AssigneesDialog
-                itemId={ item._id }
+            <AddAssigneeDialog
+                item={ item }
+                members={ listMembers }
+                updateItem={ updateItem }
                 display={ displayAssignees }
                 setDisplay={ setDisplayAssignees }
-                listMembers={ listMembers }
-                assignees={ assignees }
-                setAssignees={ setAssignees }
                 displayError={ displayError }
             />
         </>

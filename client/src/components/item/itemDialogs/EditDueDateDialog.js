@@ -17,17 +17,6 @@ export default function EditDueDateDialog({ item, updateItem, displayEditDueDate
                  error => displayError(error.response.data.error)
              );
     };
-    const removeDueDate = () => {
-        axios.put(`/items/${ item._id }/dueDate`, { dueDate: null })
-             .then(
-                 item => {
-                     updateItem(item.data);
-                     setDueDate(undefined);
-                     setDisplayEditDueDate(false);
-                 },
-                 error => displayError(error.response.data.error)
-             );
-    };
     const dueDateFooter = () => {
         return (
             <div className="flex justify-content-center pb-5 pt-3 px-3">
@@ -43,7 +32,6 @@ export default function EditDueDateDialog({ item, updateItem, displayEditDueDate
                     onClick={ () => setDueDate(setActualDueDate(item.dueDate)) }
                     disabled={ !item.dueDate || new Date(item.dueDate).valueOf() === new Date(dueDate).valueOf() }
                 />
-                <Button className="mx-1" label="Remove due date" onClick={ removeDueDate } disabled={ !item.dueDate } />
             </div>
         );
     }

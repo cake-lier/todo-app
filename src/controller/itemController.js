@@ -151,8 +151,8 @@ function getAssignees(request, response) {
                             members: {
                                 $elemMatch:
                                     userId !== undefined
-                                        ? { userId: mongoose.Types.ObjectId(userId) }
-                                        : { anonymousId: request.body.anonymousId }
+                                    ? { userId: mongoose.Types.ObjectId(userId) }
+                                    : { anonymousId: request.body.anonymousId }
                             }
                         }
                     }
@@ -165,6 +165,7 @@ function getAssignees(request, response) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
+                const list = lists[0];
                 return Item.findById(request.params.id, undefined, { session })
                            .exec()
                            .then(item => {
@@ -173,34 +174,35 @@ function getAssignees(request, response) {
                                    return Promise.resolve();
                                }
                                return Promise.all(item.assignees.map(assignee => {
-                                   if (assignee.anonymousId) {
+                                   const member = list.members.filter(m => m._id.toString() === assignee.memberId.toString())[0];
+                                   if (member.anonymousId !== null) {
                                        return Promise.resolve({
-                                               _id: assignee._id,
-                                               username: lists[0].members
-                                                                 .filter(m => m.anonymousId === assignee.anonymousId)[0]
-                                                                 .username,
-                                               count: assignee.count,
-                                               profilePicturePath: null
+                                           _id: assignee._id,
+                                           memberId: assignee.memberId,
+                                           username: member.username,
+                                           count: assignee.count,
+                                           profilePicturePath: null
                                        });
                                    }
-                                   return User.findById(assignee.userId, undefined, { session })
-                                           .exec()
-                                           .then(user => {
-                                               if (user === null) {
-                                                   return Promise.resolve(null);
-                                               }
-                                               return Promise.resolve({
-                                                   _id: assignee._id,
-                                                   username: user.username,
-                                                   count: assignee.role,
-                                                   profilePicturePath:
-                                                       user.profilePicturePath === null
-                                                       ? null
-                                                       : "/static" + user.profilePicturePath
-                                               });
+                                   return User.findById(member.userId, undefined, { session })
+                                              .exec()
+                                              .then(user => {
+                                                  if (user === null) {
+                                                      return Promise.resolve(null);
+                                                  }
+                                                  return Promise.resolve({
+                                                      _id: assignee._id,
+                                                      memberId: assignee.memberId,
+                                                      username: user.username,
+                                                      count: assignee.count,
+                                                      profilePicturePath:
+                                                          user.profilePicturePath === null
+                                                          ? null
+                                                          : "/static" + user.profilePicturePath
+                                                  });
                                            });
                                    }))
-                                   .then(members => response.json(members.filter(m => m !== null)));
+                                   .then(assignees => response.json(assignees.filter(m => m !== null)));
                            });
             })
         ))
@@ -242,7 +244,7 @@ function updateItemProperty(request, response, onSuccess) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
-                return onSuccess(session, lists[0]);
+                return onSuccess(session, lists[0], session);
             })
         ))
         .catch(error => {
@@ -266,7 +268,7 @@ function updateItemAtomicProperty(request, response, updateObject, onSuccess, op
                 if (item === null) {
                     sendError(response, Error.ResourceNotFound);
                 } else {
-                    onSuccess(list, item);
+                    onSuccess(list, item, session);
                 }
                 return Promise.resolve();
             })
@@ -281,8 +283,8 @@ function updateTitle(request, response) {
         request,
         response,
         { $set: { title: request.body.title } },
-        (list, item) => {
-            User.findById(request.session.userId)
+        (list, item, session) => {
+            User.findById(request.session.userId, undefined, { session })
                 .exec()
                 .then(
                     user => {
@@ -307,7 +309,7 @@ function updateTitle(request, response) {
                                 const updatedItem = JSON.parse(JSON.stringify(item));
                                 updatedItem.title = request.body.title;
                                 response.json(updatedItem);
-                            });
+                           displayError(error.response.data.error) });
                     },
                     error => console.log(error)
                 )
@@ -527,7 +529,9 @@ function removeTag(request, response) {
                         })
                             .catch(error => console.log(error))
                             .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTagsRemoved", listId, text);
+                                io.in(`list:${ listId }`)
+                                  .except(`user:${ request.session.userId }`)
+                                  .emit("itemTagsRemoved", listId, text);
                                 io.in(`list:${ listId }`).emit("itemTagsRemovedReload", listId);
                                 response.json(item);
                             });
@@ -605,9 +609,9 @@ function updateCount(request, response) {
     );
 }
 
-function upsertAssignee(request, response) {
+function addAssignee(request, response) {
     const userId = request.session.userId;
-    if (!validateRequest(request, response, ["count"], ["id", "memberId"])) {
+    if (!validateRequest(request, response, ["memberId", "count"], ["id"])) {
         return;
     }
     if (userId === undefined && !request.body.anonymousId) {
@@ -618,7 +622,12 @@ function upsertAssignee(request, response) {
         .then(session => session.withTransaction(() =>
             Item.aggregate(
                 [
-                    { $match: { _id: mongoose.Types.ObjectId(request.params.id) } },
+                    {
+                        $match: {
+                            _id: mongoose.Types.ObjectId(request.params.id),
+                            assignees: { $not: { $elemMatch: { memberId: mongoose.Types.ObjectId(request.body.memberId) } } }
+                        }
+                    },
                     { $lookup: { from: "lists", localField: "listId", foreignField: "_id", as: "lists" } },
                     { $replaceRoot: { newRoot: { $arrayElemAt: [ "$lists", 0 ] } } },
                     {
@@ -627,12 +636,12 @@ function upsertAssignee(request, response) {
                                 {
                                     members: {
                                         $elemMatch:
-                                            userId !== undefined
-                                            ? { userId: mongoose.Types.ObjectId(userId) }
-                                            : { anonymousId: request.body.anonymousId }
+                                        userId !== undefined
+                                        ? { userId: mongoose.Types.ObjectId(userId) }
+                                        : { anonymousId: request.body.anonymousId }
                                     },
                                 },
-                                { members: { $elemMatch: { _id: mongoose.Types.ObjectId(request.params.memberId) } } }
+                                { members: { $elemMatch: { _id: mongoose.Types.ObjectId(request.body.memberId) } } }
                             ]
                         }
                     }
@@ -652,17 +661,14 @@ function upsertAssignee(request, response) {
                                    sendError(response, Error.ResourceNotFound);
                                    return Promise.resolve();
                                }
-                               const removedCount =
-                                   request.body.count
-                                   - (item.assignees.filter(a => a._id.toString() === request.body.memberId)[0]?.count ?? 0);
-                               if (item.remainingCount < removedCount) {
+                               if (item.remainingCount < request.body.count) {
                                    sendError(response, Error.GeneralError);
                                    return Promise.resolve();
                                }
                                return Item.findByIdAndUpdate(
                                    request.params.id,
                                    {
-                                       remainingCount: item.remainingCount - removedCount,
+                                       remainingCount: item.remainingCount - request.body.count,
                                        $push: { assignees: { memberId: request.body.memberId, count: request.body.count } }
                                    },
                                    { session, runValidators: true, new: true, context: "query" }
@@ -684,22 +690,23 @@ function upsertAssignee(request, response) {
                                                        authorUsername,
                                                        authorProfilePicturePath,
                                                        users: lists[0].members
-                                                           .filter(m => m.userId !== null
-                                                               && m.userId.toString() !== request.session.userId)
-                                                           .map(m => m.userId),
+                                                                      .filter(
+                                                                          m => m.userId !== null
+                                                                               && m.userId.toString() !== request.session.userId
+                                                                      )
+                                                                      .map(m => m.userId),
                                                        text,
                                                        listId,
                                                        listTitle: lists[0].title
                                                    })
-                                                       .catch(error => console.log(error))
-                                                       .then(_ => {
-                                                           io.in(`list:${ listId }`)
-                                                               .except(`user:${ request.session.userId }`)
-                                                               .emit("itemAssigneeAdded", listId, text);
-                                                           io.in(`list:${ listId }`).emit("itemAssigneeAddedReload", listId);
-                                                           response.json(item);
-                                                       });
-
+                                                   .catch(error => console.log(error))
+                                                   .then(_ => {
+                                                       io.in(`list:${ listId }`)
+                                                         .except(`user:${ request.session.userId }`)
+                                                         .emit("itemAssigneeAdded", listId, text);
+                                                       io.in(`list:${ listId }`).emit("itemAssigneeAddedReload", listId);
+                                                       response.json(item);
+                                                   });
                                                },
                                                error => console.log(error)
                                            )
@@ -708,6 +715,127 @@ function upsertAssignee(request, response) {
                                });
                            });
             })
+        ))
+        .catch(error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        });
+}
+
+function updateAssignee(request, response) {
+    const userId = request.session.userId;
+    if (!validateRequest(request, response, ["count"], ["id", "assigneeId"])) {
+        return;
+    }
+    if (userId === undefined && !request.body.anonymousId) {
+        sendError(response, Error.RequestError);
+        return;
+    }
+    List.startSession()
+        .then(session => session.withTransaction(() =>
+            Item.aggregate(
+                [
+                    {
+                        $match: {
+                            _id: mongoose.Types.ObjectId(request.params.id),
+                            assignees: { $elemMatch: { _id: mongoose.Types.ObjectId(request.params.assigneeId) } }
+                        }
+                    },
+                    { $lookup: { from: "lists", localField: "listId", foreignField: "_id", as: "lists" } },
+                    { $replaceRoot: { newRoot: { $arrayElemAt: [ "$lists", 0 ] } } },
+                    {
+                        $match: {
+                            members: {
+                                $elemMatch:
+                                    userId !== undefined
+                                    ? { userId: mongoose.Types.ObjectId(userId) }
+                                    : { anonymousId: request.body.anonymousId }
+                            },
+                        }
+                    }
+                ],
+                { session }
+            )
+            .exec()
+            .then(lists => {
+                if (lists.length === 0) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                return Item.findById(request.params.id, undefined, { session })
+                           .exec()
+                           .then(item => {
+                               if (item === null) {
+                                   sendError(response, Error.ResourceNotFound);
+                                   return Promise.resolve();
+                               }
+                               const removedCount =
+                                   request.body.count
+                                   - (item.assignees.filter(a => a._id.toString() === request.params.assigneeId)[0].count);
+                               if (item.remainingCount < removedCount) {
+                                   sendError(response, Error.GeneralError);
+                                   return Promise.resolve();
+                               }
+                               return Item.findByIdAndUpdate(
+                                   request.params.id,
+                                   {
+                                       $set: {
+                                           remainingCount: item.remainingCount - removedCount,
+                                           "assignees.$[element].count": request.body.count
+                                       }
+                                   },
+                                   {
+                                       session,
+                                       runValidators: true,
+                                       new: true,
+                                       context: "query",
+                                       arrayFilters: [ { "element._id": mongoose.Types.ObjectId(request.params.assigneeId) } ]
+                                   }
+                               )
+                               .exec()
+                               .then(item => {
+                                   if (item === null) {
+                                       sendError(response, Error.ResourceNotFound);
+                                   } else {
+                                       User.findById(request.session.userId)
+                                           .exec()
+                                           .then(
+                                               user => {
+                                                   const authorUsername = user.username;
+                                                   const authorProfilePicturePath = user.profilePicturePath;
+                                                   const listId = lists[0]._id.toString();
+                                                   const text =
+                                                       `${authorUsername} updated an assignee of the item "${item.title}"`;
+                                                   Notification.create({
+                                                       authorUsername,
+                                                       authorProfilePicturePath,
+                                                       users:
+                                                           lists[0].members
+                                                                   .filter(
+                                                                       m => m.userId !== null
+                                                                            && m.userId.toString() !== request.session.userId
+                                                                   )
+                                                                   .map(m => m.userId),
+                                                       text,
+                                                       listId,
+                                                       listTitle: lists[0].title
+                                                   })
+                                                   .catch(error => console.log(error))
+                                                   .then(_ => {
+                                                       io.in(`list:${ listId }`)
+                                                         .except(`user:${ request.session.userId }`)
+                                                         .emit("itemAssigneeUpdated", listId, text);
+                                                       io.in(`list:${ listId }`).emit("itemAssigneeUpdatedReload", listId);
+                                                       response.json(item);
+                                                   });
+                                               },
+                                               error => console.log(error)
+                                           );
+                                   }
+                                   return Promise.resolve();
+                               });
+                           });
+                })
         ))
         .catch(error => {
             console.log(error);
@@ -866,11 +994,12 @@ function updatePriority(request, response) {
                         })
                             .catch(error => console.log(error))
                             .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemPriorityChanged", listId, text);
+                                io.in(`list:${ listId }`)
+                                  .except(`user:${ request.session.userId }`)
+                                  .emit("itemPriorityChanged", listId, text);
                                 io.in(`list:${ listId }`).emit("itemPriorityChangedReload", listId);
                                 response.json(item);
                             });
-
                     },
                     error => console.log(error)
                 )
@@ -889,7 +1018,8 @@ module.exports = {
     addTag,
     removeTag,
     updateCount,
-    upsertAssignee,
+    addAssignee,
+    updateAssignee,
     removeAssignee,
     getAssignees,
     updatePriority,

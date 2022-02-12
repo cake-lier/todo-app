@@ -61,7 +61,7 @@ export default function MyDayItem({ socket, displayError }) {
         function handleUpdates(event) {
             if (new RegExp(
                     "^(?:list(?:Deleted|Self(?:Added|Removed))|"
-                    + "item(?:Created|(?:Title|Text|Date|Completion|Count)Changed|Assignee(?:Added|Removed)|"
+                    + "item(?:Created|(?:Title|Text|Date|Completion|Count)Changed|Assignee(?:Added|Changed|Removed)|"
                     + "Tags(?:Added|Removed)|Deleted))Reload$"
                 ).test(event)) {
                 getItems();
@@ -112,7 +112,7 @@ export default function MyDayItem({ socket, displayError }) {
                       titleElement="P"
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ prioritized } lists={ lists } />
+                      <ItemsReadonlyContainer currentItems={ prioritized } lists={ lists } displayError={ displayError } />
                   </Panel>
             }
             {
@@ -125,7 +125,7 @@ export default function MyDayItem({ socket, displayError }) {
                       titleElement="P"
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ pastDue } lists={ lists } />
+                      <ItemsReadonlyContainer currentItems={ pastDue } lists={ lists } displayError={ displayError } />
                   </Panel>
             }
             {
@@ -137,7 +137,7 @@ export default function MyDayItem({ socket, displayError }) {
                       headerTemplate={ template }
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ dueToday } lists={ lists } />
+                      <ItemsReadonlyContainer currentItems={ dueToday } lists={ lists } displayError={ displayError } />
                   </Panel>
             }
             {
@@ -149,7 +149,7 @@ export default function MyDayItem({ socket, displayError }) {
                       headerTemplate={template}
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ upcoming } lists={ lists } />
+                      <ItemsReadonlyContainer currentItems={ upcoming } lists={ lists } displayError={ displayError } />
                   </Panel>
             }
             <div className={ ( !loading && !tasksPresent ? "" : "hidden") }>

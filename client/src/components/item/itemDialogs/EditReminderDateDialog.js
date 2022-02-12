@@ -17,17 +17,6 @@ export default function EditReminderDateDialog({ item, updateItem, displayEditRe
                  error => displayError(error.response.data.error)
              );
     };
-    const removeReminderDate = () => {
-        axios.put(`/items/${ item._id }/reminderDate`, { reminderDate: null })
-            .then(
-                item => {
-                    updateItem(item.data);
-                    setReminderDate(undefined);
-                    setDisplayEditReminderDate(false);
-                },
-                error => displayError(error.response.data.error)
-            );
-    };
     const reminderDateFooter = () => {
         return (
             <div className="flex justify-content-center pb-5 pt-3 px-3">
@@ -46,12 +35,6 @@ export default function EditReminderDateDialog({ item, updateItem, displayEditRe
                     disabled={
                         !item.reminderDate || new Date(item.reminderDate).valueOf() === new Date(reminderDate).valueOf()
                     }
-                />
-                <Button
-                    className="mx-1"
-                    label="Remove reminder"
-                    onClick={ removeReminderDate }
-                    disabled={ !item.reminderDate }
                 />
             </div>
         );

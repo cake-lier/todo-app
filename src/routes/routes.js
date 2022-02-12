@@ -42,8 +42,9 @@ function initializeItemRoutes(app) {
     app.route("/items/:id/tags").post(controller.item.addTag);
     app.route("/items/:id/tags/:tagId").delete(controller.item.removeTag);
     app.route("/items/:id/count").put(controller.item.updateCount);
-    app.route("/items/:id/assignees").get(controller.item.getAssignees);
-    app.route("/items/:id/assignees/:assigneeId").put(controller.item.upsertAssignee)
+    app.route("/items/:id/assignees").get(controller.item.getAssignees)
+                                     .post(controller.item.addAssignee);
+    app.route("/items/:id/assignees/:assigneeId").put(controller.item.updateAssignee)
                                                  .delete(controller.item.removeAssignee);
     app.route("/items/:id/priority").put(controller.item.updatePriority);
 }
