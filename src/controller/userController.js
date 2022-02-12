@@ -9,6 +9,7 @@ const Notification = require("../model/notificationsModel").createNotificationMo
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const mongoose = require("mongoose");
+const schedule = require("node-schedule");
 const rounds = 12;
 
 function decodeImage(encodedImage, response) {
@@ -46,6 +47,34 @@ function createUser(request, response, path, hashedPassword) {
     });
 }
 
+function triggerTimeAchievement(request, response, date, index){
+    schedule.scheduleJob(date, function(){
+        console.log('The world is going to end today.');
+        User.findById(request.session.userId)
+            .exec()
+            .then(user => {
+                if (user === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                let achievements = [...user.achievements];
+                achievements[index] = true;
+                User.findByIdAndUpdate(
+                    request.session.userId,
+                    { $set: { achievements: achievements} },
+                    { context: "query" }
+                )
+                    .exec()
+                    .then(
+                        user => { },
+                        error => {
+                            console.log(error);
+                        }
+                    );
+            });
+    });
+}
+
 function signup(request, response) {
     if (!validateRequest(
         request,
@@ -54,6 +83,21 @@ function signup(request, response) {
     )) {
         return;
     }
+
+    // achievements
+    // TODO possibly look into another library (i.e. agenda) for permanence
+    const now = new Date();
+    const date0 = new Date().setMonth(now.getMonth() + 6);
+    triggerTimeAchievement(request, response, date0, 0);
+
+    const date1 = new Date().setFullYear(now.getFullYear() + 1);
+    triggerTimeAchievement(request, response, date1, 1);
+
+    const date2 = new Date().setFullYear(now.getFullYear() + 2);
+    triggerTimeAchievement(request, response, date2, 2);
+
+    // ---
+
     bcrypt.hash(request.body.password, rounds)
           .then(hashedPassword => {
               if (request.body.profilePicture) {
