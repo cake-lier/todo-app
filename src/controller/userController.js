@@ -566,6 +566,22 @@ function enableListNotifications(request, response) {
     );
 }
 
+function getAchievements(request, response) {
+    if (!validateRequest(request, response, [], [], true)) {
+        return;
+    }
+
+    User.findById(request.session.userId)
+        .exec()
+        .then(user => {
+            if (user === null) {
+                sendError(response, Error.ResourceNotFound);
+                return Promise.resolve();
+            }
+            return user.achievements;
+        })
+}
+
 module.exports = {
     signup,
     getUser,
@@ -575,5 +591,6 @@ module.exports = {
     enableListNotifications,
     unregister,
     login,
-    logout
+    logout,
+    getAchievements
 }
