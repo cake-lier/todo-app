@@ -395,7 +395,33 @@ function updateCompletion(request, response) {
                 io.in(`list:${listId}`).except(`user:${ request.session.userId }`).emit("itemCompletionChanged", listId, text);
                 io.in(`list:${listId}`).emit("itemCompletionChangedReload", listId);
                 response.json(item);
-            });
+            })
+            .then(_ => {
+                User.findByIdAndUpdate(
+                    request.session.userId,
+                    request.body.isComplete ? {$inc: {completedTasks: 1}} : {$inc: {completedTasks: -1}},
+                    {context: "query", new: true}
+                )
+                .exec()
+                .then(user => {
+                    switch(user.completedTasks) {
+                        case 5:
+                            achievementHelper.addAchievement(request.session.userId, 3); break;
+                        case 10:
+                            achievementHelper.addAchievement(request.session.userId, 4); break;
+                        case 25:
+                            achievementHelper.addAchievement(request.session.userId, 5); break;
+                        case 50:
+                            achievementHelper.addAchievement(request.session.userId, 6); break;
+                        case 100:
+                            achievementHelper.addAchievement(request.session.userId, 7); break;
+                        case 150:
+                            achievementHelper.addAchievement(request.session.userId, 8); break;
+                        case 200:
+                            achievementHelper.addAchievement(request.session.userId, 9); break;
+                    }
+                }, error => console.log(error));
+             });
         }
     );
 }

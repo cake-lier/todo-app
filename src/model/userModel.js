@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     achievements: {
         type: [Boolean],
         default: _.range(0, 14).map(_ => false)
+    },
+    completedTasks: {
+        type: Number,
+        default: 0
     }
 });
 
