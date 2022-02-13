@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const mongoose = require("mongoose");
 const schedule = require("node-schedule");
+const achievementHelper = require("./achievementHelper");
 const _ = require("lodash");
 const rounds = 12;
 
@@ -48,13 +49,6 @@ function createUser(request, response, path, hashedPassword) {
     });
 }
 
-function triggerTimeAchievement(request, response, date, index){
-    schedule.scheduleJob(date, function(){
-        console.log('The world is going to end today.');
-        updateAchievements(request, response, index);
-    });
-}
-
 function signup(request, response) {
     if (!validateRequest(
         request,
@@ -67,14 +61,22 @@ function signup(request, response) {
     // achievements
     // TODO possibly look into another library (i.e. agenda) for permanence
     const now = new Date();
-    const date0 = new Date().setMonth(now.getMonth() + 6);
-    triggerTimeAchievement(request, response, date0, 0);
+    //const date0 = new Date().setMonth(now.getMonth() + 6);
+    const date0 = new Date().setSeconds(now.getSeconds() + 10);
+    schedule.scheduleJob(date0, function (){
+        achievementHelper.addAchievement(request.session.userId, 0);
+    })
 
-    const date1 = new Date().setFullYear(now.getFullYear() + 1);
-    triggerTimeAchievement(request, response, date1, 1);
+    //const date1 = new Date().setFullYear(now.getFullYear() + 1);
+    const date1 = new Date().setSeconds(now.getSeconds() + 30);
+    schedule.scheduleJob(date1, function (){
+        achievementHelper.addAchievement(request.session.userId, 1);
+    })
 
     const date2 = new Date().setFullYear(now.getFullYear() + 2);
-    triggerTimeAchievement(request, response, date2, 2);
+    schedule.scheduleJob(date2, function (){
+        achievementHelper.addAchievement(request.session.userId, 2);
+    })
 
     // ---
 
@@ -606,44 +608,13 @@ function getAchievements(request, response) {
         });
 }
 
-function addAchievement(request, response) {
+function addReportsAchievement(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
 
-    if ( _.inRange(request.body.index, 0, 14) ) {
-            updateAchievements(request, response, request.body.index);
-            return;
-    } else {
-        sendError(response, Error.RequestError);
-    }
+    achievementHelper.addAchievement(request.session.userId, 10);
 
-}
-
-/* Sets achievement at specified index to true */
-function updateAchievements(request, response, index) {
-    User.findById(request.session.userId)
-        .exec()
-        .then(user => {
-            if (user === null) {
-                sendError(response, Error.ResourceNotFound);
-                return Promise.resolve();
-            }
-            let achievements = [...user.achievements];
-            achievements[index] = true;
-            User.findByIdAndUpdate(
-                request.session.userId,
-                { $set: { achievements: achievements} },
-                { context: "query" }
-            )
-                .exec()
-                .then(
-                    user => { },
-                    error => {
-                        console.log(error);
-                    }
-                );
-        });
 }
 
 module.exports = {
@@ -657,5 +628,5 @@ module.exports = {
     login,
     logout,
     getAchievements,
-    addAchievement
+    addReportsAchievement
 }

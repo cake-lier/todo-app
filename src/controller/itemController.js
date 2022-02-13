@@ -6,6 +6,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
+const achievementHelper = require("./achievementHelper");
 const { scheduleNextReminder, scheduleForDate } = require("../utils/schedule");
 
 function createItem(request, response) {
@@ -45,26 +46,9 @@ function createItem(request, response) {
                 })
                 .then(item => {
                     // achievement
-                    User.findById(request.session.userId)
-                        .exec()
-                        .then(user => {
-                            if ( !user.achievements[13] ){
-                                let achievements = [...user.achievements];
-                                achievements[13] = true;
-                                User.findByIdAndUpdate(
-                                    request.session.userId,
-                                    { $set: { achievements: achievements} },
-                                    { context: "query" }
-                                )
-                                    .exec()
-                                    .then(
-                                        user => { },
-                                        error => {
-                                            console.log(error);
-                                        }
-                                    );
-                            }
-                        })
+                    if (userId !== undefined){
+                        achievementHelper.addAchievement(request.session.userId, 13);
+                    }
                     // ---
                     const listId = list._id.toString();
                     const text = `The item "${ item.title }" was added to the list "${ list.title }"`;

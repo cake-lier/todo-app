@@ -8,6 +8,7 @@ const uuid = require("uuid");
 const otp = require("otp-generator");
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
+const achievementHelper = require("./achievementHelper");
 
 function createList(request, response) {
     if (!validateRequest(request, response, ["title"], [], true)) {
@@ -25,26 +26,7 @@ function createList(request, response) {
     .then(
         list => {
             // achievement
-            User.findById(request.session.userId)
-                .exec()
-                .then(user => {
-                    if ( !user.achievements[12] ){
-                        let achievements = [...user.achievements];
-                        achievements[12] = true;
-                        User.findByIdAndUpdate(
-                            request.session.userId,
-                            { $set: { achievements: achievements} },
-                            { context: "query" }
-                        )
-                            .exec()
-                            .then(
-                                user => { },
-                                error => {
-                                    console.log(error);
-                                }
-                            );
-                    }
-                })
+            achievementHelper.addAchievement(request.session.userId, 12);
             // ---
             const listId = list._id.toString();
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);

@@ -18,7 +18,7 @@ export default function Reports({ user, unsetUser, tab, socket, notifications, s
     // achievement
     useEffect( ()=> {
         if (!user.achievements[10]){ // if not yet unlocked
-            axios.put("/users/me/achievements", {index: 10}).then(r => {});
+            axios.put("/users/me/achievements").then(r => {});
             user.achievements[10] = true;
         }
     }, []);
