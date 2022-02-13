@@ -72,7 +72,7 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
         function handleUpdates(event, eventListId) {
             if (list._id === eventListId
                 && new RegExp(
-                       "^item(?:Created|(?:Title|DueDate|Reminder|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
+                       "^item(?:Created|(?:Title|DueDate|ReminderDate|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
                        + "|Assignee(?:Added|Removed)|Deleted)Reload$"
                    ).test(event)
             ) {

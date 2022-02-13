@@ -56,6 +56,16 @@ export default function Notifications({ notifications, setNotifications, socket,
 
     const itemTemplate = data => {
         const subtitle = Moment(data.insertionDate).fromNow().toString() + (data.listTitle ? " - List: " + data.listTitle : "");
+        const authorUsername = data.authorUsername;
+        const memberIndex = data.text.indexOf("member")
+        const secondPartIndex = data.text.includes("in") ?
+            data.text.indexOf("in") : data.text.includes("from") ?
+                data.text.indexOf("from") : data.text.indexOf("to");
+        const firstPartText = data.text.substring(0,
+            (memberIndex === -1 ? data.text.length : (memberIndex+7)))
+        const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex-2) : null;
+        const memberUsername = secondPartText !== null ? data.text.substring(memberIndex+7, secondPartIndex) : null;
+
         return (
             <div className="grid p-3 pl-3 w-full" >
                 <div className="col-11 p-0 flex align-items-center justify-content-start">
@@ -66,7 +76,11 @@ export default function Notifications({ notifications, setNotifications, socket,
                     />
                     <div className="mx-2">
                         <div className="flex align-items-center justify-content-start flex-wrap">
-                            <p><span className="font-semibold">{data.authorUsername}</span> { data.text }</p>
+                            <p><span className="font-semibold">{authorUsername} </span>
+                                {firstPartText}
+                                <span className="font-semibold"> {memberIndex === -1 ? null : memberUsername} </span>
+                                {memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ")+1)}
+                                </p>
                         </div>
                         <div>
                             <p className="text-sm py-1">{subtitle}</p>
@@ -105,7 +119,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                             </div>
                         </div>
                     }
-                    scrollHeight="400px"
+                    scrollHeight="350px"
                     itemTemplate={ itemTemplate }
                     emptyMessage={
                         <div className="grid flex flex-1 pt-5 pb-6 flex-column justify-content-center align-items-center">

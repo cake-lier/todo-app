@@ -9,6 +9,7 @@ function getUserNotifications(request, response) {
         return;
     }
     Notification.find({ users: mongoose.Types.ObjectId(request.session.userId) })
+                .sort('-insertionDate')
                 .exec()
                 .then(
                     notifications => response.json(notifications),
