@@ -99,13 +99,11 @@ export default function ListOptionsMenu({ userId, setUser, ownership, disabledNo
     ];
     return (
         <>
-            <div className="col-1 flex flex-row-reverse align-items-center">
-                <Button
-                    icon="pi pi-ellipsis-h"
-                    onClick={ e => menu.current.toggle(e) }
-                    className="p-button-rounded p-button-icon-only p-button-text three-dots text-3xl"
-                />
-            </div>
+            <Button
+                icon="pi pi-ellipsis-h"
+                onClick={ e => menu.current.toggle(e) }
+                className="p-button-rounded p-button-icon-only p-button-text three-dots text-3xl"
+            />
             <TieredMenu model={ items } popup ref={ menu } id="overlay_tmenu" />
             <Dialog className="w-27rem m-3"
                     header="Join code"

@@ -38,12 +38,8 @@ export default function MyDayItem({ socket, displayError }) {
                          );
                          return axios.get("/lists")
                                      .then(
-                                         ls => {
-                                             setLists(
-                                                 ls.data
-                                                   .filter(l => listIds.includes(l._id))
-                                                   .map(l => ({ id: l._id, title: l.title }))
-                                             );
+                                         lists => {
+                                             setLists(lists.data.filter(l => listIds.includes(l._id)));
                                              setTasksPresent(true);
                                          },
                                          error => displayError(error.response.data.error)
@@ -112,7 +108,11 @@ export default function MyDayItem({ socket, displayError }) {
                       titleElement="P"
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ prioritized } lists={ lists } displayError={ displayError } />
+                      <ItemsReadonlyContainer
+                          currentItems={ prioritized }
+                          lists={ lists }
+                          displayError={ displayError }
+                      />
                   </Panel>
             }
             {
@@ -125,7 +125,11 @@ export default function MyDayItem({ socket, displayError }) {
                       titleElement="P"
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ pastDue } lists={ lists } displayError={ displayError } />
+                      <ItemsReadonlyContainer
+                          currentItems={ pastDue }
+                          lists={ lists }
+                          displayError={ displayError }
+                      />
                   </Panel>
             }
             {
@@ -137,7 +141,11 @@ export default function MyDayItem({ socket, displayError }) {
                       headerTemplate={ template }
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ dueToday } lists={ lists } displayError={ displayError } />
+                      <ItemsReadonlyContainer
+                          currentItems={ dueToday }
+                          lists={ lists }
+                          displayError={ displayError }
+                      />
                   </Panel>
             }
             {
@@ -149,13 +157,17 @@ export default function MyDayItem({ socket, displayError }) {
                       headerTemplate={template}
                       toggleable
                   >
-                      <ItemsReadonlyContainer currentItems={ upcoming } lists={ lists } displayError={ displayError } />
+                      <ItemsReadonlyContainer
+                          currentItems={ upcoming }
+                          lists={ lists }
+                          displayError={ displayError }
+                      />
                   </Panel>
             }
             <div className={ ( !loading && !tasksPresent ? "" : "hidden") }>
                 <EmptyPlaceholder
                     title={ "No items to display" }
-                    subtitle={ "Items that have a due date will show up here." }
+                    subtitle={ "Items that have a due date or a priority will show up here." }
                     type={"items"}
                 />
             </div>

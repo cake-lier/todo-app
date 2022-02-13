@@ -27,7 +27,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                         checked={ !!item.completionDate }
                     />
                     <label htmlFor={ item._id }>
-                        { item.title } - From: { lists.filter(l => l.id === item.listId)[0].title }
+                        { item.title } - From: { lists.filter(l => l._id === item.listId)[0].title }
                     </label>
                     <div className="flex align-items-center">
                         <p className="count-items flex m-1 text-xl" style={{ color: "#E61950" }}>

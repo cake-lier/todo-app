@@ -17,6 +17,7 @@ import Reports from "../pages/reports/Reports";
 import Achievements from "../pages/achievements/Achievements";
 import { NotificationsContext } from "../utils/contexts";
 import LegalAdvisory from "../pages/termsAndCookies/LegalAdvisory";
+import Search from "../pages/search/Search";
 
 class App extends Component {
 
@@ -333,6 +334,21 @@ class App extends Component {
                             this.state.user === null
                             ? <LegalAdvisory displayTerms={ false } user={ this.state.user } />
                             : <Navigate to="/my-day" />
+                        }
+                    />
+                    <Route
+                        path="/search"
+                        element={
+                            this.state.user !== null
+                            ? <Search
+                                  user={ this.state.user }
+                                  setUser={ this.setUser }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                              />
+                              : <Navigate to="/"/>
                         }
                     />
                 </Routes>

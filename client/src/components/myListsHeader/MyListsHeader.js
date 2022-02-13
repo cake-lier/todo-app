@@ -1,10 +1,18 @@
 import { Button } from 'primereact/button';
 import "./MyListsHeader.scss";
-import {useState} from "react";
+import {useRef, useState} from "react";
 import CreateListDialog from "../listDialogs/CreateListDialog";
+import {Menu} from "primereact/menu";
 
-export default function MyListsHeader({ appendList, displayError }) {
+export default function MyListsHeader({ appendList, setOrdering, displayError }) {
     const [display, setDisplay] = useState(false);
+    const menu = useRef();
+    const menuItems = [
+        { label: "Name ascending", icon: "pi pi-sort-alpha-down", command: _ => setOrdering(0) },
+        { label: "Name descending", icon: "pi pi-sort-alpha-up", command: _ => setOrdering(1) },
+        { label: "Creation ascending", icon: "pi pi-sort-numeric-down", command: _ => setOrdering(2) },
+        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) }
+    ];
     return (
         <div className="grid">
             <CreateListDialog
@@ -24,7 +32,14 @@ export default function MyListsHeader({ appendList, displayError }) {
                 />
             </div>
             <div className="col-6 m-0 pl-1 flex align-content-center justify-content-end">
-                <Button className="py-0" id="search-button" icon="pi pi-search" alt="search"/>
+                <Button
+                    id="order-button"
+                    className="py-0"
+                    label="Sort by"
+                    icon="pi pi-sort-amount-down-alt"
+                    onClick={ e => menu.current.toggle(e) }
+                />
+                <Menu model={ menuItems } popup ref={ menu } />
             </div>
         </div>
     );

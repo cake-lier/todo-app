@@ -2,7 +2,7 @@ import EmptyPlaceholder from "../../EmptyPlaceholder";
 import ReadonlyItem from "../ReadonlyItem";
 import "./ItemsReadonlyContainer.scss";
 
-export default function ItemsReadonlyContainer({ currentItems, lists, displayError }) {
+export default function ItemsReadonlyContainer({ emptyTitle, emptySubtitle, currentItems, lists, displayError }) {
     return (
         <div className="grid flex-column flex-grow-1">
             {
@@ -12,9 +12,9 @@ export default function ItemsReadonlyContainer({ currentItems, lists, displayErr
                   )
                 : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
                       <EmptyPlaceholder
-                          title={ "No items to display" }
-                          subtitle={ "Items that have a due date will show up here." }
-                          type={"items"}
+                          title={ emptyTitle }
+                          subtitle={ emptySubtitle }
+                          type="items"
                       />
                   </div>
             }

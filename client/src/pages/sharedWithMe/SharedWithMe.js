@@ -3,12 +3,22 @@ import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import { useCallback, useRef, useState } from "react";
 import ListItem from "../../components/listItem/ListItem";
+import {Button} from "primereact/button";
+import {Menu} from "primereact/menu";
 
 export default function SharedWithMe({ setUser, user, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
+    const [ordering, setOrdering] = useState(null);
+    const menu = useRef();
+    const menuItems = [
+        { label: "Name ascending", icon: "pi pi-sort-alpha-down", command: _ => setOrdering(0) },
+        { label: "Name descending", icon: "pi pi-sort-alpha-up", command: _ => setOrdering(1) },
+        { label: "Creation ascending", icon: "pi pi-sort-numeric-down", command: _ => setOrdering(2) },
+        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) }
+    ];
     const [lists, setLists] = useState([]);
     return (
         <div className="grid h-screen">
@@ -28,6 +38,18 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                     socket={ socket }
                     displayError={ displayError }
                 />
+                <div className="grid">
+                    <div className="col-12 m-0 pl-1 flex align-content-center justify-content-end">
+                        <Button
+                            className="my-2"
+                            id="order-button"
+                            label="Sort by"
+                            icon="pi pi-sort-amount-down-alt"
+                            onClick={ e => menu.current.toggle(e) }
+                        />
+                        <Menu model={ menuItems } popup ref={ menu } />
+                    </div>
+                </div>
                 <ListItem
                     setUser={ setUser }
                     lists={ lists }
@@ -37,6 +59,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                     displayError={ displayError }
                     socket={ socket }
                     disabledNotificationsLists={ user.disabledNotificationsLists }
+                    ordering={ ordering }
                 />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
@@ -62,6 +85,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         displayError={ displayError }
                         socket={ socket }
                         disabledNotificationsLists={ user.disabledNotificationsLists }
+                        ordering={ ordering }
                     />
                 </div>
             </div>

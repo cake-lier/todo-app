@@ -51,7 +51,12 @@ export default function MainMenu({ selected }) {
     ];
 
     const subItems = [
-        { label: "Search", icon: PrimeIcons.SEARCH, disabled: selected === "Search" },
+        {
+            label: "Search",
+            icon: PrimeIcons.SEARCH,
+            disabled: selected === "Search",
+            command: useOnClicked("search")
+        },
         {
             label: "Settings",
             icon: PrimeIcons.COG,

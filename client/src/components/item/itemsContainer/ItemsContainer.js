@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import {useState, useCallback, useEffect, useRef} from 'react';
 import { Button } from 'primereact/button';
 import Item from "../Item";
 import axios from "axios";
@@ -8,6 +8,8 @@ import EmptyPlaceholder from "../../EmptyPlaceholder";
 import "./ItemsContainer.scss";
 import ListOptionsMenu from "../../ListOptionsMenu";
 import {useNavigate} from "react-router-dom";
+import {Menu} from "primereact/menu";
+import {DataView} from "primereact/dataview";
 
 export default function ItemsContainer({ userId, setUser, list, setList, disabledNotificationsLists, socket, displayError }) {
     // checklist
@@ -17,6 +19,38 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
+    const [ordering, setOrdering] = useState(null);
+    const menu = useRef();
+    const menuItems = [
+        { label: "Name ascending", icon: "pi pi-sort-alpha-down", command: _ => setOrdering(0) },
+        { label: "Name descending", icon: "pi pi-sort-alpha-up", command: _ => setOrdering(1) },
+        { label: "Creation ascending", icon: "pi pi-sort-numeric-down", command: _ => setOrdering(2) },
+        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) }
+    ];
+    const getSortField = ordering => {
+        switch (ordering) {
+            case 0:
+            case 1:
+                return "title";
+            case 2:
+            case 3:
+                return "creationDate";
+            default:
+                return null;
+        }
+    };
+    const getSortOrder = ordering => {
+        switch (ordering) {
+            case 0:
+            case 2:
+                return 1;
+            case 1:
+            case 3:
+                return -1;
+            default:
+                return null;
+        }
+    };
     // init items from database
     const getItems = useCallback(() => {
         axios.get(`/lists/${ list._id }/items/`)
@@ -55,7 +89,7 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
                  _ => removeItem(item),
                  error => displayError(error.response.data.error)
              );
-    }
+    };
     const [displayDialog, setDisplayDialog] = useState(false);
     const navigate = useNavigate();
     const updateList = useCallback(lists => {
@@ -69,22 +103,32 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
         <>
             <div className="grid flex-column flex-grow-1">
                 <div className="col-12 m-0 p-0 pr-2 grid">
-                    <div className="col-11 p-0">
+                    <div className="col-10 p-0">
                         <Button className="m-3"
                                 label="New Item" icon="pi pi-plus"
                                 onClick={() => setDisplayDialog(true)}
                         />
                     </div>
-                    <ListOptionsMenu
-                        userId={ userId }
-                        setUser={ setUser }
-                        ownership={ list.members.filter(m => m.userId === userId)[0].role === "owner" }
-                        disabledNotificationsLists={ disabledNotificationsLists }
-                        list={ list }
-                        lists={ [list] }
-                        setLists={ updateList }
-                        displayError={ displayError }
-                    />
+                    <div className="col-2 m-0 pl-1 flex align-items-center justify-content-end">
+                        <Button
+                            className="my-2"
+                            id="order-button"
+                            label="Sort by"
+                            icon="pi pi-sort-amount-down-alt"
+                            onClick={ e => menu.current.toggle(e) }
+                        />
+                        <Menu model={ menuItems } popup ref={ menu } />
+                        <ListOptionsMenu
+                            userId={ userId }
+                            setUser={ setUser }
+                            ownership={ list.members.filter(m => m.userId === userId)[0].role === "owner" }
+                            disabledNotificationsLists={ disabledNotificationsLists }
+                            list={ list }
+                            lists={ [list] }
+                            setLists={ updateList }
+                            displayError={ displayError }
+                        />
+                    </div>
                 </div>
                 {
                     loading
@@ -100,16 +144,26 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
                       />
                     : (
                         items.length
-                        ? items.map(item =>
-                              <Item
-                                  key={ item._id }
-                                  item={ item }
-                                  listMembers={ listMembers }
-                                  deleteItem={ deleteItem }
-                                  updateItem={ updateItem }
-                                  displayError={ displayError }
-                              />
-                          )
+                        ? <DataView
+                              className="w-full"
+                              value={ items }
+                              layout="list"
+                              itemTemplate={ item =>
+                                  <Item
+                                      key={ item._id }
+                                      item={ item }
+                                      listMembers={ listMembers }
+                                      deleteItem={ deleteItem }
+                                      updateItem={ updateItem }
+                                      displayError={ displayError }
+                                  />
+                              }
+                              rows={ 10 }
+                              paginator={ items.length > 10 }
+                              alwaysShowPaginator={ false }
+                              sortField={ getSortField(ordering) }
+                              sortOrder={ getSortOrder(ordering) }
+                          />
                         : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
                               <EmptyPlaceholder
                                   title={ "No items to display" }

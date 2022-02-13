@@ -11,6 +11,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
+    const [ordering, setOrdering] = useState(null);
     const [lists, setLists] = useState([]);
     const appendList = useCallback(list => setLists(lists.concat(list)), [lists, setLists]);
     return (
@@ -35,7 +36,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <MyListsHeader appendList={ appendList } displayError={ displayError } />
+                <MyListsHeader appendList={ appendList } displayError={ displayError } setOrdering={ setOrdering } />
                 <ListItem
                     setUser={ setUser }
                     lists={ lists }
@@ -43,6 +44,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                     displayError={ displayError }
                     socket={ socket }
                     disabledNotificationsLists={ user.disabledNotificationsLists }
+                    ordering={ ordering }
                 />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
@@ -59,7 +61,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         socket={ socket }
                         displayError={ displayError }
                     />
-                    <MyListsHeader appendList={ appendList } displayError={ displayError } />
+                    <MyListsHeader appendList={ appendList } displayError={ displayError } setOrdering={ setOrdering } />
                     <ListItem
                         setUser={ setUser }
                         lists={ lists }
@@ -67,6 +69,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         displayError={ displayError }
                         socket={ socket }
                         disabledNotificationsLists={ user.disabledNotificationsLists }
+                        ordering={ ordering }
                     />
                 </div>
             </div>

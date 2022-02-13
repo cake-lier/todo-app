@@ -7,8 +7,32 @@ import EmptyPlaceholder from "../EmptyPlaceholder";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import ListOptionsMenu from "../ListOptionsMenu";
 
-export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, disabledNotificationsLists }) {
+export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, disabledNotificationsLists, ordering }) {
     const [loading, setLoading] = useState(true);
+    const getSortField = ordering => {
+        switch (ordering) {
+            case 0:
+            case 1:
+                return "title";
+            case 2:
+            case 3:
+                return "creationDate";
+            default:
+                return null;
+        }
+    };
+    const getSortOrder = ordering => {
+        switch (ordering) {
+            case 0:
+            case 2:
+                return 1;
+            case 1:
+            case 3:
+                return -1;
+            default:
+                return null;
+        }
+    };
 
     useEffect(() => {
         axios.get(ownership ? "/lists?shared=false" : "/lists?shared=true")
@@ -47,16 +71,18 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
                     <i className="pi pi-list item ml-2 pl-1" />
                     <h1 className="ml-2 cursor-pointer text-xl" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
                 </div>
-                <ListOptionsMenu
-                    userId={ userId }
-                    setUser={ setUser }
-                    ownership={ ownership }
-                    disabledNotificationsLists={ disabledNotificationsLists }
-                    list={ list }
-                    lists={ lists }
-                    setLists={ setLists }
-                    displayError={ displayError }
-                />
+                <div className="col-1 flex flex-row-reverse align-items-center">
+                    <ListOptionsMenu
+                        userId={ userId }
+                        setUser={ setUser }
+                        ownership={ ownership }
+                        disabledNotificationsLists={ disabledNotificationsLists }
+                        list={ list }
+                        lists={ lists }
+                        setLists={ setLists }
+                        displayError={ displayError }
+                    />
+                </div>
             </div>
         );
     }, [userId, setUser, ownership, disabledNotificationsLists, lists, setLists, displayError, onTitleClick]);
@@ -77,6 +103,8 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
                 rows={ 10 }
                 paginator={ lists.length > 10 }
                 alwaysShowPaginator={ false }
+                sortField={ getSortField(ordering) }
+                sortOrder={ getSortOrder(ordering) }
             />
             <div className={ ( !loading && !lists.length ? null : "hidden") }>
                 <EmptyPlaceholder
