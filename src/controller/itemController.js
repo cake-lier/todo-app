@@ -1091,8 +1091,8 @@ function updatePriority(request, response) {
         request,
         response,
         { $set: { priority: !!request.body.priority } },
-        (list, item, session) => {
-            User.findById(request.session.userId, undefined, { session })
+        async (list, item, session) => {
+            await User.findById(request.session.userId, undefined, { session })
                 .exec()
                 .then(
                     user => {
