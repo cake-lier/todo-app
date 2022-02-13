@@ -44,6 +44,28 @@ function createItem(request, response) {
                     remainingCount: request.body.count
                 })
                 .then(item => {
+                    // achievement
+                    User.findById(request.session.userId)
+                        .exec()
+                        .then(user => {
+                            if ( !user.achievements[13] ){
+                                let achievements = [...user.achievements];
+                                achievements[13] = true;
+                                User.findByIdAndUpdate(
+                                    request.session.userId,
+                                    { $set: { achievements: achievements} },
+                                    { context: "query" }
+                                )
+                                    .exec()
+                                    .then(
+                                        user => { },
+                                        error => {
+                                            console.log(error);
+                                        }
+                                    );
+                            }
+                        })
+                    // ---
                     const listId = list._id.toString();
                     const text = `The item "${ item.title }" was added to the list "${ list.title }"`;
                     Notification.create({
