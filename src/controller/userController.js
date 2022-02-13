@@ -61,14 +61,12 @@ function signup(request, response) {
     // achievements
     // TODO possibly look into another library (i.e. agenda) for permanence
     const now = new Date();
-    //const date0 = new Date().setMonth(now.getMonth() + 6);
-    const date0 = new Date().setSeconds(now.getSeconds() + 10);
+    const date0 = new Date().setMonth(now.getMonth() + 6);
     schedule.scheduleJob(date0, function (){
         achievementHelper.addAchievement(request.session.userId, 0);
     })
 
-    //const date1 = new Date().setFullYear(now.getFullYear() + 1);
-    const date1 = new Date().setSeconds(now.getSeconds() + 30);
+    const date1 = new Date().setFullYear(now.getFullYear() + 1);
     schedule.scheduleJob(date1, function (){
         achievementHelper.addAchievement(request.session.userId, 1);
     })

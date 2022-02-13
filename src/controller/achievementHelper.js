@@ -9,7 +9,7 @@ function addAchievement(userId, index) {
     User.findById(userId)
         .exec()
         .then(user => {
-            if ( !user.achievements[index] ){
+            if ( !user.achievements[index] ){ // check if not already set
                 let achievements = [...user.achievements];
                 achievements[index] = true;
                 User.findByIdAndUpdate(
@@ -19,7 +19,7 @@ function addAchievement(userId, index) {
                 )
                     .exec()
                     .then(
-                        user => { },
+                        _ => { },
                         error => {
                             console.log(error);
                         }

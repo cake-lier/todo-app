@@ -25,9 +25,7 @@ function createList(request, response) {
     })
     .then(
         list => {
-            // achievement
             achievementHelper.addAchievement(request.session.userId, 12);
-            // ---
             const listId = list._id.toString();
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
@@ -366,6 +364,7 @@ function addMember(request, response) {
                                 })
                                 .catch(error => console.log(error))
                                 .then(_ => {
+                                    achievementHelper.addAchievement(request.session.userId, 11);
                                     io.in(`user:${ userId }`).emit("listSelfAdded", listId, newMemberText);
                                     io.in(`user:${ userId }`).emit("listSelfAddedReload", listId);
                                 })

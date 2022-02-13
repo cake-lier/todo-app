@@ -45,11 +45,9 @@ function createItem(request, response) {
                     remainingCount: request.body.count
                 })
                 .then(item => {
-                    // achievement
                     if (userId !== undefined){
                         achievementHelper.addAchievement(request.session.userId, 13);
                     }
-                    // ---
                     const listId = list._id.toString();
                     const text = `The item "${ item.title }" was added to the list "${ list.title }"`;
                     Notification.create({
