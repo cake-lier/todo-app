@@ -6,8 +6,10 @@ import CreateItemDialog from "../itemDialogs/CreateItemDialog";
 import { ProgressSpinner } from 'primereact/progressspinner';
 import EmptyPlaceholder from "../../EmptyPlaceholder";
 import "./ItemsContainer.scss";
+import ListOptionsMenu from "../../ListOptionsMenu";
+import {useNavigate} from "react-router-dom";
 
-export function ItemsContainer({ listId, socket, displayError }) {
+export default function ItemsContainer({ userId, setUser, list, setList, disabledNotificationsLists, socket, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
     const [listMembers, setListMembers] = useState([]);
@@ -17,12 +19,12 @@ export function ItemsContainer({ listId, socket, displayError }) {
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
     // init items from database
     const getItems = useCallback(() => {
-        axios.get(`/lists/${ listId }/items/`)
+        axios.get(`/lists/${ list._id }/items/`)
              .then(
                  items => setItems(items.data),
                  error => displayError(error.response.data.error)
              )
-             .then(_ => axios.get(`/lists/${ listId }/members`))
+             .then(_ => axios.get(`/lists/${ list._id }/members`))
              .then(
                  members => {
                      setListMembers(members.data);
@@ -30,11 +32,11 @@ export function ItemsContainer({ listId, socket, displayError }) {
                  },
                  error => displayError(error.response.data.error)
              );
-    }, [displayError, listId]);
+    }, [displayError, list]);
     useEffect(getItems, [getItems]);
     useEffect(() => {
         function handleUpdates(event, eventListId) {
-            if (listId === eventListId
+            if (list._id === eventListId
                 && new RegExp(
                        "^item(?:Created|(?:Title|DueDate|Reminder|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
                        + "|Assignee(?:Added|Removed)|Deleted)Reload$"
@@ -45,7 +47,7 @@ export function ItemsContainer({ listId, socket, displayError }) {
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [socket, listId, getItems]);
+    }, [socket, list, getItems]);
     // delete item
     const deleteItem = (item) => {
         axios.delete("/items/" + item._id)
@@ -55,13 +57,33 @@ export function ItemsContainer({ listId, socket, displayError }) {
              );
     }
     const [displayDialog, setDisplayDialog] = useState(false);
+    const navigate = useNavigate();
+    const updateList = useCallback(lists => {
+        if (lists.length < 1) {
+            navigate("/my-lists");
+            return;
+        }
+        setList(lists[0])
+    }, [navigate, setList]);
     return (
         <>
             <div className="grid flex-column flex-grow-1">
-                <div className="col-12 m-0 p-0 flex">
-                    <Button className="m-3"
-                            label="New Item" icon="pi pi-plus"
-                            onClick={() => setDisplayDialog(true)}
+                <div className="col-12 m-0 p-0 pr-2 grid">
+                    <div className="col-11 p-0">
+                        <Button className="m-3"
+                                label="New Item" icon="pi pi-plus"
+                                onClick={() => setDisplayDialog(true)}
+                        />
+                    </div>
+                    <ListOptionsMenu
+                        userId={ userId }
+                        setUser={ setUser }
+                        ownership={ list.members.filter(m => m.userId === userId)[0].role === "owner" }
+                        disabledNotificationsLists={ disabledNotificationsLists }
+                        list={ list }
+                        lists={ [list] }
+                        setLists={ updateList }
+                        displayError={ displayError }
                     />
                 </div>
                 {
@@ -99,7 +121,7 @@ export function ItemsContainer({ listId, socket, displayError }) {
                 }
             </div>
             <CreateItemDialog
-                listId={ listId }
+                listId={ list._id }
                 appendItem={ appendItem }
                 displayDialog={ displayDialog }
                 setDisplayDialog={ setDisplayDialog }

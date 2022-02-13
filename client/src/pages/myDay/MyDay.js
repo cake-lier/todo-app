@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { MainMenu } from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import MyDayItem from "../../components/myDayItem/MyDayItem";

@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from "react";
 import axios from "axios";
 import ErrorMessages from "../../components/ErrorMessages";
-import {MainMenu} from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import _ from "lodash";
 import "./Achievements.scss";

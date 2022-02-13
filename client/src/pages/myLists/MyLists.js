@@ -1,5 +1,5 @@
 import ErrorMessages from "../../components/ErrorMessages";
-import { MainMenu } from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import {useCallback, useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";

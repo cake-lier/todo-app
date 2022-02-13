@@ -61,7 +61,6 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
                 error => displayError(error.response.data.error)
             );
             setDisplay(false);
-            formik.resetForm(data);
         }
     });
     const isFormFieldValid = name => !formik.touched[name] || formik.errors[name] === undefined;

@@ -16,6 +16,7 @@ import List from "../pages/list/List";
 import Reports from "../pages/reports/Reports";
 import Achievements from "../pages/achievements/Achievements";
 import { NotificationsContext } from "../utils/contexts";
+import LegalAdvisory from "../pages/termsAndCookies/LegalAdvisory";
 
 class App extends Component {
 
@@ -264,6 +265,7 @@ class App extends Component {
                             this.state.user !== null
                             ? <List
                                 user={this.state.user}
+                                setUser={ this.setUser }
                                 unsetUser={ this.unsetUser }
                                 notifications={ this.state.notifications }
                                 setNotifications={ this.setNotifications }
@@ -301,6 +303,36 @@ class App extends Component {
                                   setNotifications={ this.setNotifications }
                               />
                             : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/legal"
+                        element={
+                            this.state.user !== null
+                            ? <LegalAdvisory
+                                user={ this.state.user }
+                                unsetUser={ this.unsetUser }
+                                notifications={ this.state.notifications }
+                                setNotifications={ this.setNotifications }
+                                socket={ this.state.socket }
+                            />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/legal/terms-and-conditions"
+                        element={
+                            this.state.user === null
+                            ? <LegalAdvisory displayTerms={ true } user={ this.state.user } />
+                            : <Navigate to="/my-day" />
+                        }
+                    />
+                    <Route
+                        path="/legal/cookie-policy"
+                        element={
+                            this.state.user === null
+                            ? <LegalAdvisory displayTerms={ false } user={ this.state.user } />
+                            : <Navigate to="/my-day" />
                         }
                     />
                 </Routes>

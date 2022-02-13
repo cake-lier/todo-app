@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { MainMenu } from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import FullCalendar from "@fullcalendar/react";
@@ -9,8 +9,7 @@ import momentPlugin from "@fullcalendar/moment";
 import axios from "axios";
 import "./Calendar.scss";
 
-export default function Calendar(props) {
-    const { user, unsetUser, socket } = props;
+export default function Calendar({ user, unsetUser, socket, notifications, setNotifications }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -74,9 +73,9 @@ export default function Calendar(props) {
                     unsetUser={ unsetUser }
                     title="Calendar"
                     isResponsive={ false }
-                    notifications={ props.notifications }
-                    setNotifications={ props.setNotifications }
-                    socket={ props.socket }
+                    notifications={ notifications }
+                    setNotifications={ setNotifications }
+                    socket={ socket }
                     displayError={ displayError }
                 />
                 <div className="grid overflow-y-auto flex flex-1">
@@ -137,9 +136,9 @@ export default function Calendar(props) {
                         unsetUser={ unsetUser }
                         title="Calendar"
                         isResponsive={ true }
-                        notifications={ props.notifications }
-                        setNotifications={ props.setNotifications }
-                        socket={ props.socket }
+                        notifications={ notifications }
+                        setNotifications={ setNotifications }
+                        socket={ socket }
                         displayError={ displayError }
                     />
                     <div className="grid">

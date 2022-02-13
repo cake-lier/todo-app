@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
 import "./MainMenu.scss";
 
-export function MainMenu({ selected }) {
+export default function MainMenu({ selected }) {
     const navigate = useNavigate();
     const useOnClicked = url => {
         return useCallback(
@@ -57,6 +57,12 @@ export function MainMenu({ selected }) {
             icon: PrimeIcons.COG,
             disabled: selected === "Settings",
             command: useOnClicked("settings")
+        },
+        {
+            label: "Terms and Cookies",
+            icon: PrimeIcons.BARS,
+            disabled: selected === "Terms and Cookies",
+            command: useOnClicked("legal")
         }
     ];
 

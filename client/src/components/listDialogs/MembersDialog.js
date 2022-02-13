@@ -72,11 +72,20 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
         );
     }
     return (
-        <Dialog className="w-27rem m-3" visible={ display } header={ renderHeader() } onHide={ () => setDisplay(false) }>
-            <Dialog className="w-27rem m-3"
-                    header="Add a member"
-                    visible={ displayAddMember }
-                    onHide={ () => setDisplayAddMember(false) }>
+        <Dialog
+            className="w-27rem m-3"
+            visible={ display }
+            header={ renderHeader() }
+            dismissableMask={ true }
+            onHide={ () => setDisplay(false) }
+        >
+            <Dialog
+                className="w-27rem m-3"
+                header="Add a member"
+                visible={ displayAddMember }
+                dismissableMask={ true }
+                onHide={ () => setDisplayAddMember(false) }
+            >
                 <AddMemberDialogContent
                     list={ list }
                     setDisplay={ setDisplayAddMember }

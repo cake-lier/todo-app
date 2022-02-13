@@ -20,14 +20,6 @@ export default function Notifications({ notifications, setNotifications, socket,
                      .then(
                          notifications => {
                              setNotifications(notifications.data);
-                             // if (notificationsEnabled
-                             //     && notifications.data.length > 0
-                             //     && !(disabledNotificationsLists.includes(notifications.data[notifications.data.length - 1].listId))) {
-                             //     const lastNotification = notifications.data[notifications.data.length - 1]
-                             //     toast.current.show({
-                             //         severity: 'info',
-                             //         detail: `${lastNotification.authorUsername} ${lastNotification.text}`,
-
                              if (notificationsEnabled && !(disabledNotificationsLists.includes(listId))) {
                                  toast.current.show({
                                      severity: 'info',
@@ -132,7 +124,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                 />
             </OverlayPanel>
 
-            <i className="pi pi-bell mr-2 p-text-secondary p-overlay-badge"
+            <i className="pi pi-bell mr-2 p-text-secondary p-overlay-badge cursor-pointer"
                style={{ fontSize: '2rem' }}
                onClick={ e => {
                    panel.current.toggle(e);

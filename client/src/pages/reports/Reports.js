@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import ErrorMessages from "../../components/ErrorMessages";
-import {MainMenu} from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import axios from "axios";
 import "./Reports.scss";

@@ -1,5 +1,5 @@
 import {useCallback, useRef, useState} from "react";
-import { MainMenu } from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
 import { ChangeAccountDataForm } from "../../components/ChangeAccountDataForm";
 import DeleteAccountForm from "../../components/deleteAccountForm/DeleteAccountForm";

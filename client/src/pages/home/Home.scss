@@ -12,6 +12,13 @@ div#home-body {
     background-color: $text-color;
 }
 
+.home-footer {
+    @extend .home-bar;
+    & a {
+        color: $secondary-background;
+    }
+}
+
 h1#appTitle {
     color: $secondary-background;
 }

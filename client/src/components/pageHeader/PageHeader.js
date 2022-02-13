@@ -5,7 +5,7 @@ import { TabMenu } from 'primereact/tabmenu';
 import "./PageHeader.scss";
 import { Button } from 'primereact/button';
 import { Sidebar } from 'primereact/sidebar';
-import {MainMenu} from "../mainMenu/MainMenu";
+import MainMenu from "../mainMenu/MainMenu";
 import {Divider} from "primereact/divider";
 import Notifications from "../notifications/Notifications";
 import { NotificationsContext } from "../../utils/contexts";

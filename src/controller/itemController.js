@@ -302,14 +302,14 @@ function updateTitle(request, response) {
                             listId,
                             listTitle: list.title
                         })
-                            .catch(error => console.log(error))
-                            .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTitleChanged", listId, text);
-                                io.in(`list:${ listId }`).emit("itemTitleChangedReload", listId);
-                                const updatedItem = JSON.parse(JSON.stringify(item));
-                                updatedItem.title = request.body.title;
-                                response.json(updatedItem);
-                           displayError(error.response.data.error) });
+                        .catch(error => console.log(error))
+                        .then(_ => {
+                            io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTitleChanged", listId, text);
+                            io.in(`list:${ listId }`).emit("itemTitleChangedReload", listId);
+                            const updatedItem = JSON.parse(JSON.stringify(item));
+                            updatedItem.title = request.body.title;
+                            response.json(updatedItem);
+                        });
                     },
                     error => console.log(error)
                 )
@@ -485,13 +485,14 @@ function addTag(request, response) {
                             listId,
                             listTitle: list.title
                         })
-                            .catch(error => console.log(error))
-                            .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTagsAdded", listId, text);
-                                io.in(`list:${ listId }`).emit("itemTagsAddedReload", listId);
-                                response.json(item);
-                            });
-
+                        .catch(error => console.log(error))
+                        .then(_ => {
+                            io.in(`list:${ listId }`)
+                              .except(`user:${ request.session.userId }`)
+                              .emit("itemTagsAdded", listId, text);
+                            io.in(`list:${ listId }`).emit("itemTagsAddedReload", listId);
+                            response.json(item);
+                        });
                     },
                     error => console.log(error)
                 )

@@ -77,12 +77,12 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
     };
 
     const menuItems = [
-        { label: 'Edit', icon: 'pi pi-pencil', command: () => { setDisplayEdit(true) } },
+        { label: 'Edit item', icon: 'pi pi-pencil', command: () => { setDisplayEdit(true) } },
         { label: 'Edit due date', icon: 'pi pi-calendar', command: () => { setDisplayEditDueDate(true) } },
         { label: 'Edit reminder', icon: 'pi pi-bell', command: () => { setDisplayEditReminderDate(true) } },
         { label: 'Edit assignees', icon: 'pi pi-user-plus', command: () => { setDisplayAssignees(true) } },
         { label: 'Add a new tag', icon: 'pi pi-tag', command: () => { setDisplayAddTag(true) } },
-        { label: 'Delete', icon: 'pi pi-trash', className: "red-color", command: () => { deleteItem(item) } }
+        { label: 'Delete item', icon: 'pi pi-trash', className: "red-color", command: () => { deleteItem(item) } }
     ];
     return (
         <>
@@ -112,6 +112,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
                                     itemId={ item._id }
                                     tag={ tag }
                                     updateItem={ updateItem }
+                                    isRemovable={ true }
                                 />
                             )
                         }
@@ -145,6 +146,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
                                     assignee={ assignee }
                                     updateItem={ updateItem }
                                     displayError={ displayError }
+                                    isRemovable={ true }
                                 />
                             )
                         }
