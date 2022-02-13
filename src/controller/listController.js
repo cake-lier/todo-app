@@ -24,6 +24,28 @@ function createList(request, response) {
     })
     .then(
         list => {
+            // achievement
+            User.findById(request.session.userId)
+                .exec()
+                .then(user => {
+                    if ( !user.achievements[12] ){
+                        let achievements = [...user.achievements];
+                        achievements[12] = true;
+                        User.findByIdAndUpdate(
+                            request.session.userId,
+                            { $set: { achievements: achievements} },
+                            { context: "query" }
+                        )
+                            .exec()
+                            .then(
+                                user => { },
+                                error => {
+                                    console.log(error);
+                                }
+                            );
+                    }
+                })
+            // ---
             const listId = list._id.toString();
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
