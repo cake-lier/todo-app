@@ -1,7 +1,7 @@
 import {ItemDialog} from "./ItemDialog";
 import axios from "axios";
 
-export default function CreateItemDialog({ listId, appendItem, displayDialog, setDisplayDialog, displayError }) {
+export default function CreateItemDialog({ listId, anonymousId, appendItem, displayDialog, setDisplayDialog, displayError }) {
     const onSubmit = data => {
         axios.post(
             `/lists/${ listId }/items`,
@@ -9,7 +9,8 @@ export default function CreateItemDialog({ listId, appendItem, displayDialog, se
                 listId,
                 title: data.title,
                 count: data.count
-            }
+            },
+            { params: anonymousId !== null ? { anonymousId } : {} }
         ).then(
             item => appendItem(item.data),
             error => displayError(error.response.data.error)

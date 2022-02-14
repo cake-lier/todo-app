@@ -12,17 +12,23 @@ import { NotificationsContext } from "../../utils/contexts";
 import {AvatarGroup} from "primereact/avatargroup";
 import {Avatar} from "primereact/avatar";
 
-export default function PageHeader({ user, unsetUser, title, showDate, members, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError }) {
+export default function PageHeader({ user, isAnonymous, unsetUser, title, showDate, members, tabs, activeTabIndex, isResponsive, notifications, setNotifications, socket, displayError }) {
     const [activeIndex, setActiveIndex] = useState(activeTabIndex);
     const [visible, setVisible] = useState(false);
     if (isResponsive) {
         return (
             <div className="grid sticky top-0 z-5" style={{backgroundColor: "white"}}>
                 <div className="col-9 p-0 m-0 flex flex-columns justify-content-right">
-                    <Button id="burger-menu" icon="pi pi-bars cursor-pointer" onClick={() => setVisible(true)}/>
-                    <Sidebar className="p-0 m-0 md:hidden" showCloseIcon={false} visible={visible} onHide={() => setVisible(false)}>
-                        <MainMenu selected={(title ? title : null)} />
-                    </Sidebar>
+                    {
+                        user
+                        ? <>
+                              <Button id="burger-menu" icon="pi pi-bars cursor-pointer" onClick={() => setVisible(true)}/>
+                              <Sidebar className="p-0 m-0 md:hidden" showCloseIcon={false} visible={visible} onHide={() => setVisible(false)}>
+                                  <MainMenu selected={(title ? title : null)} />
+                              </Sidebar>
+                          </>
+                        : null
+                    }
                     <div className="w-max m-0 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{ title }</h3>
                         {
@@ -37,23 +43,28 @@ export default function PageHeader({ user, unsetUser, title, showDate, members, 
                         {
                             ({ notificationsUnread, setNotificationsUnread }) => (
                                 <Notifications
+                                    isAnonymous={ isAnonymous }
                                     displayError={ displayError }
                                     notifications={ notifications }
                                     setNotifications={ setNotifications }
                                     socket={ socket }
-                                    notificationsEnabled={ user.notificationsEnabled }
-                                    disabledNotificationsLists={ user.disabledNotificationsLists }
+                                    notificationsEnabled={ user ? user.notificationsEnabled : true }
+                                    disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
                                     notificationsUnread={ notificationsUnread }
                                     setNotificationsUnread={ setNotificationsUnread }
                                 />
                             )
                         }
                     </NotificationsContext.Consumer>
-                    <UserIcon
-                        user={ user }
-                        unsetUser={ unsetUser }
-                        displayError={ displayError }
-                    />
+                    {
+                        user
+                        ? <UserIcon
+                              user={ user }
+                              unsetUser={ unsetUser }
+                              displayError={ displayError }
+                          />
+                        : null
+                    }
                 </div>
                 <div className="col-12 w-full flex justify-content-center flex-grow-1 m-0 p-0">
                     {
@@ -76,7 +87,7 @@ export default function PageHeader({ user, unsetUser, title, showDate, members, 
     } else {
         return (
             <div className="grid">
-                <div className="col-9 pl-3 flex flex-row m-0 p-0">
+                <div className={ "col-9 pl-3 flex flex-row " + (isAnonymous ? "p-3" : "m-0 p-0") }>
                     <div className="w-max m-0 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{ title }</h3>
                         {
@@ -122,23 +133,28 @@ export default function PageHeader({ user, unsetUser, title, showDate, members, 
                         {
                             ({ notificationsUnread, setNotificationsUnread }) => (
                                 <Notifications
+                                    isAnonymous={ isAnonymous }
                                     displayError={ displayError }
                                     notifications={ notifications }
                                     setNotifications={ setNotifications }
                                     socket={ socket }
-                                    notificationsEnabled={ user.notificationsEnabled }
-                                    disabledNotificationsLists={ user.disabledNotificationsLists }
+                                    notificationsEnabled={ user ? user.notificationsEnabled : true }
+                                    disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
                                     notificationsUnread={ notificationsUnread }
                                     setNotificationsUnread={ setNotificationsUnread }
                                 />
                             )
                         }
                     </NotificationsContext.Consumer>
-                    <UserIcon
-                        user={ user }
-                        unsetUser={ unsetUser }
-                        displayError={ displayError }
-                    />
+                    {
+                        user
+                        ? <UserIcon
+                              user={ user }
+                              unsetUser={ unsetUser }
+                              displayError={ displayError }
+                          />
+                        : null
+                    }
                 </div>
                 <div className="col-12 p-0 z-1">
                     <Divider className="my-0" />

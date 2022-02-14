@@ -108,7 +108,7 @@ function getList(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
-    if (request.session.userId === undefined && request.body.anonymousId === undefined) {
+    if (request.session.userId === undefined && request.query.anonymousId === undefined) {
         sendError(response, Error.RequestError);
         return;
     }
@@ -118,7 +118,7 @@ function getList(request, response) {
             $elemMatch:
                 request.session.userId !== undefined
                 ? { userId: request.session.userId }
-                : { anonymousId: request.body.anonymousId }
+                : { anonymousId: request.query.anonymousId }
         }
     })
     .exec()
@@ -162,48 +162,63 @@ function getUserLists(request, response) {
 }
 
 function getMembers(request, response) {
-    if (!validateRequest(request, response, [], ["id"], true)) {
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    if (request.session.userId === undefined && request.query.anonymousId === undefined) {
+        sendError(response, Error.RequestError);
         return;
     }
     List.startSession()
         .then(session => session.withTransaction(() =>
-            List.findById(request.params.id, undefined, { session })
-                .exec()
-                .then(list => {
-                    if (list === null) {
-                        sendError(response, Error.ResourceNotFound);
-                        return Promise.resolve();
+            List.findOne({
+                _id: request.params.id,
+                members: {
+                    $elemMatch:
+                        request.session.userId !== undefined
+                        ? { userId: request.session.userId }
+                        : { anonymousId: request.query.anonymousId }
+                }
+            },
+            undefined,
+            { session }
+            )
+            .exec()
+            .then(list => {
+                if (list === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                return Promise.all(list.members.map(member => {
+                    if (member.anonymousId !== null) {
+                        return Promise.resolve(
+                            { _id: member._id, username: member.username, role: member.role, profilePicturePath: null }
+                        );
                     }
-                    return Promise.all(list.members.map(member => {
-                        if (member.anonymousId !== null) {
-                            return Promise.resolve(
-                                { _id: member._id, username: member.username, role: member.role, profilePicturePath: null }
-                            );
-                        }
-                        return User.findById(member.userId, undefined, { session })
-                                   .exec()
-                                   .then(user => {
-                                       if (user === null) {
-                                           return Promise.resolve(null);
-                                       }
-                                       return Promise.resolve({
-                                           _id: member._id,
-                                           username: user.username,
-                                           role: member.role,
-                                           profilePicturePath:
-                                               user.profilePicturePath === null
-                                               ? null
-                                               : "/static" + user.profilePicturePath
-                                       });
+                    return User.findById(member.userId, undefined, { session })
+                               .exec()
+                               .then(user => {
+                                   if (user === null) {
+                                       return Promise.resolve(null);
+                                   }
+                                   return Promise.resolve({
+                                       _id: member._id,
+                                       username: user.username,
+                                       role: member.role,
+                                       profilePicturePath:
+                                           user.profilePicturePath === null
+                                           ? null
+                                           : "/static" + user.profilePicturePath
                                    });
-                    }))
-                    .then(members => response.json(members.filter(m => m !== null)));
-                })
-    ))
-    .catch(error => {
-        console.log(error);
-        sendError(response, Error.GeneralError);
-    });
+                               });
+                }))
+                .then(members => response.json(members.filter(m => m !== null)));
+            })
+        ))
+        .catch(error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        });
 }
 
 function updateListProperty(
@@ -242,7 +257,7 @@ function updateUnprivilegedListProperty(
     optionsObject = { new: true },
     onSuccess = (response, list) => response.json(list)
 ) {
-    if (request.session.userId === undefined && request.body.anonymousId === undefined) {
+    if (request.session.userId === undefined && request.query.anonymousId === undefined) {
         sendError(response, Error.RequestError);
         return;
     }
@@ -254,8 +269,8 @@ function updateUnprivilegedListProperty(
             members: {
                 $elemMatch:
                     request.session.userId !== undefined
-                        ? { userId: request.session.userId }
-                        : { anonymousId: request.body.anonymousId }
+                    ? { userId: request.session.userId }
+                    : { anonymousId: request.query.anonymousId }
             }
         },
         updateObject,
@@ -274,35 +289,46 @@ function updateTitle(request, response) {
         { $set: { title: request.body.title } },
         { new: false },
         (response, list) => {
-            User.findById(request.session.userId)
-                .exec()
-                .then(
-                    user => {
-                        const authorUsername = user.username;
-                        const authorProfilePicturePath = user.profilePicturePath;
-                        const listId = list._id.toString();
-                        const text = ` changed the title of the list "${ list.title }" to "${ request.body.title }"`;
-                        Notification.create({
-                            authorUsername,
-                            authorProfilePicturePath,
-                            users: list.members
-                                .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                .map(m => m.userId),
-                            text,
-                            listId
-                        })
-                            .catch(error => console.log(error))
-                            .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listTitleChanged", listId, text);
-                                io.in(`list:${ listId }`).emit("listTitleChangedReload", listId);
-                                const updatedList = JSON.parse(JSON.stringify(list));
-                                updatedList.title = request.body.title;
-                                response.json(updatedList);
-                            });
-
-                    },
-                    error => console.log(error)
-                )
+            (
+                request.session.userId
+                ? User.findById(request.session.userId).exec()
+                : Promise.resolve({
+                        username: list.members.filter(m => m.anonymousId === request.query.anonymousId)[0].username,
+                        profilePicturePath: null
+                  })
+            )
+            .then(
+                user => {
+                    const authorUsername = user.username;
+                    const authorProfilePicturePath = user.profilePicturePath;
+                    const listId = list._id.toString();
+                    const text = ` changed the title of the list "${ list.title }" to "${ request.body.title }"`;
+                    Notification.create({
+                        authorUsername,
+                        authorProfilePicturePath,
+                        users: list.members
+                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                   .map(m => m.userId),
+                        text,
+                        listId
+                    })
+                    .catch(error => console.log(error))
+                    .then(_ => {
+                        io.in(`list:${ listId }`)
+                          .except(`user:${ request.session.userId }`)
+                          .emit("listTitleChanged", listId, text);
+                        io.in(`list:${ listId }`)
+                          .emit("listTitleChangedReload", listId);
+                        const updatedList = JSON.parse(JSON.stringify(list));
+                        updatedList.title = request.body.title;
+                        response.json(updatedList);
+                    });
+                },
+                error => {
+                    console.log(error);
+                    sendError(response, Error.GeneralError);
+                }
+            )
         }
     );
 }
@@ -459,10 +485,7 @@ function addMember(request, response) {
         {
             _id: request.params.id,
             joinCode: { $ne: null },
-            members: {
-                $elemMatch: { userId, role: "owner" },
-                $not: { $elemMatch: { anonymousId: request.body.anonymousId } }
-            }
+            members: { $elemMatch: { userId, role: "owner" } }
         },
         { $push: { members: { anonymousId, username: request.body.username } } },
         { new: true },

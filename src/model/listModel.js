@@ -8,6 +8,10 @@ const memberSchema = new mongoose.Schema({
         type: mongoose.ObjectId,
         default: null
     },
+    username: {
+        type: String,
+        default: null
+    },
     anonymousId: {
         type: String,
         default: null,

@@ -4,30 +4,38 @@ import AddAssigneeRow from "./AddAssigneeRow";
 import {useCallback, useState} from "react";
 import axios from "axios";
 
-export default function AddAssigneeDialog({ item, members, updateItem, display, setDisplay, displayError }) {
+export default function AddAssigneeDialog({ item, anonymousId, members, updateItem, display, setDisplay, displayError }) {
     const [runningTotal, setRunningTotal] = useState(item.count - item.remainingCount);
     const addAssignee = useCallback((member, count) => {
         const assignee = item.assignees.filter(a => a.memberId === member._id)?.[0];
         if (assignee === undefined) {
-            axios.post(`/items/${ item._id }/assignees`, { memberId: member._id, count })
-                 .then(
-                     item => {
-                         updateItem(item.data);
-                         setDisplay(false);
-                     },
-                     error => displayError(error.response.data.error)
-                 );
+            axios.post(
+                `/items/${ item._id }/assignees`,
+                { memberId: member._id, count },
+                { params: anonymousId !== null ? { anonymousId } : {} }
+            )
+            .then(
+                item => {
+                    updateItem(item.data);
+                    setDisplay(false);
+                },
+                error => displayError(error.response.data.error)
+            );
         } else {
-            axios.put(`/items/${ item._id }/assignees/${ assignee._id }`, { count })
-                 .then(
-                     item => {
-                         updateItem(item.data);
-                         setDisplay(false);
-                     },
-                     error => displayError(error.response.data.error)
-                 );
+            axios.put(
+                `/items/${ item._id }/assignees/${ assignee._id }`,
+                { count },
+                { params: anonymousId !== null ? { anonymousId } : {} }
+            )
+            .then(
+                item => {
+                    updateItem(item.data);
+                    setDisplay(false);
+                },
+                error => displayError(error.response.data.error)
+            );
         }
-    }, [item, updateItem, displayError, setDisplay]);
+    }, [item, anonymousId, updateItem, displayError, setDisplay]);
 
     return (
         <Dialog

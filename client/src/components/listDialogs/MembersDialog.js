@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 import {Button} from "primereact/button";
 import AddMemberDialogContent from "./AddMemberDialogContent";
 
-export default function MembersDialog({ display, setDisplay, list, updateList, ownership, displayError }){
+export default function MembersDialog({ anonymousId, display, setDisplay, list, updateList, ownership, displayError }){
     const [displayAddMember, setDisplayAddMember] = useState(false);
     const [members, setMembers] = useState([]);
     useEffect(() => {
-        axios.get(`/lists/${ list._id }/members/`)
+        axios.get(`/lists/${ list._id }/members/`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  members => setMembers(members.data),
                  error => displayError(error.response.data.error)

@@ -13,7 +13,7 @@ import {Chip} from "primereact/chip";
 import ChipAssignee from "./ChipAssignee";
 import "./Item.scss"
 
-export default function Item({ item, listMembers, deleteItem, updateItem, displayError }){
+export default function Item({ item, anonymousId, listMembers, deleteItem, updateItem, displayError }){
     // item dots menu
     const menu = useRef(null);
 
@@ -27,53 +27,69 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
     // assignees
     const [assignees, setAssignees] = useState([]);
     useEffect(() => {
-        axios.get(`/items/${ item._id }/assignees`)
+        axios.get(`/items/${ item._id }/assignees`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  assignees => setAssignees(assignees.data),
                  error => displayError(error.response.data.error)
              );
-    }, [setAssignees, displayError, item]);
+    }, [setAssignees, displayError, item, anonymousId]);
 
     // priority star
     const [priority, setPriority] = useState(item.priority);
 
     const togglePriority = () => {
         setPriority(!priority);
-        axios.put(`/items/${ item._id }/priority`, { priority: !priority })
-             .then(
-                 item => updateItem(item.data),
-                 error => displayError(error.response.data.error)
-             );
+        axios.put(
+            `/items/${ item._id }/priority`,
+            { priority: !priority },
+            { params: anonymousId !== null ? { anonymousId } : {} }
+        )
+        .then(
+            item => updateItem(item.data),
+            error => displayError(error.response.data.error)
+        );
     };
 
     const onCheckboxChecked = e => {
-        axios.put(`/items/${ e.value._id }/complete`, { isComplete: e.checked })
-            .then(
-                item => updateItem(item.data),
-                error => displayError(error.response.data.error)
-            );
+        axios.put(
+            `/items/${ e.value._id }/complete`,
+            { isComplete: e.checked },
+            { params: anonymousId !== null ? { anonymousId } : {} }
+        )
+        .then(
+            item => updateItem(item.data),
+            error => displayError(error.response.data.error)
+        );
     };
 
     const removeDueDate = () => {
-        axios.put(`/items/${ item._id }/dueDate`, { dueDate: null })
-            .then(
-                item => {
-                    updateItem(item.data);
-                    setDisplayEditDueDate(false);
-                },
-                error => displayError(error.response.data.error)
-            );
+        axios.put(
+            `/items/${ item._id }/dueDate`,
+            { dueDate: null },
+            { params: anonymousId !== null ? { anonymousId } : {} }
+        )
+        .then(
+            item => {
+                updateItem(item.data);
+                setDisplayEditDueDate(false);
+            },
+            error => displayError(error.response.data.error)
+        );
     };
 
     const removeReminderDate = () => {
-        axios.put(`/items/${ item._id }/reminderDate`, { reminderDate: null })
-            .then(
-                item => {
-                    updateItem(item.data);
-                    setDisplayEditReminderDate(false);
-                },
-                error => displayError(error.response.data.error)
-            );
+        axios.put(
+            `/items/${ item._id }/reminderDate`,
+            { reminderDate: null },
+            { params: anonymousId !== null ? { anonymousId } : {} }
+        )
+        .then(
+            item => {
+                updateItem(item.data);
+                setDisplayEditReminderDate(false);
+            },
+            error => displayError(error.response.data.error)
+        );
     };
 
     const menuItems = [
@@ -101,7 +117,10 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
                             <p className="count-items flex m-1 text-xl" style={{ color: "#E61950" }}>x{ item.count }</p>
                         </div>
                         <span className={(priority ? "priority-star-fill" : "priority-star")}>
-                            <i className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 text-xl cursor-pointer" } onClick={ togglePriority } />
+                            <i
+                                className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 text-xl cursor-pointer" }
+                                onClick={ togglePriority }
+                            />
                         </span>
                     </div>
                     <div className="flex align-items-center flex-wrap pl-5">
@@ -110,6 +129,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
                                 <ChipTag
                                     key={ tag._id }
                                     itemId={ item._id }
+                                    anonymousId={ anonymousId }
                                     tag={ tag }
                                     updateItem={ updateItem }
                                     isRemovable={ true }
@@ -143,6 +163,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
                                 <ChipAssignee
                                     key={ assignee._id }
                                     itemId={ item._id }
+                                    anonymousId={ anonymousId }
                                     assignee={ assignee }
                                     updateItem={ updateItem }
                                     displayError={ displayError }
@@ -161,6 +182,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
             </div>
             <EditDueDateDialog
                 item={ item }
+                anonymousId={ anonymousId }
                 updateItem={ updateItem }
                 displayEditDueDate={ displayEditDueDate }
                 setDisplayEditDueDate={ setDisplayEditDueDate }
@@ -168,6 +190,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
             />
             <EditReminderDateDialog
                 item={ item }
+                anonymousId={ anonymousId }
                 updateItem={ updateItem }
                 displayEditReminderDate={ displayEditReminderDate }
                 setDisplayEditReminderDate={ setDisplayEditReminderDate }
@@ -175,6 +198,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
             />
             <AddTagDialog
                 itemId={ item._id }
+                anonymousId={ anonymousId }
                 display={ displayAddTag }
                 setDisplay={ setDisplayAddTag }
                 updateItem={ updateItem }
@@ -182,6 +206,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
             />
             <EditItemDialog
                 item={ item }
+                anonymousId={ anonymousId }
                 updateItem={ updateItem }
                 displayEdit={ displayEdit }
                 setDisplayEdit={ setDisplayEdit }
@@ -189,6 +214,7 @@ export default function Item({ item, listMembers, deleteItem, updateItem, displa
             />
             <AddAssigneeDialog
                 item={ item }
+                anonymousId={ anonymousId }
                 members={ listMembers }
                 updateItem={ updateItem }
                 display={ displayAssignees }

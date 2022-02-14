@@ -76,6 +76,18 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         socket={ socket }
                         displayError={ displayError }
                     />
+                    <div className="grid">
+                        <div className="col-12 m-0 pl-1 flex align-content-center justify-content-end">
+                            <Button
+                                className="my-2"
+                                id="order-button"
+                                label="Sort by"
+                                icon="pi pi-sort-amount-down-alt"
+                                onClick={ e => menu.current.toggle(e) }
+                            />
+                            <Menu model={ menuItems } popup ref={ menu } />
+                        </div>
+                    </div>
                     <ListItem
                         setUser={ setUser }
                         lists={ lists }

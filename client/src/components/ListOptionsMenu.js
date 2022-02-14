@@ -8,7 +8,7 @@ import JoinCodeMessage from "./listDialogs/JoinCodeMessage";
 import EditListDialog from "./listDialogs/EditListDialog";
 import MembersDialog from "./listDialogs/MembersDialog";
 
-export default function ListOptionsMenu({ userId, setUser, ownership, disabledNotificationsLists, list, lists = [], setLists = () => {}, displayError }) {
+export default function ListOptionsMenu({ userId, anonymousId, setUser, ownership, disabledNotificationsLists, list, lists = [], setLists = () => {}, displayError }) {
     const menu = useRef(null);
     const [displayJoinCodeDialog, setDisplayJoinCodeDialog] = useState(false);
     const [displayEditDialog, setDisplayEditDialog] = useState(false);
@@ -78,25 +78,30 @@ export default function ListOptionsMenu({ userId, setUser, ownership, disabledNo
             icon: PrimeIcons.USER_PLUS,
             className: ( list?.joinCode ? null : "hidden" ),
             command: openShareDialog
-        },
-        {
-            label: (disabledNotificationsLists.includes(list._id) ? "Unmute notifications" : "Mute notifications"),
-            icon: (disabledNotificationsLists.includes(list._id) ? PrimeIcons.VOLUME_UP : PrimeIcons.VOLUME_OFF),
-            command: enableNotifications
-        },
-        {
-            label: "Delete list",
-            icon: PrimeIcons.TRASH,
-            className: "red-color " + ( ownership ? null : "hidden" ),
-            command: deleteList
-        },
-        {
-            label: "Leave list",
-            icon: PrimeIcons.SIGN_OUT,
-            className: "red-color " + ( ownership ? "hidden" : null ),
-            command: leaveList
         }
-    ];
+    ].concat(
+        userId
+        ? [
+              {
+                  label: (disabledNotificationsLists.includes(list._id) ? "Unmute notifications" : "Mute notifications"),
+                  icon: (disabledNotificationsLists.includes(list._id) ? PrimeIcons.VOLUME_UP : PrimeIcons.VOLUME_OFF),
+                  command: enableNotifications
+              },
+              {
+                  label: "Delete list",
+                  icon: PrimeIcons.TRASH,
+                  className: "red-color " + ( ownership ? null : "hidden" ),
+                  command: deleteList
+              },
+              {
+                  label: "Leave list",
+                  icon: PrimeIcons.SIGN_OUT,
+                  className: "red-color " + ( ownership ? "hidden" : null ),
+                  command: leaveList
+              }
+          ]
+        : []
+    );
     return (
         <>
             <Button
@@ -118,6 +123,7 @@ export default function ListOptionsMenu({ userId, setUser, ownership, disabledNo
                 setDisplay={ setDisplayEditDialog }
                 updateList={ updateList }
                 listId={ list._id }
+                anonymousId={ anonymousId }
                 title={ list.title }
                 joinCode={ list.joinCode }
                 colorIndex={ list.colorIndex }
@@ -125,7 +131,7 @@ export default function ListOptionsMenu({ userId, setUser, ownership, disabledNo
                 displayError={ displayError }
             />
             <MembersDialog
-                user={ userId }
+                anonymousId={ anonymousId }
                 display={ displayMembersDialog }
                 setDisplay={ setDisplayMemberDialog }
                 list={ list }

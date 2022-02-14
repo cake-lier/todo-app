@@ -3,7 +3,7 @@ import ListDialog from "./ListDialog";
 import axios from "axios";
 import {useFormik} from "formik";
 
-export default function EditListDialog({ display, setDisplay, updateList, listId, title, joinCode, colorIndex, ownership = true, displayError }) {
+export default function EditListDialog({ display, setDisplay, updateList, listId, anonymousId, title, joinCode, colorIndex, ownership = true, displayError }) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -21,7 +21,11 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
         onSubmit: data => {
             (
                 data.title !== title
-                ? axios.put(`/lists/${ listId }/title`, { title: data.title })
+                ? axios.put(
+                    `/lists/${ listId }/title`,
+                    { title: data.title },
+                    { params: anonymousId !== null ? { anonymousId } : {} }
+                  )
                 : Promise.resolve(null)
             )
             .then(
@@ -35,7 +39,11 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
                         list =>
                             (
                                 data.colorIndex !== colorIndex
-                                ? axios.put(`/lists/${ listId }/colorIndex`, { colorIndex: data.colorIndex })
+                                ? axios.put(
+                                    `/lists/${ listId }/colorIndex`,
+                                    { colorIndex: data.colorIndex },
+                                    { params: anonymousId !== null ? { anonymousId } : {} }
+                                  )
                                 : Promise.resolve(list)
                             )
                             .then(
@@ -93,6 +101,7 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
             isFormFieldValid={ isFormFieldValid }
             getFormErrorMessage={ getFormErrorMessage }
             ownership={ ownership }
+            anonymousId={ anonymousId }
         />
     );
 }

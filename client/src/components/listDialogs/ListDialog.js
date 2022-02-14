@@ -3,7 +3,7 @@ import {InputText} from "primereact/inputtext";
 import {SelectButton} from "primereact/selectbutton";
 import "./ListDialog.scss"
 
-export default function ListDialog({ dialogName, display, setDisplay, renderFooter, title, colorIndex, isVisible, handleChange, isFormFieldValid, getFormErrorMessage, ownership }){
+export default function ListDialog({ dialogName, display, setDisplay, renderFooter, title, colorIndex, isVisible, handleChange, isFormFieldValid, getFormErrorMessage, ownership, anonymousId }){
     const colorOptions = [
         { icon: 'pi pi-circle-fill', id: "pastel-red-option", value: 0 },
         { icon: 'pi pi-circle-fill', id: "pastel-purple-option", value: 1 },
@@ -61,17 +61,21 @@ export default function ListDialog({ dialogName, display, setDisplay, renderFoot
                         itemTemplate={ justifyTemplate }
                     />
                 </div>
-                <div className={"col-12 mt-1 " + (ownership ? "" : "hidden")}>
-                    <h5 className="mb-1">Set list as: </h5>
-                    <SelectButton
-                        id="isVisible"
-                        name="isVisible"
-                        value={ isVisible }
-                        options={ visibilityOptions }
-                        unselectable={ false }
-                        onChange={ handleChange }
-                    />
-                </div>
+                {
+                    anonymousId
+                    ? null
+                    : <div className={"col-12 mt-1 " + (ownership ? "" : "hidden")}>
+                          <h5 className="mb-1">Set list as: </h5>
+                          <SelectButton
+                              id="isVisible"
+                              name="isVisible"
+                              value={ isVisible }
+                              options={ visibilityOptions }
+                              unselectable={ false }
+                              onChange={ handleChange }
+                          />
+                      </div>
+                }
             </div>
         </Dialog>
     );

@@ -8,7 +8,7 @@ app.use("/static", express.static(__dirname + "/public"));
 app.use(express.static(path.join(__dirname, "client/build")));
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
-const store = new MongoDBStore({
+global.store = new MongoDBStore({
     uri: "mongodb://localhost:27017,localhost:27018,localhost:27019/todo?replicaSet=rs",
     collection: "sessions"
 });

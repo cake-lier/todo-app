@@ -1,10 +1,10 @@
 import { Chip } from "primereact/chip";
 import axios from "axios";
 
-export default function ChipTag({ itemId, tag, updateItem, displayError, isRemovable }){
+export default function ChipTag({ itemId, anonymousId, tag, updateItem, displayError, isRemovable }){
     const colors = ["red-list", "purple-list", "blue-list", "green-list", "yellow-list"];
     const onRemove = () => {
-        axios.delete(`/items/${ itemId }/tags/${ tag._id }`)
+        axios.delete(`/items/${ itemId }/tags/${ tag._id }`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  item => updateItem(item.data),
                  error => displayError(error.response.data.error)

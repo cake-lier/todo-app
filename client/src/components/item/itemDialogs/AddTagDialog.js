@@ -5,7 +5,7 @@ import {Dialog} from "primereact/dialog";
 import {InputText} from "primereact/inputtext";
 import {SelectButton} from "primereact/selectbutton";
 
-export default function AddTagDialog({ itemId, display, setDisplay, updateItem, displayError }) {
+export default function AddTagDialog({ itemId, anonymousId, display, setDisplay, updateItem, displayError }) {
     const formik = useFormik({
         initialValues: {
             title: "",
@@ -24,7 +24,8 @@ export default function AddTagDialog({ itemId, display, setDisplay, updateItem, 
                 {
                     title: data.title,
                     colorIndex: data.colorIndex
-                }
+                },
+                { params: anonymousId !== null ? { anonymousId } : {} }
             )
             .then(
                 item => {

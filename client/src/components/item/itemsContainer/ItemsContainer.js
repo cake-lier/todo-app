@@ -11,7 +11,7 @@ import {useNavigate} from "react-router-dom";
 import {Menu} from "primereact/menu";
 import {DataView} from "primereact/dataview";
 
-export default function ItemsContainer({ userId, setUser, list, setList, disabledNotificationsLists, socket, displayError }) {
+export default function ItemsContainer({ userId, anonymousId, setUser, list, setList, disabledNotificationsLists, socket, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
     const [listMembers, setListMembers] = useState([]);
@@ -53,12 +53,12 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
     };
     // init items from database
     const getItems = useCallback(() => {
-        axios.get(`/lists/${ list._id }/items/`)
+        axios.get(`/lists/${ list._id }/items/`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  items => setItems(items.data),
                  error => displayError(error.response.data.error)
              )
-             .then(_ => axios.get(`/lists/${ list._id }/members`))
+             .then(_ => axios.get(`/lists/${ list._id }/members`, { params: anonymousId !== null ? { anonymousId } : {} }))
              .then(
                  members => {
                      setListMembers(members.data);
@@ -66,13 +66,13 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
                  },
                  error => displayError(error.response.data.error)
              );
-    }, [displayError, list]);
+    }, [displayError, list, anonymousId]);
     useEffect(getItems, [getItems]);
     useEffect(() => {
         function handleUpdates(event, eventListId) {
             if (list._id === eventListId
                 && new RegExp(
-                       "^item(?:Created|(?:Title|DueDate|Reminder|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
+                       "^item(?:Created|(?:Title|DueDate|ReminderDate|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
                        + "|Assignee(?:Added|Removed)|Deleted)Reload$"
                    ).test(event)
             ) {
@@ -84,7 +84,7 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
     }, [socket, list, getItems]);
     // delete item
     const deleteItem = (item) => {
-        axios.delete("/items/" + item._id)
+        axios.delete("/items/" + item._id, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  _ => removeItem(item),
                  error => displayError(error.response.data.error)
@@ -120,8 +120,9 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
                         <Menu model={ menuItems } popup ref={ menu } />
                         <ListOptionsMenu
                             userId={ userId }
+                            anonymousId={ anonymousId }
                             setUser={ setUser }
-                            ownership={ list.members.filter(m => m.userId === userId)[0].role === "owner" }
+                            ownership={ userId ? list.members.filter(m => m.userId === userId)[0].role === "owner" : false }
                             disabledNotificationsLists={ disabledNotificationsLists }
                             list={ list }
                             lists={ [list] }
@@ -152,6 +153,7 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
                                   <Item
                                       key={ item._id }
                                       item={ item }
+                                      anonymousId={ anonymousId }
                                       listMembers={ listMembers }
                                       deleteItem={ deleteItem }
                                       updateItem={ updateItem }
@@ -176,6 +178,7 @@ export default function ItemsContainer({ userId, setUser, list, setList, disable
             </div>
             <CreateItemDialog
                 listId={ list._id }
+                anonymousId={ anonymousId }
                 appendItem={ appendItem }
                 displayDialog={ displayDialog }
                 setDisplayDialog={ setDisplayDialog }

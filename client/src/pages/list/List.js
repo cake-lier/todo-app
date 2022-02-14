@@ -7,7 +7,7 @@ import axios from "axios";
 import JoinDialog from "../../components/joinDialog/JoinDialog";
 import ItemsContainer from "../../components/item/itemsContainer/ItemsContainer";
 
-export default function List({ user, setUser, unsetUser, notifications, setNotifications, socket }) {
+export default function List({ user, anonymousId, setUser, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -16,11 +16,11 @@ export default function List({ user, setUser, unsetUser, notifications, setNotif
     const [members, setMembers] = useState([]);
     const [list, setList] = useState(null);
     const getHeader = useCallback(() => {
-        axios.get(`/lists/${ id }`)
-            .then(
+        axios.get(`/lists/${ id }`, { params: anonymousId !== null ? { anonymousId } : {} })
+             .then(
                 list => {
                     setList(list.data);
-                    axios.get(`/lists/${ id }/members`)
+                    axios.get(`/lists/${ id }/members`, { params: anonymousId !== null ? { anonymousId } : {} })
                          .then(
                              members => setMembers(members.data),
                              error => displayError(error.response.data.error)
@@ -28,7 +28,7 @@ export default function List({ user, setUser, unsetUser, notifications, setNotif
                 },
                 error => displayError(error.response.data.error)
             );
-    }, [id, setList, displayError]);
+    }, [id, setList, displayError, anonymousId]);
     useEffect(getHeader, [getHeader]);
     const navigate = useNavigate();
     useEffect(() => {
@@ -50,13 +50,22 @@ export default function List({ user, setUser, unsetUser, notifications, setNotif
     return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
-            <JoinDialog listId={ id } socket={ socket } />
-            <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
-                <MainMenu selected={ null } />
-            </div>
-            <div id="myListsContainer" style={{backgroundColor: "white"}} className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex">
+            <JoinDialog listId={ id } socket={ socket } displayError={ displayError } />
+            {
+                user
+                ? <div id="mainMenuContainer" className="mx-0 p-0 hidden md:block">
+                      <MainMenu selected={ null } />
+                  </div>
+                : null
+            }
+            <div
+                id="myListsContainer"
+                style={{ backgroundColor: "white", width: (user ? "90%" : "100%") }}
+                className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex"
+            >
                 <PageHeader
                     user={ user }
+                    isAnonymous={ !!anonymousId }
                     unsetUser={ unsetUser }
                     title={ list.title }
                     members={ members }
@@ -68,11 +77,12 @@ export default function List({ user, setUser, unsetUser, notifications, setNotif
                     displayError={ displayError }
                 />
                 <ItemsContainer
-                    userId={ user._id }
+                    userId={ user?._id }
+                    anonymousId={ anonymousId }
                     setUser={ setUser }
                     list={ list }
                     setList={ setList }
-                    disabledNotificationsLists={ user.disabledNotificationsLists }
+                    disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
                     socket={ socket }
                     displayError={ displayError }
                 />
@@ -81,6 +91,7 @@ export default function List({ user, setUser, unsetUser, notifications, setNotif
                 <div className="mx-0 p-0 h-full flex-column flex-1 flex">
                     <PageHeader
                         user={ user }
+                        isAnonymous={ !!anonymousId }
                         unsetUser={ unsetUser }
                         title={ list.title }
                         showDate={ false }
@@ -91,11 +102,12 @@ export default function List({ user, setUser, unsetUser, notifications, setNotif
                         displayError={ displayError }
                     />
                     <ItemsContainer
-                        userId={ user._id }
+                        userId={ user?._id }
+                        anonymousId={ anonymousId }
                         setUser={ setUser }
                         list={ list }
                         setList={ setList }
-                        disabledNotificationsLists={ user.disabledNotificationsLists }
+                        disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
                         socket={ socket }
                         displayError={ displayError }
                     />

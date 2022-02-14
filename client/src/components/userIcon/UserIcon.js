@@ -6,8 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Avatar } from 'primereact/avatar';
 import "./UserIcon.scss";
 
-export function UserIcon(props) {
-    const { user, unsetUser, displayError } = props;
+export function UserIcon({ user, unsetUser, displayError }) {
     const navigate = useNavigate();
     const handleOnClickSettings = useCallback(
         () => navigate("/settings"), [navigate]
@@ -31,8 +30,8 @@ export function UserIcon(props) {
         <>
             <Menu id="profilePictureMenu" model={ items } popup ref={ menu } />
             <Avatar
-                image={ props.user.profilePicturePath !== null ? props.user.profilePicturePath : "" }
-                icon={ props.user.profilePicturePath === null ? "pi pi-user" : "" }
+                image={ user.profilePicturePath !== null ? user.profilePicturePath : "" }
+                icon={ user.profilePicturePath === null ? "pi pi-user" : "" }
                 onClick={ e => menu.current.toggle(e) }
                 shape="circle"
                 className="w-3rem h-3rem"

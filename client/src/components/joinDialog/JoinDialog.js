@@ -2,6 +2,7 @@ import {Component} from "react";
 import {Dialog} from "primereact/dialog";
 import {Button} from "primereact/button";
 import "./JoinDialog.scss"
+import axios from "axios";
 
 class JoinDialog extends Component {
 
@@ -11,18 +12,20 @@ class JoinDialog extends Component {
             displayJoinDialog: false,
             listId: "",
             listTitle: "",
-            username: ""
+            username: "",
+            anonymousSocket: null
         };
         this.handleJoinRequest = this.handleJoinRequest.bind(this);
     }
 
-    handleJoinRequest(listId, listTitle, username) {
+    handleJoinRequest(listId, listTitle, username, anonymousSocket) {
         if (this.props.listId === listId) {
             this.setState({
                 displayJoinDialog: true,
                 listId,
                 listTitle,
-                username
+                username,
+                anonymousSocket
             });
         }
     }
@@ -42,7 +45,35 @@ class JoinDialog extends Component {
 
     render() {
         const handleResponse = isApproved => {
-            this.props.socket.emit("joinApproval", this.props.socket.id, this.state.listId, isApproved);
+            if (isApproved) {
+                axios.post(
+                    `/lists/${ this.state.listId }/members`,
+                    {
+                        isAnonymous: true,
+                        socketId: this.state.anonymousSocket,
+                        username: this.state.username
+                    }
+                )
+                .then(
+                    list => {
+                        this.props
+                            .socket
+                            .emit(
+                                "joinApproval",
+                                this.props.socket.id,
+                                this.state.listId,
+                                true,
+                                list.data.members[list.data.members.length - 1].anonymousId
+                            )
+                    },
+                    error => {
+                        this.props.displayError(error.response.data.error);
+                        this.props.socket.emit("joinApproval", this.props.socket.id, this.state.listId, false, null);
+                    }
+                );
+            } else {
+                this.props.socket.emit("joinApproval", this.props.socket.id, this.state.listId, false, null);
+            }
             this.setState({
                 displayJoinDialog: false
             });

@@ -4,18 +4,22 @@ import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import axios from "axios";
 
-export default function EditDueDateDialog({ item, updateItem, displayEditDueDate, setDisplayEditDueDate, displayError }) {
+export default function EditDueDateDialog({ item, anonymousId, updateItem, displayEditDueDate, setDisplayEditDueDate, displayError }) {
     const setActualDueDate = date => date && (new Date(date) >= new Date()) ? new Date(date) : (date ? new Date() : null);
     const [dueDate, setDueDate] = useState(setActualDueDate(item.dueDate));
     const insertDueDate = () => {
-        axios.put(`/items/${ item._id }/dueDate`, { dueDate })
-             .then(
-                 item => {
-                     updateItem(item.data);
-                     setDisplayEditDueDate(false);
-                 },
-                 error => displayError(error.response.data.error)
-             );
+        axios.put(
+            `/items/${ item._id }/dueDate`,
+            { dueDate },
+            { params: anonymousId !== null ? { anonymousId } : {} }
+        )
+        .then(
+            item => {
+                updateItem(item.data);
+                setDisplayEditDueDate(false);
+            },
+            error => displayError(error.response.data.error)
+        );
     };
     const dueDateFooter = () => {
         return (
