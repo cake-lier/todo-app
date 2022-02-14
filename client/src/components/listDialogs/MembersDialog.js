@@ -51,8 +51,7 @@ export default function MembersDialog({ anonymousId, display, setDisplay, list, 
                 <div className="col-1 m-0 p-0">
                     <Avatar
                         className="custom-target-icon"
-                        image={ member.profilePicturePath !== null ? member.profilePicturePath : "" }
-                        icon={ member.profilePicturePath === null ? "pi pi-user" : "" }
+                        image={ member.profilePicturePath !== null ? member.profilePicturePath : "/static/images/default_profile_picture.jpg" }
                         size="small"
                         shape="circle"
                         alt={ member.username + "'s profile picture" }

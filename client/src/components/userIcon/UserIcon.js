@@ -31,7 +31,6 @@ export function UserIcon({ user, unsetUser, displayError }) {
             <Menu id="profilePictureMenu" model={ items } popup ref={ menu } />
             <Avatar
                 image={ user.profilePicturePath !== null ? user.profilePicturePath : "" }
-                icon={ user.profilePicturePath === null ? "pi pi-user" : "" }
                 onClick={ e => menu.current.toggle(e) }
                 shape="circle"
                 className="w-3rem h-3rem"

@@ -37,6 +37,11 @@ export default function Item({ item, anonymousId, listMembers, deleteItem, updat
     // priority star
     const [priority, setPriority] = useState(item.priority);
 
+    //TODO this is no fix
+    useEffect(() => {
+        setPriority(item.priority)
+    }, [item])
+
     const togglePriority = () => {
         setPriority(!priority);
         axios.put(

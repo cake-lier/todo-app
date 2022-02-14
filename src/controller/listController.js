@@ -63,7 +63,7 @@ function deleteList(request, response) {
                                            const authorUsername = user.username;
                                            const authorProfilePicturePath = user.profilePicturePath;
                                            const listId = list._id.toString();
-                                           const text = `${authorUsername} deleted the list "${ list.title }"`;
+                                           const text = ` deleted the list "${ list.title }"`;
                                            return Notification.create({
                                                authorUsername,
                                                authorProfilePicturePath,
@@ -77,7 +77,7 @@ function deleteList(request, response) {
                                                .then(_ => {
                                                    io.in(`list:${ listId }`)
                                                        .except(`user:${ request.session.userId }`)
-                                                       .emit("listDeleted", listId, text);
+                                                       .emit("listDeleted", listId, `${authorUsername}${text}`);
                                                    io.in(`list:${ listId }`).emit("listDeletedReload", listId);
                                                    io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
                                                    io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
@@ -316,7 +316,7 @@ function updateTitle(request, response) {
                     .then(_ => {
                         io.in(`list:${ listId }`)
                           .except(`user:${ request.session.userId }`)
-                          .emit("listTitleChanged", listId, text);
+                          .emit("listTitleChanged", listId, `${authorUsername}${text}`);
                         io.in(`list:${ listId }`)
                           .emit("listTitleChangedReload", listId);
                         const updatedList = JSON.parse(JSON.stringify(list));
@@ -352,7 +352,7 @@ function updateVisibility(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = ` made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non members`;
+                        const text = ` made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non-registered users`;
                         Notification.create({
                             authorUsername,
                             authorProfilePicturePath,
@@ -364,7 +364,7 @@ function updateVisibility(request, response) {
                         })
                             .catch(error => console.log(error))
                             .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, text);
+                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, `${authorUsername}${text}`);
                                 io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
                                 response.json(list);
                             });
@@ -445,7 +445,7 @@ function addMember(request, response) {
                                             })
                                                 .catch(error => console.log(error))
                                                 .then(_ => {
-                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAdded", listId, newMemberText);
+                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAdded", listId, `${authorUsername}${newMemberText}`);
                                                     io.in(`user:${ newMemberUserId }`).emit("listSelfAddedReload", listId);
                                                 })
                                                 .then(_ => Notification.create({
@@ -463,7 +463,7 @@ function addMember(request, response) {
                                                 .then(_ => {
                                                     io.in(`list:${ listId }`)
                                                         .except(`user:${ request.session.userId }`)
-                                                        .emit("listMemberAdded", listId, oldMembersText);
+                                                        .emit("listMemberAdded", listId, `${authorUsername}${oldMembersText}`);
                                                     io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
                                                     io.in(`user:${ newMemberUserId }`).socketsJoin(`list:${ listId }`);
                                                 });
@@ -504,7 +504,7 @@ function addMember(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberAdded", listId, text);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberAdded", listId, `${request.body.username}${text}`);
                 io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
                 io.in(request.body.socketId).socketsJoin(`list:${ list._id.toString() }`);
                 response.json(list);
@@ -580,6 +580,8 @@ function removeMember(request, response) {
                 User.findById(request.session.userId)
                     .exec()
                     .then(user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
                         const removedMemberUserId =
                             list.members.filter(m => m._id.toString() === request.params.memberId)[0].userId;
@@ -588,8 +590,6 @@ function removeMember(request, response) {
                         const userText = ` removed you from the list "${ list.title }"`;
                         // if the member removed was a registered user
                         if (removedMemberUserId !== null) {
-                            const authorUsername = user.username;
-                            const authorProfilePicturePath = user.profilePicturePath;
                             User.findById(removedMemberUserId)
                                 .exec()
                                 .then(user => {
@@ -606,7 +606,7 @@ function removeMember(request, response) {
                                         .catch(error => console.log(error))
                                         .then(_ => {
                                             io.in(`user:${ removedMemberUserId }`).socketsLeave(`list:${ listId }`);
-                                            io.in(`user:${ removedMemberUserId }`).emit("listSelfRemoved", listId, userText);
+                                            io.in(`user:${ removedMemberUserId }`).emit("listSelfRemoved", listId, `${authorUsername}${userText}`);
                                             io.in(`user:${ removedMemberUserId }`).emit("listSelfRemovedReload", listId);
                                         });
                                         const removalText =
@@ -626,7 +626,7 @@ function removeMember(request, response) {
                                         .then(_ => {
                                             io.in(`list:${ listId }`)
                                               .except(`user:${ request.session.userId }`)
-                                              .emit("listMemberRemoved", listId, removalText);
+                                              .emit("listMemberRemoved", listId, `${authorUsername}${removalText}`);
                                             io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
                                             const updatedList = JSON.parse(JSON.stringify(list));
                                             updatedList.members.splice(removedMemberIndex, 1);
@@ -648,7 +648,7 @@ function removeMember(request, response) {
                                         .then(_ => {
                                             io.in(`list:${ listId }`)
                                               .except(`user:${ request.session.userId }`)
-                                              .emit("listMemberRemoved", listId, text);
+                                              .emit("listMemberRemoved", listId, `${authorUsername}${text}`);
                                             io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
                                             const updatedList = JSON.parse(JSON.stringify(list));
                                             updatedList.members.splice(removedMemberIndex, 1);

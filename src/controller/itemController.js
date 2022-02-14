@@ -71,7 +71,7 @@ function createItem(request, response) {
                         .then(_ => {
                             io.in(`list:${ listId }`)
                               .except(`user:${ request.session.userId }`)
-                              .emit("itemCreated", listId, text);
+                              .emit("itemCreated", listId, `${authorUsername}${text}`);
                             io.in(`list:${ listId }`).emit("itemCreatedReload", listId);
                             response.json(item);
                         });
@@ -269,7 +269,7 @@ function updateItemAtomicProperty(request, response, updateObject, onSuccess, op
                 Object.assign({ runValidators: true, context: "query", session }, optionsObject)
             )
             .exec()
-            .then(item => {
+            .then(async item => {
                 if (item === null) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
@@ -313,7 +313,9 @@ function updateTitle(request, response) {
                 })
                 .catch(error => console.log(error))
                 .then(_ => {
-                    io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("itemTitleChanged", listId, text);
+                    io.in(`list:${ listId }`)
+                      .except(`user:${ request.session.userId }`)
+                      .emit("itemTitleChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`).emit("itemTitleChangedReload", listId);
                     const updatedItem = JSON.parse(JSON.stringify(item));
                     updatedItem.title = request.body.title;
@@ -368,7 +370,7 @@ function updateDueDate(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
-                      .emit("itemDueDateChanged", listId, text);
+                      .emit("itemDueDateChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`).emit("itemDueDateChangedReload", listId);
                     response.json(item);
                 });
@@ -401,8 +403,10 @@ function updateReminderDate(request, response) {
                 const authorProfilePicturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text = request.body.reminderDate
-                             ? ` set a reminder set to the item "${ item.title }"`
-                             : ` removed a reminder from the item "${ item.title }"`;
+                    ? ` set the reminder of the item "${item.title}" to `
+                      + `${request.body.reminderDate.toDateString().substr(3)} at `
+                      + `${request.body.reminderDate.toLocaleTimeString().substr(0,5)}`
+                    : ` removed the reminder from the item "${item.title}"`;
                 const itemId = item._id.toString();
                 jobs[itemId]?.cancel();
                 if (request.body.reminderDate) {
@@ -422,7 +426,7 @@ function updateReminderDate(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
-                      .emit("itemReminderDateChanged", listId, text);
+                      .emit("itemReminderDateChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`).emit("itemReminderDateChangedReload", listId);
                     response.json(item);
                 });
@@ -467,7 +471,7 @@ function updateCompletion(request, response) {
                 .then(_ => {
                     io.in(`list:${listId}`)
                       .except(`user:${ request.session.userId }`)
-                      .emit("itemCompletionChanged", listId, text);
+                      .emit("itemCompletionChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${listId}`).emit("itemCompletionChangedReload", listId);
                     response.json(item);
                 });
@@ -497,7 +501,7 @@ function addTag(request, response) {
                 const authorUsername = user.username;
                 const authorProfilePicturePath = user.profilePicturePath;
                 const listId = list._id.toString();
-                const text = ` added some tags to the item "${item.title}"`;
+                const text = ` added the tag "${request.body.title}" to the item "${item.title}"`;
                 Notification.create({
                     authorUsername,
                     authorProfilePicturePath,
@@ -512,7 +516,7 @@ function addTag(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
-                      .emit("itemTagsAdded", listId, text);
+                      .emit("itemTagsAdded", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`).emit("itemTagsAddedReload", listId);
                     response.json(item);
                 });
@@ -542,7 +546,9 @@ function removeTag(request, response) {
                 const authorUsername = user.username;
                 const authorProfilePicturePath = user.profilePicturePath;
                 const listId = list._id.toString();
-                const text = ` removed some tags from the item "${item.title}"`;
+                const text =
+                    `removed the tag "${item.tags.find(i => i._id.toString() === request.params.tagId).title}" `
+                    + `from the item "${item.title}"`;
                 Notification.create({
                     authorUsername,
                     authorProfilePicturePath,
@@ -557,12 +563,15 @@ function removeTag(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
-                      .emit("itemTagsRemoved", listId, text);
+                      .emit("itemTagsRemoved", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`).emit("itemTagsRemovedReload", listId);
-                    response.json(item);
+                    const updatedItem = JSON.parse(JSON.stringify(item));
+                    updatedItem.tags = updatedItem.tags.filter(i => i._id.toString() !== request.params.tagId);
+                    response.json(updatedItem);
                 });
             })
-        }
+        },
+        { new: false }
     );
 }
 
@@ -573,7 +582,7 @@ function updateCount(request, response) {
     updateItemProperty(
         request,
         response,
-        (session, list) =>
+        async (session, list) =>
             Item.findById(request.params.id, undefined, { session })
                 .exec()
                 .then(item => {
@@ -592,7 +601,7 @@ function updateCount(request, response) {
                         { runValidators: true, new: true, context: "query", session }
                     )
                     .exec()
-                    .then(item => {
+                    .then(async item => {
                         if (item === null) {
                             sendError(response, Error.ResourceNotFound);
                             return Promise.resolve();
@@ -626,7 +635,7 @@ function updateCount(request, response) {
                              .then(_ => {
                                  io.in(`list:${ listId }`)
                                    .except(`user:${ request.session.userId }`)
-                                   .emit("itemCountChanged", listId, text);
+                                   .emit("itemCountChanged", listId, `${authorUsername}${text}`);
                                  io.in(`list:${ listId }`).emit("itemCountChangedReload", listId);
                                  response.json(item);
                              });
@@ -719,28 +728,59 @@ function addAssignee(request, response) {
                                    .then(user => {
                                        const authorUsername = user.username;
                                        const authorProfilePicturePath = user.profilePicturePath;
+                                       const assigneeUserId = lists[0].members
+                                                                      .find(m => m._id.toString() === request.body.memberId)
+                                                                      .userId
+                                                                      .toString();
                                        const listId = lists[0]._id.toString();
-                                       const text = ` added an assignee to the item "${item.title}"`;
-                                       Notification.create({
-                                           authorUsername,
-                                           authorProfilePicturePath,
-                                           users: lists[0].members
-                                                          .filter(
-                                                              m => m.userId !== null
-                                                                   && m.userId.toString() !== request.session.userId
-                                                          )
-                                                          .map(m => m.userId),
-                                           text,
-                                           listId,
-                                           listTitle: lists[0].title
-                                       })
-                                       .catch(error => console.log(error))
-                                       .then(_ => {
-                                           io.in(`list:${ listId }`)
-                                             .except(`user:${ request.session.userId }`)
-                                             .emit("itemAssigneeAdded", listId, text);
-                                           io.in(`list:${ listId }`).emit("itemAssigneeAddedReload", listId);
-                                           response.json(item);
+                                       return (
+                                           user._id.toString() === assigneeUserId
+                                           ? Promise.resolve(` added themselves to the item "${item.title}"`)
+                                           : User.findById(assigneeUserId, undefined, { session })
+                                                 .exec()
+                                                 .then(user => ` added the member ${user.username} to the item "${item.title}"`)
+                                       )
+                                       .then(text => {
+                                           Notification.create({
+                                               authorUsername,
+                                               authorProfilePicturePath,
+                                               users: lists[0].members
+                                                              .filter(m => m.userId !== null
+                                                                           && m.userId.toString() !== request.session.userId
+                                                                           && m._id.toString() !== request.body.memberId)
+                                                              .map(m => m.userId),
+                                               text,
+                                               listId,
+                                               listTitle: lists[0].title
+                                           })
+                                           .catch(error => console.log(error))
+                                           .then(_ => {
+                                               io.in(`list:${listId}`)
+                                                 .except(`user:${request.session.userId}`)
+                                                 .except(`user:${assigneeUserId}`)
+                                                 .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
+                                               io.in(`list:${listId}`).emit("itemAssigneeAddedReload", listId);
+                                               const userText = ` added you to the item "${item.title}"`;
+                                               Notification.create({
+                                                   authorUsername,
+                                                   authorProfilePicturePath,
+                                                   users: lists[0].members
+                                                                  .filter(m => m.userId !== null
+                                                                               && m._id.toString() === request.body.memberId)
+                                                                  .map(m => m.userId),
+                                                   text: userText,
+                                                   listId,
+                                                   listTitle: lists[0].title
+                                               })
+                                               .catch(error => console.log(error))
+                                               .then(_ => {
+                                                   io.in(`user:${assigneeUserId}`)
+                                                     .except(`user:${request.session.userId}`)
+                                                     .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
+                                                   io.in(`list:${listId}`).emit("itemAssigneeAddedReload", listId);
+                                                   response.json(item);
+                                               });
+                                           });
                                        });
                                    });
                                });
@@ -829,6 +869,13 @@ function updateAssignee(request, response) {
                                        sendError(response, Error.ResourceNotFound);
                                        return Promise.resolve();
                                    }
+                                   const assigneeMemberId =
+                                       item.assignees
+                                           .find(a => a._id.toString() === request.params.assigneeId)
+                                           .memberId
+                                           .toString();
+                                   const assigneeUserId =
+                                       lists[0].members.find(m => m._id.toString() === assigneeMemberId).userId.toString();
                                    return (
                                        request.session.userId
                                        ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -843,25 +890,56 @@ function updateAssignee(request, response) {
                                        const authorUsername = user.username;
                                        const authorProfilePicturePath = user.profilePicturePath;
                                        const listId = lists[0]._id.toString();
-                                       const text = `${authorUsername} updated an assignee of the item "${item.title}"`;
-                                       Notification.create({
-                                           authorUsername,
-                                           authorProfilePicturePath,
-                                           users: lists[0].members
-                                                          .filter(m => m.userId !== null
-                                                                       && m.userId.toString() !== request.session.userId)
-                                                          .map(m => m.userId),
-                                           text,
-                                           listId,
-                                           listTitle: lists[0].title
-                                       })
-                                       .catch(error => console.log(error))
-                                       .then(_ => {
-                                           io.in(`list:${ listId }`)
-                                             .except(`user:${ request.session.userId }`)
-                                             .emit("itemAssigneeUpdated", listId, text);
-                                           io.in(`list:${ listId }`).emit("itemAssigneeUpdatedReload", listId);
-                                           response.json(item);
+                                       (
+                                           user._id.toString() === assigneeUserId
+                                           ? Promise.resolve(` updated their assigned count in the item "${item.title}"`)
+                                           : User.findById(assigneeUserId, undefined, {session})
+                                                 .exec()
+                                                 .then(user => ` updated the assigned count of the member ${user.username} `
+                                                               + `in the item "${item.title}"`)
+                                       )
+                                       .then(text => {
+                                           Notification.create({
+                                               authorUsername,
+                                               authorProfilePicturePath,
+                                               users: lists[0].members
+                                                              .filter(m => m.userId !== null
+                                                                           && m.userId.toString() !== request.session.userId)
+                                                              .map(m => m.userId),
+                                               text,
+                                               listId,
+                                               listTitle: lists[0].title
+                                           })
+                                           .catch(error => console.log(error))
+                                           .then(_ => {
+                                               io.in(`list:${listId}`)
+                                                 .except(`user:${request.session.userId}`)
+                                                 .except(`user:${assigneeUserId}`)
+                                                 .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
+                                               io.in(`list:${listId}`).emit("itemAssigneeAddedReload", listId);
+                                               const userText = ` updated your assigned count in the item "${item.title}"`;
+                                               Notification.create({
+                                                   authorUsername,
+                                                   authorProfilePicturePath,
+                                                   users:
+                                                       lists[0].members
+                                                               .filter(m => m.userId !== null
+                                                                            && m.userId.toString() === assigneeUserId
+                                                               )
+                                                               .map(m => m.userId),
+                                                   text: userText,
+                                                   listId,
+                                                   listTitle: lists[0].title
+                                               })
+                                               .catch(error => console.log(error))
+                                               .then(_ => {
+                                                   io.in(`user:${assigneeUserId}`)
+                                                     .except(`user:${request.session.userId}`)
+                                                     .emit("itemAssigneeUpdated", listId, );
+                                                   io.in(`list:${listId}`).emit("itemAssigneeUpdatedReload", listId);
+                                                   response.json(item);
+                                               });
+                                           });
                                        });
                                    });
                                });
@@ -893,6 +971,8 @@ function removeAssignee(request, response) {
                 if (item === null) {
                     return Promise.resolve(null);
                 }
+                const assigneeMemberId = item.assignees.find(a => a._id.toString() === assigneeId).memberId.toString();
+                const assigneeUserId = list.members.find(m => m._id.toString() === assigneeMemberId).userId.toString();
                 return Item.findByIdAndUpdate(
                     request.params.id,
                     {
@@ -904,7 +984,7 @@ function removeAssignee(request, response) {
                     { runValidators: true, new: true, session, context: "query" }
                 )
                 .exec()
-                .then(item => {
+                .then(async item => {
                     if (item === null) {
                         sendError(response, Error.ResourceNotFound);
                         return Promise.resolve();
@@ -921,25 +1001,56 @@ function removeAssignee(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = ` removed an assignee from the item "${ item.title }"`;
-                        Notification.create({
-                            authorUsername,
-                            authorProfilePicturePath,
-                            users: list.members
-                                       .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                       .map(m => m.userId),
-                            text,
-                            listId,
-                            listTitle: list.title
-                        })
-                        .catch(error => console.log(error))
-                        .then(_ => {
-                            io.in(`list:${ listId }`)
-                              .except(`user:${ request.session.userId }`)
-                              .emit("itemAssigneeRemoved", listId, text);
-                            io.in(`list:${ listId }`).emit("itemAssigneeRemovedReload", listId);
-                            response.json(item);
-                        });
+                        (
+                            user._id.toString() === assigneeUserId
+                            ? Promise.resolve(` removed themselves from the item "${item.title}"`)
+                            : User.findById(assigneeUserId, undefined, {session})
+                                  .exec()
+                                  .then(user => ` removed the member ${user.username} from the item "${item.title}"`)
+                        )
+                        .then(text =>
+                            Notification.create({
+                                authorUsername,
+                                authorProfilePicturePath,
+                                users: list.members
+                                           .filter(m => m.userId !== null
+                                                        && m.userId.toString() !== request.session.userId
+                                                        && m.userId.toString() !== assigneeUserId)
+                                           .map(m => m.userId),
+                                text,
+                                listId,
+                                listTitle: list.title
+                            })
+                            .catch(error => console.log(error))
+                            .then(_ => {
+                                io.in(`list:${listId}`)
+                                  .except(`user:${request.session.userId}`)
+                                  .except(`user:${assigneeUserId}`)
+                                  .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
+                                io.in(`list:${listId}`).emit("itemAssigneeAddedReload", listId)
+                                const userText = ` removed you from the item "${item.title}"`;
+                                return Notification.create({
+                                    authorUsername,
+                                    authorProfilePicturePath,
+                                    users: list.members
+                                               .filter(m => m.userId !== null
+                                                            && m.userId.toString() === assigneeUserId
+                                               )
+                                               .map(m => m.userId),
+                                    text: userText,
+                                    listId,
+                                    listTitle: list.title
+                                })
+                                .catch(error => console.log(error))
+                                .then(_ => {
+                                    io.in(`user:${assigneeUserId}`)
+                                      .except(`user:${request.session.userId}`)
+                                      .emit("itemAssigneeRemoved", listId, `${authorUsername}${userText}`);
+                                      io.in(`list:${listId}`).emit("itemAssigneeRemovedReload", listId);
+                                      response.json(item);
+                                });
+                            })
+                        );
                     });
                 });
             })
@@ -956,7 +1067,7 @@ function deleteItem(request, response) {
         (session, list) =>
             Item.findByIdAndDelete(request.params.id, { session })
                 .exec()
-                .then(item => {
+                .then(async item => {
                     if (item === null) {
                         sendError(response, Error.ResourceNotFound);
                         return Promise.resolve();
@@ -989,7 +1100,7 @@ function deleteItem(request, response) {
                         .then(_ => {
                             io.in(`list:${ listId }`)
                               .except(`user:${ request.session.userId }`)
-                              .emit("itemDeleted", listId, text);
+                              .emit("itemDeleted", listId, `${authorUsername}${text}`);
                             io.in(`list:${ listId }`).emit("itemDeletedReload", listId);
                             response.json(item);
                         });
@@ -1034,7 +1145,7 @@ function updatePriority(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
-                      .emit("itemPriorityChanged", listId, text);
+                      .emit("itemPriorityChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`).emit("itemPriorityChangedReload", listId);
                     response.json(item);
                 });
