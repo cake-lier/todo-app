@@ -41,6 +41,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                     setUser={ setUser }
                     lists={ lists }
                     setLists={ setLists }
+                    userId={ user._id }
                     displayError={ displayError }
                     socket={ socket }
                     disabledNotificationsLists={ user.disabledNotificationsLists }
@@ -66,6 +67,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         setUser={ setUser }
                         lists={ lists }
                         setLists={ setLists }
+                        userId={ user._id }
                         displayError={ displayError }
                         socket={ socket }
                         disabledNotificationsLists={ user.disabledNotificationsLists }

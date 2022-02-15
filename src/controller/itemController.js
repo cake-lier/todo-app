@@ -76,6 +76,7 @@ function createItem(request, response) {
                         .then(_ => {
                             io.in(`list:${ listId }`)
                               .except(`user:${ request.session.userId }`)
+                              .except(`anon:${ request.query.anonymousId }`)
                               .emit("itemCreated", listId, `${authorUsername}${text}`);
                             io.in(`list:${ listId }`)
                               .except(request.session.socketId)
@@ -327,6 +328,7 @@ function updateTitle(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemTitleChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`)
                       .except(request.session.socketId)
@@ -386,6 +388,7 @@ function updateDueDate(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemDueDateChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`)
                       .except(request.session.socketId)
@@ -448,6 +451,7 @@ function updateReminderDate(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemReminderDateChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`)
                       .except(request.session.socketId)
@@ -499,6 +503,7 @@ function updateCompletion(request, response) {
                 .then(_ => {
                     io.in(`list:${listId}`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemCompletionChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${listId}`)
                       .except(request.session.socketId)
@@ -550,6 +555,7 @@ function addTag(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemTagsAdded", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`)
                       .except(request.session.socketId)
@@ -603,6 +609,7 @@ function removeTag(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemTagsRemoved", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`)
                       .except(request.session.socketId)
@@ -681,6 +688,7 @@ function updateCount(request, response) {
                              .then(_ => {
                                  io.in(`list:${ listId }`)
                                    .except(`user:${ request.session.userId }`)
+                                   .except(`anon:${ request.query.anonymousId }`)
                                    .emit("itemCountChanged", listId, `${authorUsername}${text}`);
                                  io.in(`list:${ listId }`)
                                    .except(request.session.socketId)
@@ -780,7 +788,7 @@ function addAssignee(request, response) {
                                        const listId = lists[0]._id.toString();
                                        return (
                                            request.session.userId === assignee.userId?.toString()
-                                           || request.query.anonymousId === assignee.anonymousId?.toString()
+                                           || (request.query.anonymousId && request.query.anonymousId === assignee.anonymousId?.toString())
                                            ? Promise.resolve(` added themselves to the item "${item.title}"`)
                                            : (
                                                assignee.userId !== null
@@ -790,7 +798,7 @@ function addAssignee(request, response) {
                                                          user => ` added the member ${user.username} to the item "${item.title}"`
                                                      )
                                                : Promise.resolve(
-                                                   ` added the member ${user.username} to the item "${item.title}"`
+                                                   ` added the member ${assignee.username} to the item "${item.title}"`
                                                  )
                                              )
                                        )
@@ -798,11 +806,13 @@ function addAssignee(request, response) {
                                            if (assignee.userId !== null) {
                                                io.in(`list:${listId}`)
                                                  .except(`user:${request.session.userId}`)
-                                                 .except(`user:${assignee.userId.toString()}`)
+                                                 .except(`anon:${ request.query.anonymousId }`)
+                                                 .except(`user:${assignee.userId?.toString()}`)
                                                  .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
                                            } else {
                                                io.in(`list:${listId}`)
                                                  .except(`user:${request.session.userId}`)
+                                                 .except(`anon:${ request.query.anonymousId }`)
                                                  .except(`anon:${assignee.anonymousId}`)
                                                  .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
                                            }
@@ -842,9 +852,12 @@ function addAssignee(request, response) {
                                                .then(_ => {
                                                    if (assignee.userId !== null) {
                                                        io.in(`user:${assignee.userId.toString()}`)
+                                                         .except(`user:${request.session.userId}`)
                                                          .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
-                                                   } else {
+                                                   }
+                                                   else {
                                                        io.in(`anon:${assignee.anonymousId.toString()}`)
+                                                          .except(`anon:${ request.query.anonymousId }`)
                                                          .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
                                                    }
                                                    io.in(`list:${listId}`)
@@ -961,9 +974,9 @@ function updateAssignee(request, response) {
                                        const authorUsername = user.username;
                                        const authorProfilePicturePath = user.profilePicturePath;
                                        const listId = lists[0]._id.toString();
-                                       (
+                                       return (
                                            request.session.userId === assignee.userId?.toString()
-                                           || assignee.anonymousId.toString() === request.query.anonymousId
+                                           || (request.query.anonymousId && request.query.anonymousId === assignee.anonymousId?.toString())
                                            ? Promise.resolve(` updated their assigned count in the item "${item.title}"`)
                                            : (
                                                assignee.userId !== null
@@ -971,7 +984,7 @@ function updateAssignee(request, response) {
                                                      .exec()
                                                      .then(user => ` updated the assigned count of the member ${user.username} `
                                                                    + `in the item "${item.title}"`)
-                                               : Promise.resolve(` updated the assigned count of the member ${user.username} `
+                                               : Promise.resolve(` updated the assigned count of the member ${assignee.username} `
                                                                  + `in the item "${item.title}"`)
                                              )
                                        )
@@ -979,12 +992,14 @@ function updateAssignee(request, response) {
                                            if (assignee.userId !== null) {
                                                io.in(`list:${listId}`)
                                                  .except(`user:${request.session.userId}`)
+                                                 .except(`anon:${ request.query.anonymousId }`)
                                                  .except(`user:${assignee.userId.toString()}`)
                                                  .emit("itemAssigneeUpdated", listId, `${authorUsername}${text}`);
                                            } else {
                                                io.in(`list:${listId}`)
-                                                 .except(`user:${request.session.userId}`)
-                                                 .except(`anon:${assignee.anonymousId.toString()}`)
+                                                  .except(`user:${request.session.userId}`)
+                                                  .except(`anon:${ request.query.anonymousId }`)
+                                                  .except(`anon:${assignee.anonymousId}`)
                                                  .emit("itemAssigneeUpdated", listId, `${authorUsername}${text}`);
                                            }
                                            const users = lists[0].members
@@ -1022,9 +1037,11 @@ function updateAssignee(request, response) {
                                                .then(_ => {
                                                    if (assignee.userId !== null) {
                                                        io.in(`user:${assignee.userId.toString()}`)
-                                                         .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
+                                                           .except(`user:${request.session.userId}`)
+                                                           .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
                                                    } else {
                                                        io.in(`anon:${assignee.anonymousId.toString()}`)
+                                                         .except(`anon:${ request.query.anonymousId }`)
                                                          .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
                                                    }
                                                    io.in(`list:${listId}`)
@@ -1094,9 +1111,9 @@ function removeAssignee(request, response) {
                         const authorUsername = user.username;
                         const authorProfilePicturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        (
+                        return (
                             request.session.userId === assignee.userId?.toString()
-                            || assignee.anonymousId === request.query.anonymousId
+                            || (request.query.anonymousId !== undefined && request.query.anonymousId === assignee.anonymousId?.toString())
                             ? Promise.resolve(` removed themselves from the item "${item.title}"`)
                             : (
                                 assignee.userId !== null
@@ -1105,18 +1122,20 @@ function removeAssignee(request, response) {
                                       .then(
                                           user => ` removed the member ${user.username} from the item "${item.title}"`
                                       )
-                                : Promise.resolve(` removed the member ${user.username} from the item "${item.title}"`)
+                                : Promise.resolve(` removed the member ${assignee.username} from the item "${item.title}"`)
                               )
                         )
                         .then(text => {
                             if (assignee.userId !== null) {
                                 io.in(`list:${listId}`)
                                   .except(`user:${request.session.userId}`)
+                                  .except(`anon:${ request.query.anonymousId }`)
                                   .except(`user:${assignee.userId.toString()}`)
                                   .emit("itemAssigneeRemoved", listId, `${authorUsername}${text}`);
                             } else {
                                 io.in(`list:${listId}`)
                                   .except(`user:${request.session.userId}`)
+                                  .except(`anon:${ request.query.anonymousId }`)
                                   .except(`anon:${assignee.anonymousId.toString()}`)
                                   .emit("itemAssigneeRemoved", listId, `${authorUsername}${text}`);
                             }
@@ -1156,9 +1175,11 @@ function removeAssignee(request, response) {
                                 .then(_ => {
                                     if (assignee.userId !== null) {
                                         io.in(`user:${assignee.userId.toString()}`)
+                                           .except(`user:${request.session.userId}`)
                                           .emit("itemAssigneeRemoved", listId, `${authorUsername}${userText}`);
                                     } else {
                                         io.in(`anon:${assignee.anonymousId.toString()}`)
+                                          .except(`anon:${ request.query.anonymousId }`)
                                           .emit("itemAssigneeRemoved", listId, `${authorUsername}${userText}`);
                                     }
                                     io.in(`list:${listId}`)
@@ -1222,6 +1243,7 @@ function deleteItem(request, response) {
                         .then(_ => {
                             io.in(`list:${ listId }`)
                               .except(`user:${ request.session.userId }`)
+                              .except(`anon:${ request.query.anonymousId }`)
                               .emit("itemDeleted", listId, `${authorUsername}${text}`);
                             io.in(`list:${ listId }`)
                               .except(request.session.socketId)
@@ -1274,6 +1296,7 @@ function updatePriority(request, response) {
                 .then(_ => {
                     io.in(`list:${ listId }`)
                       .except(`user:${ request.session.userId }`)
+                      .except(`anon:${ request.query.anonymousId }`)
                       .emit("itemPriorityChanged", listId, `${authorUsername}${text}`);
                     io.in(`list:${ listId }`)
                       .except(request.session.socketId)

@@ -73,7 +73,7 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
             if (list._id === eventListId
                 && new RegExp(
                        "^item(?:Created|(?:Title|DueDate|ReminderDate|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
-                       + "|Assignee(?:Added|Removed)|Deleted)Reload$"
+                       + "|Assignee(?:Added|Removed|Updated)|Deleted)Reload$"
                    ).test(event)
             ) {
                 getItems();

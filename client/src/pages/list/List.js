@@ -34,7 +34,7 @@ export default function List({ user, anonymousId, setUser, unsetUser, notificati
     useEffect(() => {
         function handleUpdates(event, listId) {
             if (listId === id) {
-                if (new RegExp("^list(?:titleChanged|Member(?:Added|Removed))Reload$").test(event)) {
+                if (new RegExp("^list(?:TitleChanged|Member(?:Added|Removed))Reload$").test(event)) {
                     getHeader();
                 } else if (new RegExp("^list(?:Deleted|SelfRemoved)Reload$").test(event)) {
                     navigate("/my-day");
