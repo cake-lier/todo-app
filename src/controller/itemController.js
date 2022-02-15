@@ -256,7 +256,7 @@ function updateItemProperty(request, response, onSuccess) {
                     sendError(response, Error.ResourceNotFound);
                     return Promise.resolve();
                 }
-                return onSuccess(session, lists[0], session);
+                return onSuccess(session, lists[0]);
             })
         ))
         .catch(error => {
@@ -294,7 +294,7 @@ function updateTitle(request, response) {
         request,
         response,
         { $set: { title: request.body.title } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                 ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -335,8 +335,7 @@ function updateTitle(request, response) {
                     updatedItem.title = request.body.title;
                     response.json(updatedItem);
                 });
-            })
-        },
+            }),
         { new: false }
     );
 }
@@ -351,7 +350,7 @@ function updateDueDate(request, response) {
         request.body.dueDate
         ? { $set: { dueDate: new Date(request.body.dueDate) } }
         : { $unset: { dueDate: "" } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                 ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -366,7 +365,7 @@ function updateDueDate(request, response) {
                 const listId = list._id.toString();
                 const text =
                     request.body.dueDate
-                    ? ` set the due date of the item "${item.title}" to ${request.body.dueDate.toDateString().substr(3)}`
+                    ? ` set the due date of the item "${item.title}" to ${ new Date(request.body.dueDate).toDateString().substr(3)}`
                     : ` removed the due date from the item "${item.title}"`;
                 const users = list.members
                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
@@ -394,7 +393,6 @@ function updateDueDate(request, response) {
                     response.json(item);
                 });
             })
-        }
     );
 }
 
@@ -408,7 +406,7 @@ function updateReminderDate(request, response) {
         request.body.reminderDate
         ? { $set: { reminderDate: new Date(request.body.reminderDate) } }
         : { $unset: { reminderDate: "" } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                     ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -423,8 +421,8 @@ function updateReminderDate(request, response) {
                 const listId = list._id.toString();
                 const text = request.body.reminderDate
                     ? ` set the reminder of the item "${item.title}" to `
-                      + `${request.body.reminderDate.toDateString().substr(3)} at `
-                      + `${request.body.reminderDate.toLocaleTimeString().substr(0, 5)}`
+                      + `${ new Date(request.body.reminderDate).toDateString().substr(3) } at `
+                      + `${ new Date(request.body.reminderDate).toLocaleTimeString().substr(0, 5) }`
                     : ` removed the reminder from the item "${item.title}"`;
                 const itemId = item._id.toString();
                 jobs[itemId]?.cancel();
@@ -457,7 +455,6 @@ function updateReminderDate(request, response) {
                     response.json(item);
                 });
             })
-        }
     );
 }
 
@@ -469,7 +466,7 @@ function updateCompletion(request, response) {
         request,
         response,
         request.body.isComplete ? { $set: { completionDate: new Date() } } : { $set: { completionDate: "" } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                 ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -509,7 +506,6 @@ function updateCompletion(request, response) {
                     response.json(item);
                 });
             })
-        }
     );
 }
 
@@ -521,7 +517,7 @@ function addTag(request, response) {
         request,
         response,
         { $push: { tags: { title: request.body.title, colorIndex: request.body.colorIndex } } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                 ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -561,7 +557,6 @@ function addTag(request, response) {
                     response.json(item);
                 });
             })
-        }
     );
 }
 
@@ -573,7 +568,7 @@ function removeTag(request, response) {
         request,
         response,
         { $pull: { tags: { _id: mongoose.Types.ObjectId(request.params.tagId) } } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                 ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -616,8 +611,7 @@ function removeTag(request, response) {
                     updatedItem.tags = updatedItem.tags.filter(i => i._id.toString() !== request.params.tagId);
                     response.json(updatedItem);
                 });
-            })
-        },
+            }),
         { new: false }
     );
 }
@@ -1247,7 +1241,7 @@ function updatePriority(request, response) {
         request,
         response,
         { $set: { priority: !!request.body.priority } },
-        (list, item, session) => {
+        (list, item, session) =>
             (
                 request.session.userId
                 ? User.findById(request.session.userId, undefined, { session }).exec()
@@ -1266,14 +1260,14 @@ function updatePriority(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
+                    ? Notification.create([{
                           authorUsername,
                           authorProfilePicturePath,
                           users,
                           text,
                           listId,
                           listTitle: list.title
-                      })
+                      }], { session })
                       .catch(error => console.log(error))
                     : Promise.resolve()
                 )
@@ -1287,7 +1281,6 @@ function updatePriority(request, response) {
                     response.json(item);
                 });
             })
-        }
     );
 }
 
