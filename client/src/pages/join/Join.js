@@ -29,8 +29,9 @@ export default function Join(props) {
             return errors;
         },
         onSubmit: data => {
-            const handleJoinResponse = listId => {
+            const handleJoinResponse = (listId, anonymousId) => {
                 if (listId !== null) {
+                    props.setAnonymousId(anonymousId);
                     navigate("/my-lists/" + listId);
                 } else {
                     errors.current.displayError(96);

@@ -30,7 +30,7 @@ function setupSockets(server) {
                                       error: false,
                                       sent: true
                                   });
-                                  sockets.forEach(s => s.emit("joinRequest", listId, list.title, username));
+                                  sockets.forEach(s => s.emit("joinRequest", listId, list.title, username, socketId));
                               });
                         }
                     },
@@ -40,11 +40,11 @@ function setupSockets(server) {
                     }
                 );
         });
-        socket.on("joinApproval", (socketId, listId, isApproved) => {
+        socket.on("joinApproval", (socketId, listId, isApproved, anonymousId) => {
             const data = requests[listId];
             if (data && data.ownerSockets.includes(socketId)) {
                 delete requests[listId];
-                io.in(data.anonymousSocket).emit("joinResponse", isApproved ? listId : null);
+                io.in(data.anonymousSocket).emit("joinResponse", isApproved ? listId : null, anonymousId);
             }
         });
     });

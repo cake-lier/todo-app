@@ -1,25 +1,25 @@
 import ErrorMessages from "../../components/ErrorMessages";
-import {MainMenu} from "../../components/mainMenu/MainMenu";
-import BurgerMenu from "../../components/BurgerMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import { useCallback, useRef, useState } from "react";
 import ListItem from "../../components/listItem/ListItem";
-import {Divider} from "primereact/divider";
-import SharedWithMeHeader from "../../components/SharedWithMeHeader";
+import {Button} from "primereact/button";
+import {Menu} from "primereact/menu";
 
 export default function SharedWithMe({ setUser, user, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
-    const [open, setOpen] = useState(false);
+    const [ordering, setOrdering] = useState(null);
+    const menu = useRef();
+    const menuItems = [
+        { label: "Name ascending", icon: "pi pi-sort-alpha-down", command: _ => setOrdering(0) },
+        { label: "Name descending", icon: "pi pi-sort-alpha-up", command: _ => setOrdering(1) },
+        { label: "Creation ascending", icon: "pi pi-sort-numeric-down", command: _ => setOrdering(2) },
+        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) }
+    ];
     const [lists, setLists] = useState([]);
-    const node = useRef();
-    const divStyle = {
-        zIndex: "10",
-        position: "relative",
-        visible: "false"
-    };
     return (
         <div className="grid h-screen">
             <ErrorMessages ref={ errors } />
@@ -38,8 +38,18 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <SharedWithMeHeader />
-                <Divider className="p-0" />
+                <div className="grid">
+                    <div className="col-12 m-0 pl-1 flex align-content-center justify-content-end">
+                        <Button
+                            className="my-2"
+                            id="order-button"
+                            label="Sort by"
+                            icon="pi pi-sort-amount-down-alt"
+                            onClick={ e => menu.current.toggle(e) }
+                        />
+                        <Menu model={ menuItems } popup ref={ menu } />
+                    </div>
+                </div>
                 <ListItem
                     setUser={ setUser }
                     lists={ lists }
@@ -49,18 +59,12 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                     displayError={ displayError }
                     socket={ socket }
                     disabledNotificationsLists={ user.disabledNotificationsLists }
+                    ordering={ ordering }
                 />
             </div>
             <div className="w-full p-0 md:hidden"  style={{backgroundColor: "white"}} >
-                <div className="col-1 p-0 h-full absolute justify-content-center">
-                    <div className="h-full w-full" ref={node} style={divStyle}>
-                        <BurgerMenu open={open} setOpen={setOpen} />
-                        <MainMenu selected={ "Shared with me" } open={open}/>
-                    </div>
-                </div>
-                <div id="myListsContainer" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                <div id="myListsContainer" className="mx-0 p-0 h-full flex-column flex-1 flex"
                      style={{backgroundColor: "white"}}>
-                    <div className={"black-overlay absolute h-full w-full z-20 " + (open ? null : "hidden")} />
                     <PageHeader
                         user={ user }
                         unsetUser={ unsetUser }
@@ -72,8 +76,18 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         socket={ socket }
                         displayError={ displayError }
                     />
-                    <SharedWithMeHeader />
-                    <Divider className="p-0" />
+                    <div className="grid">
+                        <div className="col-12 m-0 pl-1 flex align-content-center justify-content-end">
+                            <Button
+                                className="my-2"
+                                id="order-button"
+                                label="Sort by"
+                                icon="pi pi-sort-amount-down-alt"
+                                onClick={ e => menu.current.toggle(e) }
+                            />
+                            <Menu model={ menuItems } popup ref={ menu } />
+                        </div>
+                    </div>
                     <ListItem
                         setUser={ setUser }
                         lists={ lists }
@@ -83,6 +97,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         displayError={ displayError }
                         socket={ socket }
                         disabledNotificationsLists={ user.disabledNotificationsLists }
+                        ordering={ ordering }
                     />
                 </div>
             </div>

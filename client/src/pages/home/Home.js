@@ -1,13 +1,14 @@
 import { Component } from "react";
 import LinkButton from "../../components/LinkButton";
 import "./Home.scss";
+import {Link} from "react-router-dom";
 
 class Home extends Component {
 
     render() {
         return (
             <div id="home-body" className="grid h-screen flex-column">
-                <div className="hidden md:inline-block md:col-12 home-bar">
+                <div className="hidden md:inline-block md:col-12 home-bar p-0">
                     <div className="grid">
                         <div className="col-2 flex align-items-center">
                             <img className="w-5rem ml-1" src="images/logo512.png" alt="App logo" />
@@ -43,6 +44,18 @@ class Home extends Component {
                     <LinkButton className="text-lg secondary-button" label="Log in" route="login" />
                     <LinkButton className="text-lg secondary-button" label="Join a list" route="join" />
                     <LinkButton className="text-lg" label="Sign up" route="signup" />
+                </div>
+                <div className="home-footer col-12 py-1">
+                    <div className="grid">
+                        <div className="col-6 flex justify-content-center">
+                            <Link className="text-sm md:hidden" to="legal/terms-and-conditions">Terms and Conditions</Link>
+                            <Link className="text-md hidden md:block" to="legal/terms-and-conditions">Terms and Conditions</Link>
+                        </div>
+                        <div className="col-6 flex justify-content-center">
+                            <Link className="text-sm md:hidden" to="legal/cookie-policy">Cookie Policy</Link>
+                            <Link className="text-md hidden md:block" to="legal/cookie-policy">Cookie Policy</Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         );

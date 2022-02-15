@@ -1,12 +1,9 @@
 import ErrorMessages from "../../components/ErrorMessages";
-import { MainMenu } from "../../components/mainMenu/MainMenu";
-import BurgerMenu from "../../components/BurgerMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import {useCallback, useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
 import ListItem from "../../components/listItem/ListItem";
-import { Divider } from "primereact/divider";
-import { useOnClickOutside } from "../../components/ClickOutsideHook";
 import "./MyLists.scss";
 
 export default function MyLists({ user, setUser, unsetUser, notifications, setNotifications, socket }) {
@@ -14,15 +11,8 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
-    const [open, setOpen] = useState(false);
+    const [ordering, setOrdering] = useState(null);
     const [lists, setLists] = useState([]);
-    const node = useRef();
-    useOnClickOutside(node, () => setOpen(false));
-    const divStyle = {
-        zIndex: "10",
-        position: "relative",
-        visible: "false"
-    };
     const appendList = useCallback(list => setLists(lists.concat(list)), [lists, setLists]);
     return (
         <div className="grid h-screen">
@@ -46,27 +36,21 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <MyListsHeader appendList={ appendList } displayError={ displayError } />
-                <Divider className="p-0 mb-0" />
+                <MyListsHeader appendList={ appendList } displayError={ displayError } setOrdering={ setOrdering } />
                 <ListItem
                     setUser={ setUser }
                     lists={ lists }
                     setLists={ setLists }
+                    userId={ user._id }
                     displayError={ displayError }
                     socket={ socket }
                     disabledNotificationsLists={ user.disabledNotificationsLists }
+                    ordering={ ordering }
                 />
             </div>
             <div className="w-full p-0 md:hidden" style={{ backgroundColor: "white" }} >
-                <div className="col-1 p-0 h-full absolute justify-content-center">
-                    <div className="h-full w-full" ref={node} style={divStyle}>
-                        <BurgerMenu open={open} setOpen={setOpen} />
-                        <MainMenu selected={ "My lists" } open={open}/>
-                    </div>
-                </div>
-                <div id="myListsContainerMobile" className="mx-0 p-0 h-full flex-column flex-grow-1 md:flex"
+                <div id="myListsContainerMobile" className="mx-0 p-0 h-full flex-column flex-1 flex"
                      style={{ backgroundColor: "white" }}>
-                    <div className={ "black-overlay absolute h-full w-full z-20 " + (open ? "" : "hidden") } />
                     <PageHeader
                         user={ user }
                         unsetUser={ unsetUser }
@@ -78,15 +62,16 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         socket={ socket }
                         displayError={ displayError }
                     />
-                    <MyListsHeader appendList={ appendList } displayError={ displayError } />
-                    <Divider className="p-0 m-0" />
+                    <MyListsHeader appendList={ appendList } displayError={ displayError } setOrdering={ setOrdering } />
                     <ListItem
                         setUser={ setUser }
                         lists={ lists }
                         setLists={ setLists }
+                        userId={ user._id }
                         displayError={ displayError }
                         socket={ socket }
                         disabledNotificationsLists={ user.disabledNotificationsLists }
+                        ordering={ ordering }
                     />
                 </div>
             </div>

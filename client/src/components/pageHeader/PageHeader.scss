@@ -1,5 +1,27 @@
 @import "../../colors";
 
+.p-sidebar .p-sidebar-header {
+  display: none;
+}
+
+.p-sidebar .p-sidebar-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.p-sidebar-left .p-sidebar {
+  width: min-content !important;
+}
+
+#burger-menu {
+  background: white !important;
+
+  .pi {
+    color: $text-color;
+    font-size: xx-large;
+  }
+}
+
 .p-tabmenu .p-tabmenu-nav {
   border: 0 !important;
   position: unset !important;

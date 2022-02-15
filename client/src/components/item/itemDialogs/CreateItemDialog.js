@@ -1,31 +1,31 @@
 import {ItemDialog} from "./ItemDialog";
 import axios from "axios";
 
-
-export function CreateItemDialog({listId, appendItem, displayDialog, setDisplayDialog}) {
-
-    const action = (data) => {
+export default function CreateItemDialog({ listId, anonymousId, appendItem, displayDialog, setDisplayDialog, displayError }) {
+    const onSubmit = data => {
         axios.post(
-            "/lists/" + listId + "/items",
+            `/lists/${ listId }/items`,
             {
-                listId: listId,
-                title: data.name,
-                count: data.count,
-                assignees: []
-            }
-        ).then(item => appendItem(item.data),
-            // TODO error
+                listId,
+                title: data.title,
+                count: data.count
+            },
+            { params: anonymousId !== null ? { anonymousId } : {} }
+        ).then(
+            item => appendItem(item.data),
+            error => displayError(error.response.data.error)
         );
     }
     return (
         <ItemDialog
-            headerTitle={'Create a new task!'}
-            btnText={'Create'}
-            displayDialog={displayDialog}
-            setDisplayDialog={setDisplayDialog}
-            initName=''
-            initCount={1}
-            action={action}
+            headerTitle="Create a new item"
+            buttonText="Create"
+            displayDialog={ displayDialog }
+            setDisplayDialog={ setDisplayDialog }
+            title=""
+            count={ 1 }
+            onSubmit={ onSubmit }
+            resetAfterSubmit={ true }
         />
     )
 }

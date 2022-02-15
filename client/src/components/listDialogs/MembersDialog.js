@@ -6,11 +6,11 @@ import { useEffect, useState } from "react";
 import {Button} from "primereact/button";
 import AddMemberDialogContent from "./AddMemberDialogContent";
 
-export default function MembersDialog({ display, setDisplay, list, updateList, ownership, displayError }){
+export default function MembersDialog({ anonymousId, display, setDisplay, list, updateList, ownership, displayError }){
     const [displayAddMember, setDisplayAddMember] = useState(false);
     const [members, setMembers] = useState([]);
     useEffect(() => {
-        axios.get(`/lists/${ list._id }/members/`)
+        axios.get(`/lists/${ list._id }/members/`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  members => setMembers(members.data),
                  error => displayError(error.response.data.error)
@@ -35,7 +35,7 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
             <div className="grid flex flex-row align-items-center">
                 <h1>Members</h1>
                 <Button
-                    className={"ml-3 p-1" + (ownership ? "" : " hidden")}
+                    className={"ml-3 p-2" + (ownership ? "" : " hidden")}
                     id="create-button"
                     label="Add"
                     icon="pi pi-plus"
@@ -51,8 +51,7 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
                 <div className="col-1 m-0 p-0">
                     <Avatar
                         className="custom-target-icon"
-                        image={ member.profilePicturePath !== null ? member.profilePicturePath : "" }
-                        icon={ member.profilePicturePath === null ? "pi pi-user" : "" }
+                        image={ member.profilePicturePath !== null ? member.profilePicturePath : "/static/images/default_profile_picture.jpg" }
                         size="small"
                         shape="circle"
                         alt={ member.username + "'s profile picture" }
@@ -72,11 +71,20 @@ export default function MembersDialog({ display, setDisplay, list, updateList, o
         );
     }
     return (
-        <Dialog className="w-27rem m-3" visible={ display } header={ renderHeader() } onHide={ () => setDisplay(false) }>
-            <Dialog className="w-27rem m-3"
-                    header="Add a member"
-                    visible={ displayAddMember }
-                    onHide={ () => setDisplayAddMember(false) }>
+        <Dialog
+            className="w-27rem m-3"
+            visible={ display }
+            header={ renderHeader() }
+            dismissableMask={ true }
+            onHide={ () => setDisplay(false) }
+        >
+            <Dialog
+                className="w-27rem m-3"
+                header="Add a member"
+                visible={ displayAddMember }
+                dismissableMask={ true }
+                onHide={ () => setDisplayAddMember(false) }
+            >
                 <AddMemberDialogContent
                     list={ list }
                     setDisplay={ setDisplayAddMember }

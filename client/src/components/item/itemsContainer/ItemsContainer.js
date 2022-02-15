@@ -1,98 +1,189 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import {useState, useCallback, useEffect, useRef} from 'react';
 import { Button } from 'primereact/button';
-import "./ItemsContainer.scss";
-import {Item} from "../Item";
+import Item from "../Item";
 import axios from "axios";
-import {CreateItemDialog} from "../itemDialogs/CreateItemDialog";
+import CreateItemDialog from "../itemDialogs/CreateItemDialog";
+import { ProgressSpinner } from 'primereact/progressspinner';
+import EmptyPlaceholder from "../../EmptyPlaceholder";
+import "./ItemsContainer.scss";
+import ListOptionsMenu from "../../ListOptionsMenu";
+import {useNavigate} from "react-router-dom";
+import {Menu} from "primereact/menu";
+import {DataView} from "primereact/dataview";
 
-export function ItemsContainer({listId, myDayItems}) {
+export default function ItemsContainer({ userId, anonymousId, setUser, list, setList, disabledNotificationsLists, socket, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
+    const [listMembers, setListMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
-
-    // init items from database
-    useEffect(() => {
-        if (listId) {
-            axios.get("/items/")
-                .then(allItems => {
-                        let i = allItems.data.filter(i => i.listId === listId);
-                        setItems(i);
-                        setSelectedItems(i.filter(j => j.completionDate !== null && j.completionDate !== ""));
-                    },
-                    // TODO error
-                );
-        } else {
-            setItems(myDayItems);
+    const [ordering, setOrdering] = useState(null);
+    const menu = useRef();
+    const menuItems = [
+        { label: "Name ascending", icon: "pi pi-sort-alpha-down", command: _ => setOrdering(0) },
+        { label: "Name descending", icon: "pi pi-sort-alpha-up", command: _ => setOrdering(1) },
+        { label: "Creation ascending", icon: "pi pi-sort-numeric-down", command: _ => setOrdering(2) },
+        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) }
+    ];
+    const getSortField = ordering => {
+        switch (ordering) {
+            case 0:
+            case 1:
+                return "title";
+            case 2:
+            case 3:
+                return "creationDate";
+            default:
+                return null;
         }
-    }, [listId]);
-
-    // when checkbox is checked/unchecked, update selectedItems[]
-    const [selectedItems, setSelectedItems] = useState([]);
-    const onItemChange = (e) => {
-        let _selectedItems = [...selectedItems];
-
-        if (e.checked) {
-            _selectedItems.push(e.value);
-            axios.put("/items/" + e.value._id + "/complete", {
-                isComplete: true
-            })
-                .then(r => console.log("task " + e.value._id + " marked as completed."),
-                    // TODO error msg
-                 );
-        } else {
-            axios.put("/items/" + e.value._id + "/complete", {
-                isComplete: false
-            })
-                .then(r => console.log("task " + e.value._id + " marked as incomplete."),
-                    // TODO error msg
-                );
-            for (let i = 0; i < _selectedItems.length; i++) {
-                const selectedItem = _selectedItems[i];
-
-                if (selectedItem._id === e.value._id) {
-                    _selectedItems.splice(i, 1);
-                    break;
-                }
+    };
+    const getSortOrder = ordering => {
+        switch (ordering) {
+            case 0:
+            case 2:
+                return 1;
+            case 1:
+            case 3:
+                return -1;
+            default:
+                return null;
+        }
+    };
+    // init items from database
+    const getItems = useCallback(() => {
+        axios.get(`/lists/${ list._id }/items/`, { params: anonymousId !== null ? { anonymousId } : {} })
+             .then(
+                 items => setItems(items.data),
+                 error => displayError(error.response.data.error)
+             )
+             .then(_ => axios.get(`/lists/${ list._id }/members`, { params: anonymousId !== null ? { anonymousId } : {} }))
+             .then(
+                 members => {
+                     setListMembers(members.data);
+                     setLoading(false);
+                 },
+                 error => displayError(error.response.data.error)
+             );
+    }, [displayError, list, anonymousId]);
+    useEffect(getItems, [getItems]);
+    useEffect(() => {
+        function handleUpdates(event, eventListId) {
+            if (list._id === eventListId
+                && new RegExp(
+                       "^item(?:Created|(?:Title|DueDate|ReminderDate|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
+                       + "|Assignee(?:Added|Removed|Updated)|Deleted)Reload$"
+                   ).test(event)
+            ) {
+                getItems();
             }
         }
-        setSelectedItems(_selectedItems);
-    }
-
+        socket.onAny(handleUpdates);
+        return () => socket.offAny(handleUpdates);
+    }, [socket, list, getItems]);
     // delete item
     const deleteItem = (item) => {
-        axios.delete("/items/" + item._id).then(r => removeItem(item),
-            // TODO error msg
-        );
-    }
-
+        axios.delete("/items/" + item._id, { params: anonymousId !== null ? { anonymousId } : {} })
+             .then(
+                 _ => removeItem(item),
+                 error => displayError(error.response.data.error)
+             );
+    };
     const [displayDialog, setDisplayDialog] = useState(false);
-
+    const navigate = useNavigate();
+    const updateList = useCallback(lists => {
+        if (lists.length < 1) {
+            navigate("/my-lists");
+            return;
+        }
+        setList(lists[0])
+    }, [navigate, setList]);
     return (
         <>
-            <div>
-                <Button className={myDayItems ? "hidden" : null}
-                        label="New Task" icon="pi pi-plus"
-                        onClick={() => setDisplayDialog(true)}
-                />
+            <div className="grid flex-column flex-grow-1">
+                <div className="col-12 m-0 p-0 pr-2 grid">
+                    <div className="col-10 p-0">
+                        <Button className="m-3"
+                                label="New Item" icon="pi pi-plus"
+                                onClick={() => setDisplayDialog(true)}
+                        />
+                    </div>
+                    <div className="col-2 m-0 pl-1 flex align-items-center justify-content-end">
+                        <Button
+                            className="my-2"
+                            id="order-button"
+                            label="Sort by"
+                            icon="pi pi-sort-amount-down-alt"
+                            onClick={ e => menu.current.toggle(e) }
+                        />
+                        <Menu model={ menuItems } popup ref={ menu } />
+                        <ListOptionsMenu
+                            userId={ userId }
+                            anonymousId={ anonymousId }
+                            setUser={ setUser }
+                            ownership={ userId ? list.members.filter(m => m.userId === userId)[0].role === "owner" : false }
+                            disabledNotificationsLists={ disabledNotificationsLists }
+                            list={ list }
+                            lists={ [list] }
+                            setLists={ updateList }
+                            displayError={ displayError }
+                        />
+                    </div>
+                </div>
                 {
-                    items.map((item) => {
-                        return (<Item key={item._id}
-                                      item={item}
-                                      onItemChange={onItemChange}
-                                      selectedItems={selectedItems}
-                                      deleteItem={deleteItem}
-                                      updateItem={updateItem} />)
-                    })
+                    loading
+                    ? <ProgressSpinner
+                          className={
+                            "col-12 flex flex-grow-1 flex-column justify-content-center align-content-center "
+                            + (loading ? null : "hidden")
+                          }
+                          style={{width: '50px', height: '50px'}}
+                          strokeWidth="2"
+                          fill="var(--surface-ground)"
+                          animationDuration=".5s"
+                      />
+                    : (
+                        items.length
+                        ? <DataView
+                              className="w-full"
+                              value={ items }
+                              layout="list"
+                              itemTemplate={ item =>
+                                  <Item
+                                      key={ item._id }
+                                      item={ item }
+                                      anonymousId={ anonymousId }
+                                      listMembers={ listMembers }
+                                      deleteItem={ deleteItem }
+                                      updateItem={ updateItem }
+                                      displayError={ displayError }
+                                  />
+                              }
+                              rows={ 10 }
+                              paginator={ items.length > 10 }
+                              alwaysShowPaginator={ false }
+                              sortField={ getSortField(ordering) }
+                              sortOrder={ getSortOrder(ordering) }
+                          />
+                        : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
+                              <EmptyPlaceholder
+                                  title={ "No items to display" }
+                                  subtitle={ "Items that have a due date will show up here." }
+                                  type={"items"}
+                              />
+                          </div>
+                      )
                 }
             </div>
             <CreateItemDialog
-                listId={listId}
-                appendItem={appendItem}
-                displayDialog={displayDialog}
-                setDisplayDialog={setDisplayDialog}
-                />
+                listId={ list._id }
+                anonymousId={ anonymousId }
+                appendItem={ appendItem }
+                displayDialog={ displayDialog }
+                setDisplayDialog={ setDisplayDialog }
+                displayError={ displayError }
+            />
         </>
     )
 }

@@ -8,14 +8,14 @@ const memberSchema = new mongoose.Schema({
         type: mongoose.ObjectId,
         default: null
     },
+    username: {
+        type: String,
+        default: null
+    },
     anonymousId: {
         type: String,
         default: null,
         validate: v => v === null || uuid.validate(v)
-    },
-    username: {
-        type: String,
-        default: null
     },
     role: {
         type: String,

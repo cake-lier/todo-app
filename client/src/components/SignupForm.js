@@ -4,16 +4,18 @@ import { Button } from "primereact/button";
 import { Password } from "primereact/password";
 import { Checkbox } from "primereact/checkbox";
 import { useFormik } from "formik";
-import { useRef, useState, Fragment } from "react";
+import { useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { FileUpload } from "primereact/fileupload";
 import TermsOfService from "./TermsOfService";
 import { Divider } from "primereact/divider";
 import { Link } from "react-router-dom";
 import { Avatar } from "primereact/avatar";
+import CookiePolicy from "./CookiePolicy";
 
 export default function SignupForm(props) {
-    const [isDialogVisible, setDialogVisible] = useState(false);
+    const [isTermsDialogVisible, setTermsDialogVisible] = useState(false);
+    const [isCookiesDialogVisible, setCookiesDialogVisible] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
     const formik = useFormik({
         initialValues: {
@@ -87,9 +89,16 @@ export default function SignupForm(props) {
             <Dialog
                 header="Waffles' Terms of Service"
                 className="w-12 md:w-6"
-                visible={ isDialogVisible }
-                onHide={ () => setDialogVisible(false) }>
+                visible={ isTermsDialogVisible }
+                onHide={ () => setTermsDialogVisible(false) }>
                 <TermsOfService />
+            </Dialog>
+            <Dialog
+                header="Waffles' Cookie Policy"
+                className="w-12 md:w-6"
+                visible={ isCookiesDialogVisible }
+                onHide={ () => setCookiesDialogVisible(false) }>
+                <CookiePolicy />
             </Dialog>
             <div className="col-12 flex justify-content-center">
                 <img className="h-5rem" src="images/logo512.png"  alt="App logo" />
@@ -163,7 +172,7 @@ export default function SignupForm(props) {
                             onChange={ formik.handleChange }
                             header={ <h3 className="font-semibold text-md mb-2">Pick a password</h3> }
                             footer={
-                                <Fragment>
+                                <>
                                     <Divider />
                                     <h3 className="font-semibold text-md my-2">Password requirements</h3>
                                     <ul className="pl-2 ml-2 mt-0">
@@ -172,7 +181,7 @@ export default function SignupForm(props) {
                                         <li className="mt-2">At least one numeric character.</li>
                                         <li className="mt-2">Minimum 8 characters long.</li>
                                     </ul>
-                                </Fragment>
+                                </>
                             }
                             toggleMask
                             feedback
@@ -189,7 +198,12 @@ export default function SignupForm(props) {
                             className={ "mr-3 " + getFieldErrorClass("accept") }
                         />
                         <label htmlFor="accept" className={ "inline-block w-8 md:w-12 " + getLabelErrorClass("accept") }>
-                            I read and agree to Waffles' <button onClick={ () => setDialogVisible(true) }>Terms of Service</button>.*
+                            I read and agree to
+                            Waffles' <button style={{ fontSize: "16px" }} onClick={ () => setTermsDialogVisible(true) }>
+                                Terms of Service
+                            </button> and <button style={{ fontSize: "16px" }} onClick={ () => setCookiesDialogVisible(true) }>
+                                Cookie Policy
+                            </button>.*
                         </label>
                     </div>
                     { getFormErrorMessage("accept") }

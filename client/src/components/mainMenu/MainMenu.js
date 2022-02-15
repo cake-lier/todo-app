@@ -2,10 +2,9 @@ import { Menu } from 'primereact/menu';
 import { PrimeIcons } from 'primereact/api';
 import { useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
-import { bool, string } from "prop-types";
 import "./MainMenu.scss";
 
-export function MainMenu({ open, selected }) {
+export default function MainMenu({ selected }) {
     const navigate = useNavigate();
     const useOnClicked = url => {
         return useCallback(
@@ -52,35 +51,35 @@ export function MainMenu({ open, selected }) {
     ];
 
     const subItems = [
-        { label: "Search", icon: PrimeIcons.SEARCH, disabled: selected === "Search" },
+        {
+            label: "Search",
+            icon: PrimeIcons.SEARCH,
+            disabled: selected === "Search",
+            command: useOnClicked("search")
+        },
         {
             label: "Settings",
             icon: PrimeIcons.COG,
             disabled: selected === "Settings",
             command: useOnClicked("settings")
+        },
+        {
+            label: "Terms and Cookies",
+            icon: PrimeIcons.BARS,
+            disabled: selected === "Terms and Cookies",
+            command: useOnClicked("legal")
         }
     ];
 
-    const expand = {
-        borderRadius: '0px',
-        transition: 'transform 0.3s ease-in-out',
-        transform : open ? 'translateX(0)' : 'translateX(-100%)'
-    };
-
     return (
         <div className="grid h-full w-min align-content-between"
-             style={{...expand, backgroundColor: "#FFF"}}>
-            <div className="col-12 p-0 flex"  style={expand}>
-                <Menu id="mainMenu" className="border-none p-0 flex-shrink-1 border-noround" style={expand} model={ mainItems } />
+             style={{backgroundColor: "#FFF", borderRight: "1px solid lightgrey"}}>
+            <div className="col-12 p-0 flex">
+                <Menu id="mainMenu" className="border-none p-0 flex-shrink-1 border-noround" model={ mainItems } />
             </div>
-            <div className="col-12 p-0 flex"  style={expand}>
-                <Menu id="mainMenu" className="border-none p-0 flex-shrink-1 border-noround" style={expand} model={ subItems } />
+            <div className="col-12 p-0 flex">
+                <Menu id="mainMenu" className="border-none p-0 flex-shrink-1 border-noround" model={ subItems } />
             </div>
         </div>
     );
-}
-
-MainMenu.propTypes = {
-    selected: string.isRequired,
-    open: bool.isRequired
 }

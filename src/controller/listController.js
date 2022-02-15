@@ -58,24 +58,36 @@ function deleteList(request, response) {
                 return Item.deleteMany({ listId: list._id }, { session })
                            .exec()
                            .then(_ => {
-                               const listId = list._id.toString();
-                               const text = `The list "${ list.title }" has just been deleted`;
-                               return Notification.create({
-                                   users: list.members
-                                              .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                              .map(m => m.userId),
-                                   text,
-                                   listId
-                               })
-                               .catch(error => console.log(error))
-                               .then(_ => {
-                                   io.in(`list:${ listId }`)
-                                     .except(`user:${ request.session.userId }`)
-                                     .emit("listDeleted", listId, text);
-                                   io.in(`list:${ listId }`).emit("listDeletedReload", listId);
-                                   io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
-                                   io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
-                               });
+                               User.findById(request.session.userId)
+                                   .exec()
+                                   .then(
+                                       user => {
+                                           const authorUsername = user.username;
+                                           const authorProfilePicturePath = user.profilePicturePath;
+                                           const listId = list._id.toString();
+                                           const text = ` deleted the list "${ list.title }"`;
+                                           return Notification.create({
+                                               authorUsername,
+                                               authorProfilePicturePath,
+                                               users: list.members
+                                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                                   .map(m => m.userId),
+                                               text,
+                                               listId
+                                           })
+                                               .catch(error => console.log(error))
+                                               .then(_ => {
+                                                   io.in(`list:${ listId }`)
+                                                       .except(`user:${ request.session.userId }`)
+                                                       .emit("listDeleted", listId, `${authorUsername}${text}`);
+                                                   io.in(`list:${ listId }`).emit("listDeletedReload", listId);
+                                                   io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
+                                                   io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
+                                               });
+
+                                       },
+                                       error => console.log(error)
+                                   )
                            })
                            .then(_ =>
                                User.updateMany(
@@ -98,7 +110,7 @@ function getList(request, response) {
     if (!validateRequest(request, response, [], ["id"])) {
         return;
     }
-    if (request.session.userId === undefined && request.body.anonymousId === undefined) {
+    if (request.session.userId === undefined && request.query.anonymousId === undefined) {
         sendError(response, Error.RequestError);
         return;
     }
@@ -108,7 +120,7 @@ function getList(request, response) {
             $elemMatch:
                 request.session.userId !== undefined
                 ? { userId: request.session.userId }
-                : { anonymousId: request.body.anonymousId }
+                : { anonymousId: request.query.anonymousId }
         }
     })
     .exec()
@@ -132,7 +144,14 @@ function getUserLists(request, response) {
         return;
     }
     List.find(
-        { members: { $elemMatch: { userId: request.session.userId, role: request.query.shared ? "member" : "owner" } } }
+        {
+            members: {
+                $elemMatch: Object.assign(
+                    { userId: mongoose.Types.ObjectId(request.session.userId) },
+                    request.query.shared === undefined ? {} : { role: request.query.shared === "true" ? "member" : "owner" }
+                )
+            }
+        }
     )
     .exec()
     .then(
@@ -145,48 +164,63 @@ function getUserLists(request, response) {
 }
 
 function getMembers(request, response) {
-    if (!validateRequest(request, response, [], ["id"], true)) {
+    if (!validateRequest(request, response, [], ["id"])) {
+        return;
+    }
+    if (request.session.userId === undefined && request.query.anonymousId === undefined) {
+        sendError(response, Error.RequestError);
         return;
     }
     List.startSession()
         .then(session => session.withTransaction(() =>
-            List.findById(request.params.id, undefined, { session })
-                .exec()
-                .then(list => {
-                    if (list === null) {
-                        sendError(response, Error.ResourceNotFound);
-                        return Promise.resolve();
+            List.findOne({
+                _id: request.params.id,
+                members: {
+                    $elemMatch:
+                        request.session.userId !== undefined
+                        ? { userId: request.session.userId }
+                        : { anonymousId: request.query.anonymousId }
+                }
+            },
+            undefined,
+            { session }
+            )
+            .exec()
+            .then(list => {
+                if (list === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
+                }
+                return Promise.all(list.members.map(member => {
+                    if (member.anonymousId !== null) {
+                        return Promise.resolve(
+                            { _id: member._id, username: member.username, role: member.role, profilePicturePath: null }
+                        );
                     }
-                    return Promise.all(list.members.map(member => {
-                        if (member.anonymousId !== null) {
-                            return Promise.resolve(
-                                { _id: member._id, username: member.username, role: member.role, profilePicturePath: null }
-                            );
-                        }
-                        return User.findById(member.userId, undefined, { session })
-                                   .exec()
-                                   .then(user => {
-                                       if (user === null) {
-                                           return Promise.resolve(null);
-                                       }
-                                       return Promise.resolve({
-                                           _id: member._id,
-                                           username: user.username,
-                                           role: member.role,
-                                           profilePicturePath:
-                                               user.profilePicturePath === null
-                                               ? null
-                                               : "/static" + user.profilePicturePath
-                                       });
+                    return User.findById(member.userId, undefined, { session })
+                               .exec()
+                               .then(user => {
+                                   if (user === null) {
+                                       return Promise.resolve(null);
+                                   }
+                                   return Promise.resolve({
+                                       _id: member._id,
+                                       username: user.username,
+                                       role: member.role,
+                                       profilePicturePath:
+                                           user.profilePicturePath === null
+                                           ? null
+                                           : "/static" + user.profilePicturePath
                                    });
-                    }))
-                    .then(members => response.json(members.filter(m => m !== null)));
-                })
-    ))
-    .catch(error => {
-        console.log(error);
-        sendError(response, Error.GeneralError);
-    });
+                               });
+                }))
+                .then(members => response.json(members.filter(m => m !== null)));
+            })
+        ))
+        .catch(error => {
+            console.log(error);
+            sendError(response, Error.GeneralError);
+        });
 }
 
 function updateListProperty(
@@ -225,7 +259,7 @@ function updateUnprivilegedListProperty(
     optionsObject = { new: true },
     onSuccess = (response, list) => response.json(list)
 ) {
-    if (request.session.userId === undefined && request.body.anonymousId === undefined) {
+    if (request.session.userId === undefined && request.query.anonymousId === undefined) {
         sendError(response, Error.RequestError);
         return;
     }
@@ -237,8 +271,8 @@ function updateUnprivilegedListProperty(
             members: {
                 $elemMatch:
                     request.session.userId !== undefined
-                        ? { userId: request.session.userId }
-                        : { anonymousId: request.body.anonymousId }
+                    ? { userId: request.session.userId }
+                    : { anonymousId: request.query.anonymousId }
             }
         },
         updateObject,
@@ -257,23 +291,46 @@ function updateTitle(request, response) {
         { $set: { title: request.body.title } },
         { new: false },
         (response, list) => {
-            const listId = list._id.toString();
-            const text = `The list "${ list.title }" had its title changed to "${ request.body.title }"`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listTitleChanged", listId, text);
-                io.in(`list:${ listId }`).emit("listTitleChangedReload", listId);
-                const updatedList = JSON.parse(JSON.stringify(list));
-                updatedList.title = request.body.title;
-                response.json(updatedList);
-            });
+            (
+                request.session.userId
+                ? User.findById(request.session.userId).exec()
+                : Promise.resolve({
+                        username: list.members.filter(m => m.anonymousId === request.query.anonymousId)[0].username,
+                        profilePicturePath: null
+                  })
+            )
+            .then(
+                user => {
+                    const authorUsername = user.username;
+                    const authorProfilePicturePath = user.profilePicturePath;
+                    const listId = list._id.toString();
+                    const text = ` changed the title of the list "${ list.title }" to "${ request.body.title }"`;
+                    Notification.create({
+                        authorUsername,
+                        authorProfilePicturePath,
+                        users: list.members
+                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                   .map(m => m.userId),
+                        text,
+                        listId
+                    })
+                    .catch(error => console.log(error))
+                    .then(_ => {
+                        io.in(`list:${ listId }`)
+                          .except(`user:${ request.session.userId }`)
+                          .emit("listTitleChanged", listId, `${authorUsername}${text}`);
+                        io.in(`list:${ listId }`)
+                          .emit("listTitleChangedReload", listId);
+                        const updatedList = JSON.parse(JSON.stringify(list));
+                        updatedList.title = request.body.title;
+                        response.json(updatedList);
+                    });
+                },
+                error => {
+                    console.log(error);
+                    sendError(response, Error.GeneralError);
+                }
+            )
         }
     );
 }
@@ -290,21 +347,33 @@ function updateVisibility(request, response) {
         request.body.isVisible ? { $set: { joinCode } } : { $unset: { joinCode: "" } },
         { new: true },
         (response, list) => {
-            const listId = list._id.toString();
-            const text = `The list "${ list.title }" is now ${ request.body.isVisible ? "" : "not " }visible to non members`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
-            })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, text);
-                io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
-                response.json(list);
-            });
+            User.findById(request.session.userId)
+                .exec()
+                .then(
+                    user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
+                        const listId = list._id.toString();
+                        const text = ` made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non-registered users`;
+                        Notification.create({
+                            authorUsername,
+                            authorProfilePicturePath,
+                            users: list.members
+                                .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                .map(m => m.userId),
+                            text,
+                            listId
+                        })
+                            .catch(error => console.log(error))
+                            .then(_ => {
+                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, `${authorUsername}${text}`);
+                                io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
+                                response.json(list);
+                            });
+
+                    },
+                    error => console.log(error)
+                )
         }
     );
 }
@@ -316,7 +385,12 @@ function updateColorIndex(request, response) {
     updateUnprivilegedListProperty(
         request,
         response,
-        request.body.colorIndex ? { $set: { colorIndex: request.body.colorIndex } } : { $unset: { colorIndex: "" } }
+        request.body.colorIndex ? { $set: { colorIndex: request.body.colorIndex } } : { $unset: { colorIndex: "" } },
+        { new: true },
+        (response, list) => {
+            const listId = list._id.toString();
+            io.in(`list:${ listId }`).emit("listColorChangedReload", listId);
+        }
     );
 }
 
@@ -340,7 +414,8 @@ function addMember(request, response) {
                             sendError(response, Error.RequestError);
                             return;
                         }
-                        const userId = user._id.toString();
+                        const newMemberUserId = user._id.toString();
+                        const newMemberUsername = user.username;
                         updateListProperty(
                             request,
                             response,
@@ -354,36 +429,51 @@ function addMember(request, response) {
                             { $push: { members: { userId: user._id } } },
                             { new: true, session },
                             (response, list) => {
-                                const listId = list._id.toString();
-                                const newMemberText = `You have been added to the the list "${ list.title }"`;
-                                const oldMembersText = `The list "${ list.title }" has a new member`;
-                                Notification.create({
-                                    users: [userId],
-                                    text: newMemberText,
-                                    listId
-                                })
-                                .catch(error => console.log(error))
-                                .then(_ => {
-                                    achievementHelper.addAchievement(request.session.userId, 11);
-                                    io.in(`user:${ userId }`).emit("listSelfAdded", listId, newMemberText);
-                                    io.in(`user:${ userId }`).emit("listSelfAddedReload", listId);
-                                })
-                                .then(_ => Notification.create({
-                                    users: list.members
-                                               .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                               .map(m => m.userId),
-                                    text: oldMembersText,
-                                    listId
-                                }))
-                                .catch(error => console.log(error))
-                                .then(_ => {
-                                    io.in(`list:${ listId }`)
-                                      .except(`user:${ request.session.userId }`)
-                                      .emit("listMemberAdded", listId, oldMembersText);
-                                    io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
-                                    io.in(`user:${ userId }`).socketsJoin(`list:${ listId }`);
-                                });
-                                response.json(list);
+                                User.findById(request.session.userId)
+                                    .exec()
+                                    .then(
+                                        user => {
+                                            const authorUsername = user.username;
+                                            const authorProfilePicturePath = user.profilePicturePath;
+                                            const listId = list._id.toString();
+                                            const newMemberText = ` added you to the the list "${ list.title }"`;
+                                            const oldMembersText = ` added the new member ${newMemberUsername} to the list "${ list.title }"`;
+                                            Notification.create({
+                                                authorUsername,
+                                                authorProfilePicturePath,
+                                                users: [newMemberUserId],
+                                                text: newMemberText,
+                                                listId
+                                            })
+                                                .catch(error => console.log(error))
+                                                .then(_ => {
+                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAdded", listId, `${authorUsername}${newMemberText}`);
+                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAddedReload", listId);
+                                                })
+                                                .then(_ => Notification.create({
+                                                    authorUsername,
+                                                    authorProfilePicturePath,
+                                                    users: list.members
+                                                        .filter(m => m.userId !== null
+                                                                && m.userId.toString() !== request.session.userId
+                                                                && m.userId.toString() !== newMemberUserId)
+                                                        .map(m => m.userId),
+                                                    text: oldMembersText,
+                                                    listId
+                                                }))
+                                                .catch(error => console.log(error))
+                                                .then(_ => {
+                                                    io.in(`list:${ listId }`)
+                                                        .except(`user:${ request.session.userId }`)
+                                                        .emit("listMemberAdded", listId, `${authorUsername}${oldMembersText}`);
+                                                    io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
+                                                    io.in(`user:${ newMemberUserId }`).socketsJoin(`list:${ listId }`);
+                                                });
+                                            response.json(list);
+
+                                        },
+                                        error => console.log(error)
+                                    )
                             }
                         );
                     })
@@ -397,18 +487,17 @@ function addMember(request, response) {
         {
             _id: request.params.id,
             joinCode: { $ne: null },
-            members: {
-                $elemMatch: { userId, role: "owner" },
-                $not: { $elemMatch: { anonymousId: request.body.anonymousId } }
-            }
+            members: { $elemMatch: { userId, role: "owner" } }
         },
         { $push: { members: { anonymousId, username: request.body.username } } },
         { new: true },
         (response, list) => {
             io.in(request.body.socketId).socketsJoin(`anon:${ anonymousId }`);
             const listId = list._id.toString();
-            const text = `The list "${ list.title }" has a new member`;
+            const text = ` joined the list "${ list.title }"`;
             Notification.create({
+                authorUsername: request.body.username,
+                authorProfilePicturePath: null,
                 users: list.members
                            .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
                            .map(m => m.userId),
@@ -417,7 +506,7 @@ function addMember(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberAdded", listId, text);
+                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberAdded", listId, `${request.body.username}${text}`);
                 io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
                 io.in(request.body.socketId).socketsJoin(`list:${ list._id.toString() }`);
                 response.json(list);
@@ -430,83 +519,159 @@ function removeMember(request, response) {
     if (!validateRequest(request, response, [], ["id", "memberId"], true)) {
         return;
     }
-    List.findOneAndUpdate(
-        {
-            _id: request.params.id,
-            $or: [
+    List.startSession()
+        .then(session => session.withTransaction(() =>
+            List.findOneAndUpdate(
                 {
-                    members: {
-                        $elemMatch: { _id: request.params.memberId, userId: request.session.userId, role: { $ne: "owner" } }
-                    }
-                },
-                {
-                    $and: [
-                        { members: { $elemMatch: { _id: request.params.memberId } } },
+                    _id: request.params.id,
+                    $or: [
                         {
                             members: {
                                 $elemMatch: {
-                                    _id: { $ne: request.params.memberId },
-                                    userId: request.session.userId,
-                                    role: "owner"
+                                    _id: request.params.memberId,
+                                    userId: request.session.userId, role: { $ne: "owner" }
                                 }
                             }
+                        },
+                        {
+                            $and: [
+                                { members: { $elemMatch: { _id: request.params.memberId } } },
+                                {
+                                    members: {
+                                        $elemMatch: {
+                                            _id: { $ne: request.params.memberId },
+                                            userId: request.session.userId,
+                                            role: "owner"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     ]
+                },
+                { $pull: { members: { _id: request.params.memberId } } },
+                { runValidators: true, new: false, context: "query", session }
+            )
+            .exec()
+            .then(list => {
+                if (list === null) {
+                    sendError(response, Error.ResourceNotFound);
+                    return Promise.resolve();
                 }
-            ]
-        },
-        { $pull: { members: { _id: request.params.memberId } } },
-        { runValidators: true, new: false, context: "query" }
-    )
-    .exec()
-    .then(
-        list => {
-            if (list === null) {
-                sendError(response, Error.ResourceNotFound);
-                return;
-            }
-            const listId = list._id.toString();
-            const memberIndex = list.members.findIndex(m => m._id.toString() === request.params.memberId);
-            const userText = `You have been removed from the list "${ list.title }"`;
-            if (list.members[memberIndex].userId !== null) {
-                Notification.create({
-                    users: [list.members[memberIndex].userId],
-                    text: userText,
-                    listId
-                })
-                .catch(error => console.log(error))
-                .then(_ => {
-                    io.in(`user:${ list.members[memberIndex].userId }`).socketsLeave(`list:${ listId }`);
-                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemoved", listId, userText);
-                    io.in(`user:${ list.members[memberIndex].userId }`).emit("listSelfRemovedReload", listId);
-                });
-            } else {
-                io.in(`anon:${ list.members[memberIndex].anonymousId }`).emit("listSelfRemoved", userText, listId);
-                io.in(`anon:${ list.members[memberIndex].userId }`).emit("listSelfRemovedReload", listId);
-                io.in(`anon:${ list.members[memberIndex].anonymousId }`).disconnectSockets();
-            }
-            const text = `A member has left the list "${ list.title }"`;
-            Notification.create({
-                users: list.members
-                           .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                           .map(m => m.userId),
-                text,
-                listId
+                return Item.find({ listId: list._id }, undefined, { session })
+                           .exec()
+                           .then(items => Promise.all(items.map(item => {
+                               const assigneeIndex =
+                                   item.assignees.findIndex(a => a.memberId.toString() === request.params.memberId);
+                               if (assigneeIndex !== -1) {
+                                   return Item.findByIdAndUpdate(
+                                       item._id,
+                                       {
+                                           $set: { remainingCount: item.remainingCount + item.assignees[assigneeIndex].count },
+                                           $pull: { assignees: { memberId: request.params.memberId } }
+                                       },
+                                       { runValidators: true, new: true, session, context: "query" }
+                                   )
+                                   .exec();
+                               }
+                               return Promise.resolve();
+                           })))
+                           .then(_ => Promise.resolve(list));
             })
-            .catch(error => console.log(error))
-            .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberRemoved", listId, text);
-                io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
-                const updatedList = JSON.parse(JSON.stringify(list));
-                updatedList.members.splice(memberIndex, 1);
-                response.json(updatedList);
-            });
-        },
-        error => {
+            .then(list =>
+                User.findById(request.session.userId)
+                    .exec()
+                    .then(user => {
+                        const authorUsername = user.username;
+                        const authorProfilePicturePath = user.profilePicturePath;
+                        const listId = list._id.toString();
+                        const removedMemberUserId =
+                            list.members.filter(m => m._id.toString() === request.params.memberId)[0].userId;
+                        const removedMemberIndex =
+                            list.members.findIndex(m => m._id.toString() === request.params.memberId);
+                        const userText = ` removed you from the list "${ list.title }"`;
+                        // if the member removed was a registered user
+                        if (removedMemberUserId !== null) {
+                            User.findById(removedMemberUserId)
+                                .exec()
+                                .then(user => {
+                                    const removedMemberUsername = user.username;
+                                    // if it was not the current user which left the list
+                                    if (removedMemberUserId.toString() !== request.session.userId) {
+                                        Notification.create({
+                                            authorUsername,
+                                            authorProfilePicturePath,
+                                            users: [removedMemberUserId],
+                                            text: userText,
+                                            listId
+                                        })
+                                        .catch(error => console.log(error))
+                                        .then(_ => {
+                                            io.in(`user:${ removedMemberUserId }`).socketsLeave(`list:${ listId }`);
+                                            io.in(`user:${ removedMemberUserId }`).emit("listSelfRemoved", listId, `${authorUsername}${userText}`);
+                                            io.in(`user:${ removedMemberUserId }`).emit("listSelfRemovedReload", listId);
+                                        });
+                                        const removalText =
+                                            ` removed the member ${removedMemberUsername} from the list "${ list.title }"`;
+                                        Notification.create({
+                                            authorUsername,
+                                            authorProfilePicturePath,
+                                            users: list.members
+                                                       .filter(m => m.userId !== null
+                                                                    && m.userId.toString() !== request.session.userId
+                                                                    && m.userId.toString() !== removedMemberUserId.toString())
+                                                       .map(m => m.userId),
+                                            text: removalText,
+                                            listId
+                                        })
+                                        .catch(error => console.log(error))
+                                        .then(_ => {
+                                            io.in(`list:${ listId }`)
+                                              .except(`user:${ request.session.userId }`)
+                                              .emit("listMemberRemoved", listId, `${authorUsername}${removalText}`);
+                                            io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
+                                            const updatedList = JSON.parse(JSON.stringify(list));
+                                            updatedList.members.splice(removedMemberIndex, 1);
+                                            response.json(updatedList);
+                                        });
+                                    } else {
+                                        const text = ` left the list "${ list.title }"`;
+                                        Notification.create({
+                                            authorUsername,
+                                            authorProfilePicturePath,
+                                            users: list.members
+                                                       .filter(m => m.userId !== null
+                                                                    && m.userId.toString() !== request.session.userId)
+                                                       .map(m => m.userId),
+                                            text,
+                                            listId
+                                        })
+                                        .catch(error => console.log(error))
+                                        .then(_ => {
+                                            io.in(`list:${ listId }`)
+                                              .except(`user:${ request.session.userId }`)
+                                              .emit("listMemberRemoved", listId, `${authorUsername}${text}`);
+                                            io.in(`list:${ listId }`).emit("listMemberRemovedReload", listId);
+                                            const updatedList = JSON.parse(JSON.stringify(list));
+                                            updatedList.members.splice(removedMemberIndex, 1);
+                                            response.json(updatedList);
+                                        });
+                                    }
+                                })
+                        } else {
+                            io.in(`anon:${ list.members[removedMemberIndex].anonymousId }`)
+                              .emit("listSelfRemoved", userText, listId);
+                            io.in(`anon:${ list.members[removedMemberIndex].userId }`)
+                              .emit("listSelfRemovedReload", listId);
+                            io.in(`anon:${ list.members[removedMemberIndex].anonymousId }`).disconnectSockets();
+                        }
+                    })
+            )
+        ))
+        .catch(error => {
             console.log(error);
             sendError(response, Error.GeneralError);
-        }
-    );
+        });
 }
 
 module.exports = {

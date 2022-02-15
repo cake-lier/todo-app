@@ -3,6 +3,14 @@
 const mongoose = require("mongoose");
 
 const notificationsSchema = new mongoose.Schema({
+    authorUsername: {
+        type: String,
+        default: null
+    },
+    authorProfilePicturePath: {
+        type: String,
+        default: null
+    },
     users: {
         type: [mongoose.ObjectId],
         required: true
@@ -18,6 +26,10 @@ const notificationsSchema = new mongoose.Schema({
     listId: {
         type: mongoose.ObjectId,
         required: true
+    },
+    listTitle: {
+        type: String,
+        default: null
     }
 });
 

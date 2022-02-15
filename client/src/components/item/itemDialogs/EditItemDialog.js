@@ -1,40 +1,48 @@
 import {ItemDialog} from "./ItemDialog";
 import axios from "axios";
 
-export function EditItemDialog({item, updateItem, displayDialog, setDisplayDialog}) {
-
-    const action = (data) => {
-        if (data.name !== item.title) {
-            axios.put(
-                "/items/" + item._id + "/title",
-                {
-                    title: data.name
+export default function EditItemDialog({ item, anonymousId, updateItem, displayEdit, setDisplayEdit, displayError }) {
+    const onSubmit = data => {
+        (
+            data.title !== item.title
+            ? axios.put(
+                  `/items/${ item._id }/title`,
+                  { title: data.title },
+                  { params: anonymousId !== null ? { anonymousId } : {} }
+              )
+            : Promise.resolve(null)
+        ).then(
+            i1 => (
+                data.count !== item.count
+                ? axios.put(
+                      `/items/${ item._id }/count`,
+                      { count: data.count },
+                      { params: anonymousId !== null ? { anonymousId } : {} }
+                  )
+                : Promise.resolve(i1)
+            )
+            .then(
+                i2 => updateItem(i2.data),
+                error => {
+                    if (i1 !== null) {
+                        updateItem(i1.data);
+                    }
+                    displayError(error.response.data.error);
                 }
-            ).then(item => updateItem(item.data),
-                // TODO error
-            );
-        }
-
-        if (data.count !== item.count) {
-            axios.put(
-                "/items/" + item._id + "/count",
-                {
-                    count: data.count
-                }
-            ).then(item => updateItem(item.data),
-                // TODO error
-            );
-        }
+            ),
+            error => displayError(error.response.data.error)
+        );
     }
     return (
         <ItemDialog
-            headerTitle={'Edit task'}
-            btnText={'Edit'}
-            displayDialog={displayDialog}
-            setDisplayDialog={setDisplayDialog}
-            initName={item.title}
-            initCount={item.count}
-            action={action}
+            headerTitle="Edit the item"
+            buttonText="Edit"
+            displayDialog={ displayEdit }
+            setDisplayDialog={ setDisplayEdit }
+            title={ item.title }
+            count={ item.count }
+            onSubmit={ onSubmit }
+            resetAfterSubmit={ false }
         />
-    )
+    );
 }

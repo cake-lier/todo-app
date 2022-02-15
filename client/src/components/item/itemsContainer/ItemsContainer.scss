@@ -13,3 +13,7 @@
 .p-tag-icon {
   color: $primary-color;
 }
+
+.p-dataview-content > .p-grid > div {
+  border-bottom-width: 0 !important;
+}

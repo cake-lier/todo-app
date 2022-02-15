@@ -183,10 +183,12 @@ function updateAccount(request, response) {
                             if (error !== null) {
                                 console.log(error);
                             }
+                            io.in(`user:${ userId.toString() }`).except(request.session.socketId).emit("userDataReload");
                             response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, path));
                         });
                         return;
                     }
+                    io.in(`user:${ userId.toString() }`).except(request.session.socketId).emit("userDataReload");
                     response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, path));
                 },
                 error => {
@@ -213,10 +215,12 @@ function updateAccount(request, response) {
                         if (error !== null) {
                             console.log(error);
                         }
+                        io.in(`user:${ userId.toString() }`).except(request.session.socketId).emit("userDataReload");
                         response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, null));
                     });
                     return;
                 }
+                io.in(`user:${ userId.toString() }`).except(request.session.socketId).emit("userDataReload");
                 response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, null));
             },
             error => {
@@ -237,6 +241,7 @@ function updateAccount(request, response) {
                     sendError(response, Error.ResourceNotFound);
                     return;
                 }
+                io.in(`user:${ user._id.toString() }`).except(request.session.socketId).emit("userDataReload");
                 response.json(createUserObject(user));
             },
             error => {
@@ -279,7 +284,29 @@ function updatePassword(request, response) {
                                            if (user === null) {
                                                sendError(response, Error.GeneralError);
                                            } else {
-                                               response.json(createUserObject(user));
+                                               io.in(`user:${ user._id.toString() }`)
+                                                 .except(request.session.socketId)
+                                                 .disconnectSockets();
+                                               store.all((error, sessions) => {
+                                                   if (error) {
+                                                       response.json(createUserObject(user));
+                                                       return;
+                                                   }
+                                                   const userSessions =
+                                                       sessions.filter(s => s.session.userId === request.session.userId
+                                                                            && s._id !== request.session.id);
+                                                   if (userSessions.length === 0) {
+                                                       response.json(createUserObject(user));
+                                                       return;
+                                                   }
+                                                   let destroyedSessions = 0;
+                                                   userSessions.forEach(s => store.destroy(s._id, () => {
+                                                       destroyedSessions++;
+                                                       if (destroyedSessions === userSessions.length) {
+                                                           response.json(createUserObject(user));
+                                                       }
+                                                   }));
+                                               });
                                            }
                                            return Promise.resolve();
                                        });
@@ -431,7 +458,20 @@ function deleteUserData(request, response, session, user) {
                )
                .then(_ => {
                    io.in(`user:${ user._id.toString() }`).disconnectSockets();
-                   request.session.destroy(_ => response.send({}));
+                   store.all((error, sessions) => {
+                       if (error) {
+                           request.session.destroy(_ => response.send({}));
+                           return;
+                       }
+                       const userSessions = sessions.filter(s => s.userId === request.session.userId);
+                       let destroyedSessions = 0;
+                       userSessions.forEach(s => s.destroy(() => {
+                           destroyedSessions++;
+                           if (destroyedSessions === userSessions.length) {
+                               response.send({});
+                           }
+                       }));
+                   });
                });
 }
 

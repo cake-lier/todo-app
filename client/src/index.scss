@@ -21,7 +21,7 @@ a, button {
     padding: 0;
     margin: 0;
     line-height: normal;
-    font-size: medium;
+    font-size: large;
     cursor: pointer;
 }
 
@@ -60,6 +60,13 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
 .p-button.p-button-text {
     color: $primary-color !important;
+
+    &.three-dots{
+        color: $text-color !important;
+        .pi {
+            font-size: x-large;
+        }
+    }
 }
 
 .p-button.p-button-text:enabled:hover, .p-button.p-button-text:not(button):not(a):not(.p-disabled):hover {
@@ -189,9 +196,65 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background: #555;
 }
 
-.black-overlay {
-    background-color: black;
-    opacity: 50%;
+.p-avatar img {
+    width: inherit;
+    height: 100%;
+}
+
+.p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
+    border-color: $primary-color;
+}
+.p-radiobutton .p-radiobutton-box .p-radiobutton-icon {
+    background-color: $primary-color;
+}
+.p-radiobutton .p-radiobutton-box.p-highlight {
+    border-color: $primary-color;
+}
+.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
+    border-color: $primary-color;
+    color: $primary-color;
+}
+
+.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled).p-focus {
+    border-color: $primary-color;
+}
+
+.p-radiobutton.p-radiobutton-checked:not(.p-radiobutton-disabled):hover {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
+}
+.p-radiobutton.p-radiobutton-checked:not(.p-radiobutton-disabled).p-radiobutton-focused {
+    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
+}
+
+.p-datepicker table td > span.p-highlight {
+    color: $primary-color;
+    background: getPrimaryColorWithAlpha(0.12);
+}
+
+.p-datepicker table td.p-datepicker-today > span.p-highlight {
+    color: $primary-color;
+    background: getPrimaryColorWithAlpha(0.12);
+}
+
+.p-chips .p-chips-multiple-container:not(.p-disabled).p-focus {
+    border-color: $primary-color;
+}
+
+.p-chips .p-chips-multiple-container .p-chips-token {
+    background: getPrimaryColorWithAlpha(0.12);
+    color: $primary-color;
+}
+
+.p-chips .p-chips-multiple-container:not(.p-disabled).p-focus {
+    box-shadow: inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color;
+}
+
+.p-input-filled .p-chips-multiple-container {
+    background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.38));
+}
+
+.p-input-filled .p-chips-multiple-container:not(.p-disabled):hover {
+    background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.87), rgba(0, 0, 0, 0.87));
 }
 
 @keyframes p-progress-spinner-color {

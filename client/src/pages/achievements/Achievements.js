@@ -1,11 +1,8 @@
 import {useCallback, useEffect, useRef, useState} from "react";
-import {useOnClickOutside} from "../../components/ClickOutsideHook";
 import axios from "axios";
 import ErrorMessages from "../../components/ErrorMessages";
-import {MainMenu} from "../../components/mainMenu/MainMenu";
-import BurgerMenu from "../../components/BurgerMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
-import {Divider} from "primereact/divider";
 import _ from "lodash";
 import "./Achievements.scss";
 
@@ -14,14 +11,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
-    const [open, setOpen] = useState(false);
-    const node = useRef();
-    useOnClickOutside(node, () => setOpen(false));
-    const divStyle = {
-        zIndex: "10",
-        position: "relative",
-        visible: "false"
-    };
     const [achievements, setAchievements] = useState([]);
     const updateAchievements = useCallback(() => {
         axios.get("/users/me/achievements")
@@ -62,12 +51,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
             <div id="achievementsMainMenuContainer" className="mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "Achievements" } open={ true } />
             </div>
-            <div id="reportsMainMenuContainer" className="mx-0 p-0 h-full absolute flex justify-content-center md:hidden">
-                <div className="h-full w-full" ref={ node } style={ divStyle }>
-                    <BurgerMenu open={ open } setOpen={ setOpen } />
-                    <MainMenu selected={ "Achievements" } open={ open } />
-                </div>
-            </div>
             <div id="achievementsPageContainer" className="mx-0 p-0 flex-column flex-1 hidden md:flex">
                 <PageHeader
                     user={ user }
@@ -80,9 +63,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                     displayError={ displayError }
                 />
                 <div className="grid flex-column flex-grow-1 overflow-y-auto">
-                    <div className="col-12 p-0">
-                        <Divider className="my-0" />
-                    </div>
                     <div className="col-12">
                         <div className="grid">
                             {
@@ -109,7 +89,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                 </div>
             </div>
             <div id="achievementsPageContainer" className="mx-0 p-0 flex flex-column w-full flex-1 md:hidden">
-                <div className={"black-overlay absolute h-full w-full z-5 " + (open ? null : "hidden")} />
                 <PageHeader
                     user={ user }
                     unsetUser={ unsetUser }
@@ -121,9 +100,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                     displayError={ displayError }
                 />
                 <div className="grid flex-column flex-grow-1 overflow-y-auto">
-                    <div className="col-12 p-0">
-                        <Divider className="my-0" />
-                    </div>
                     <div className="col-12 flex flex-wrap">
                         {
                             _.range(0, 14).map(index =>

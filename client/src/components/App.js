@@ -16,6 +16,8 @@ import List from "../pages/list/List";
 import Reports from "../pages/reports/Reports";
 import Achievements from "../pages/achievements/Achievements";
 import { NotificationsContext } from "../utils/contexts";
+import LegalAdvisory from "../pages/termsAndCookies/LegalAdvisory";
+import Search from "../pages/search/Search";
 
 class App extends Component {
 
@@ -23,6 +25,7 @@ class App extends Component {
         super(props);
         this.state = {
             user: null,
+            anonymousId: null,
             notifications: [],
             notificationsUnread: false,
             setNotificationsUnread: notificationsUnread => {
@@ -34,11 +37,16 @@ class App extends Component {
         };
         this.setUser = this.setUser.bind(this);
         this.unsetUser = this.unsetUser.bind(this);
+        this.setAnonymousId = this.setAnonymousId.bind(this);
         this.setNotifications = this.setNotifications.bind(this);
     }
 
     setUser(user) {
-        this.setState({ user });
+        this.state.socket.on("userDataReload", () => axios.get("/users/me").then(user => this.setUser(user.data)));
+        this.setState({
+            anonymousId: null,
+            user
+        });
     }
 
     unsetUser() {
@@ -47,21 +55,21 @@ class App extends Component {
         }
         const socket = io();
         socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
-        socket.on("connect", () =>
-            axios.post(
-                "/socket",
-                {
-                    socketId: socket.id
-                }
-            )
-            .then(
-                _ => this.setState({
-                    user: null,
-                    socket
-                }),
-                _ => this.setState({ displayError: true })
-            )
+        socket.on(
+            "connect",
+            () => axios.post("/socket", { socketId: socket.id })
+                       .then(
+                           _ => this.setState({
+                               user: null,
+                               socket
+                           }),
+                           _ => this.setState({ displayError: true })
+                       )
         );
+    }
+
+    setAnonymousId(anonymousId) {
+        this.setState({ anonymousId });
     }
 
     setNotifications(notifications) {
@@ -72,36 +80,32 @@ class App extends Component {
         const socket = io();
         socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
         socket.on("connect", () => {
-            axios.post(
-                "/socket",
-                {
-                    socketId: socket.id
-                }
-            )
-            .then(_ => axios.get("/users/me"))
-            .then(userResponse => {
-                const user = userResponse.data;
-                axios.get("/users/me/notifications")
-                     .then(
-                         notificationsResponse => this.setState({
-                             socket,
-                             user,
-                             notifications: notificationsResponse.data,
-                             ready: true
-                         }),
-                         _ => this.setState({
-                             socket,
-                             user,
-                             displayError: true,
-                             ready: true
-                         })
-                     );
-            })
-            .catch(error => this.setState({
-                socket,
-                displayError: error.response.data.error !== 3,
-                ready: true
-            }));
+            axios.post("/socket", { socketId: socket.id })
+                 .then(_ => axios.get("/users/me"))
+                 .then(userResponse => {
+                     const user = userResponse.data;
+                     socket.on("userDataReload", () => axios.get("/users/me").then(user => this.setUser(user.data)));
+                     axios.get("/users/me/notifications")
+                          .then(
+                              notificationsResponse => this.setState({
+                                  socket,
+                                  user,
+                                  notifications: notificationsResponse.data,
+                                  ready: true
+                              }),
+                              _ => this.setState({
+                                  socket,
+                                  user,
+                                  displayError: true,
+                                  ready: true
+                              })
+                          );
+                 })
+                 .catch(error => this.setState({
+                     socket,
+                     displayError: error.response.data.error !== 3,
+                     ready: true
+                 }));
         });
     }
 
@@ -138,7 +142,11 @@ class App extends Component {
                     />
                     <Route
                         path="/join"
-                        element={ this.state.user === null ? <Join socket={ this.state.socket } /> : <Navigate to="/my-day" /> }
+                        element={
+                            this.state.user === null
+                            ? <Join socket={ this.state.socket } setAnonymousId={ this.setAnonymousId } />
+                            : <Navigate to="/my-day" />
+                        }
                     />
                     <Route
                         path="/my-day"
@@ -261,9 +269,11 @@ class App extends Component {
                     <Route
                         path="/my-lists/:id"
                         element={
-                            this.state.user !== null
+                            this.state.user !== null || this.state.anonymousId !== null
                             ? <List
-                                user={this.state.user}
+                                user={ this.state.user }
+                                anonymousId={ this.state.anonymousId }
+                                setUser={ this.setUser }
                                 unsetUser={ this.unsetUser }
                                 notifications={ this.state.notifications }
                                 setNotifications={ this.setNotifications }
@@ -301,6 +311,51 @@ class App extends Component {
                                   setNotifications={ this.setNotifications }
                               />
                             : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/legal"
+                        element={
+                            this.state.user !== null
+                            ? <LegalAdvisory
+                                user={ this.state.user }
+                                unsetUser={ this.unsetUser }
+                                notifications={ this.state.notifications }
+                                setNotifications={ this.setNotifications }
+                                socket={ this.state.socket }
+                            />
+                            : <Navigate to="/" />
+                        }
+                    />
+                    <Route
+                        path="/legal/terms-and-conditions"
+                        element={
+                            this.state.user === null
+                            ? <LegalAdvisory displayTerms={ true } user={ this.state.user } />
+                            : <Navigate to="/my-day" />
+                        }
+                    />
+                    <Route
+                        path="/legal/cookie-policy"
+                        element={
+                            this.state.user === null
+                            ? <LegalAdvisory displayTerms={ false } user={ this.state.user } />
+                            : <Navigate to="/my-day" />
+                        }
+                    />
+                    <Route
+                        path="/search"
+                        element={
+                            this.state.user !== null
+                            ? <Search
+                                  user={ this.state.user }
+                                  setUser={ this.setUser }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                              />
+                              : <Navigate to="/"/>
                         }
                     />
                 </Routes>

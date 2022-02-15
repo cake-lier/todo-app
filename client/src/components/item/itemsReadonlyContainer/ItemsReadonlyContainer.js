@@ -1,0 +1,32 @@
+import EmptyPlaceholder from "../../EmptyPlaceholder";
+import ReadonlyItem from "../ReadonlyItem";
+import {DataView} from "primereact/dataview";
+import "./ItemsReadonlyContainer.scss";
+
+export default function ItemsReadonlyContainer({ emptyTitle, emptySubtitle, currentItems, lists, displayError }) {
+    return (
+        <div className="grid flex-column flex-grow-1">
+            {
+                currentItems.length
+                ? <DataView
+                      className="w-full"
+                      value={ currentItems }
+                      layout="list"
+                      itemTemplate={
+                          item => <ReadonlyItem key={ item._id } item={ item } lists={ lists } displayError={ displayError } />
+                      }
+                      rows={ 10 }
+                      paginator={ currentItems.length > 10 }
+                      alwaysShowPaginator={ false }
+                  />
+                : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
+                      <EmptyPlaceholder
+                          title={ emptyTitle }
+                          subtitle={ emptySubtitle }
+                          type="items"
+                      />
+                  </div>
+            }
+        </div>
+    );
+}

@@ -1,27 +1,21 @@
 "use strict";
 
 const mongoose = require("mongoose");
-const uuid = require("uuid");
 
 const assigneeSchema = new mongoose.Schema({
-    userId: {
+    memberId: {
         type: mongoose.ObjectId,
-        default: null
-    },
-    anonymousId: {
-        type: String,
-        default: null,
-        validate: v => v === null || uuid.validate(v)
+        required: true,
     },
     count: {
         type: Number,
         default: 1,
-        min: 1,
+        min: 0,
         validate: Number.isInteger
     }
 });
 
-const tag = new mongoose.Schema({
+const tagSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -42,23 +36,26 @@ const itemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    text: {
-        type: String,
-        default: null
+    creationDate: {
+        type: Date,
+        default: Date.now
     },
     dueDate: {
         type: Date,
         default: null
     },
-    reminderString: {
-        type: String,
+    reminderDate: {
+        type: Date,
         default: null
     },
     completionDate: {
         type: Date,
         default: null
     },
-    tags: [tag],
+    tags: {
+        type: [tagSchema],
+        default: []
+    },
     count: {
         type: Number,
         default: 1,
@@ -74,6 +71,10 @@ const itemSchema = new mongoose.Schema({
     assignees: {
         type: [assigneeSchema],
         required: true
+    },
+    priority: {
+        type: Boolean,
+        default: false
     }
 });
 

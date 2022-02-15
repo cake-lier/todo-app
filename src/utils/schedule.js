@@ -2,21 +2,17 @@
 
 const Item = require("../model/itemModel").createItemModel();
 const List = require("../model/listModel").createListModel();
+const Notification = require("../model/notificationsModel").createNotificationModel();
 const schedule = require("node-schedule");
-const { rrulestr } = require("rrule");
 global.jobs = {};
 
 function scheduleTasks() {
-    Item.find({ $or: [{ dueDate: { $ne: null } }, { reminderString: { $ne: null } }] })
+    Item.find({ reminderDate: { $gte: Date.now() } })
         .exec()
         .then(items => items.forEach(item => {
             const itemId = item._id.toString();
             const listId = item.listId.toString();
-            if (item.dueDate !== null) {
-                scheduleForDate(listId, itemId, item.dueDate);
-            } else {
-                scheduleNextReminder(listId, itemId, item.reminderString);
-            }
+            scheduleForDate(listId, itemId, item.reminderDate);
         }));
 }
 
@@ -29,15 +25,16 @@ function scheduleForDate(listId, itemId, date) {
                     Item.findById(itemId)
                         .exec()
                         .then(item => {
+                            const text = `Don't forget the item "${item.title}"` + (item.dueDate ? `: it's due ${ new Date(item.dueDate).toDateString().substr(3)}!`
+                                : `!`);
                             if (item !== null) {
                                 Notification.create({
-                                    users: list.members.filter(m => m.userId !== null),
-                                    text
+                                    users: list.members.filter(m => m.userId !== null).map(m => m.userId),
+                                    listId,
+                                    text: text
                                 })
                                 .catch(error => console.log(error))
-                                .then(_ => {
-                                    io.in(`list:${ listId }`).emit("dueDateElapsed", `The item "${ item.title }" is now due`);
-                                });
+                                .then(_ => io.in(`list:${ listId }`).emit("reminder", listId, text));
                             }
                         });
                 }
@@ -45,35 +42,7 @@ function scheduleForDate(listId, itemId, date) {
     });
 }
 
-function scheduleNextReminder(listId, itemId, recurrenceRuleString) {
-    const nextRecurrence = rrulestr(recurrenceRuleString).after(new Date());
-    if (nextRecurrence) {
-        jobs[itemId] = schedule.scheduleJob(nextRecurrence, () => {
-            List.findById(listId)
-                .exec()
-                .then(list => {
-                    if (list !== null) {
-                        Item.findById(itemId)
-                            .exec()
-                            .then(item => {
-                                if (item !== null) {
-                                    Notification.create({
-                                        users: list.members.filter(m => m.userId !== null),
-                                        title: item.title
-                                    })
-                                    .catch(error => console.log(error))
-                                    .then(_ => io.in(`list:${ listId }`).emit("reminder", item.title));
-                                    scheduleNextReminder(listId, itemId, recurrenceRuleString);
-                                }
-                            })
-                    }
-                })
-        });
-    }
-}
-
 module.exports = {
     scheduleTasks,
-    scheduleForDate,
-    scheduleNextReminder
+    scheduleForDate
 }

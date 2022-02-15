@@ -3,7 +3,7 @@ import ListDialog from "./ListDialog";
 import axios from "axios";
 import {useFormik} from "formik";
 
-export default function EditListDialog({ display, setDisplay, updateList, listId, title, joinCode, colorIndex, ownership = true, displayError }) {
+export default function EditListDialog({ display, setDisplay, updateList, listId, anonymousId, title, joinCode, colorIndex, ownership = true, displayError }) {
     const formik = useFormik({
         enableReinitialize: true,
         initialValues: {
@@ -21,7 +21,11 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
         onSubmit: data => {
             (
                 data.title !== title
-                ? axios.put(`/lists/${ listId }/title`, { title: data.title })
+                ? axios.put(
+                    `/lists/${ listId }/title`,
+                    { title: data.title },
+                    { params: anonymousId !== null ? { anonymousId } : {} }
+                  )
                 : Promise.resolve(null)
             )
             .then(
@@ -35,7 +39,11 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
                         list =>
                             (
                                 data.colorIndex !== colorIndex
-                                ? axios.put(`/lists/${ listId }/colorIndex`, { colorIndex: data.colorIndex })
+                                ? axios.put(
+                                    `/lists/${ listId }/colorIndex`,
+                                    { colorIndex: data.colorIndex },
+                                    { params: anonymousId !== null ? { anonymousId } : {} }
+                                  )
                                 : Promise.resolve(list)
                             )
                             .then(
@@ -61,25 +69,17 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
                 error => displayError(error.response.data.error)
             );
             setDisplay(false);
-            formik.resetForm(data);
         }
     });
-    const cancel = () => setDisplay(false);
     const isFormFieldValid = name => !formik.touched[name] || formik.errors[name] === undefined;
     const getFormErrorMessage =
             name => isFormFieldValid(name) ? "" : <p className="p-error text-sm">{ formik.errors[name] }</p>;
     const renderFooter = () => {
         return (
             <div className="grid">
-                <div className="col-6 p-3 flex justify-content-center">
+                <div className="col-12 p-5 flex justify-content-center">
                     <Button
-                        className="w-full p-button-text"
-                        label="Cancel"
-                        onClick={ cancel } />
-                </div>
-                <div className="col-6 p-3 flex justify-content-center">
-                    <Button
-                        className={"w-full p-button" + (formik.isSubmitting ? " disabled" : "")}
+                        className={"w-full m-0 p-button" + (formik.isSubmitting ? " disabled" : "")}
                         onClick={ formik.submitForm }
                         label="Save"
                         type="submit"
@@ -92,6 +92,7 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
         <ListDialog
             dialogName="Update the list"
             display={ display }
+            setDisplay={ setDisplay }
             renderFooter={ renderFooter }
             title={ formik.values.title }
             colorIndex={ formik.values.colorIndex }
@@ -100,6 +101,7 @@ export default function EditListDialog({ display, setDisplay, updateList, listId
             isFormFieldValid={ isFormFieldValid }
             getFormErrorMessage={ getFormErrorMessage }
             ownership={ ownership }
+            anonymousId={ anonymousId }
         />
     );
 }

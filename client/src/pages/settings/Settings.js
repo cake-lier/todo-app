@@ -1,7 +1,6 @@
 import {useCallback, useRef, useState} from "react";
-import { MainMenu } from "../../components/mainMenu/MainMenu";
+import MainMenu from "../../components/mainMenu/MainMenu";
 import ErrorMessages from "../../components/ErrorMessages";
-import { Divider } from "primereact/divider";
 import { ChangeAccountDataForm } from "../../components/ChangeAccountDataForm";
 import DeleteAccountForm from "../../components/deleteAccountForm/DeleteAccountForm";
 import ChangePasswordForm from "../../components/changePasswordForm/ChangePasswordForm";
@@ -10,8 +9,6 @@ import { InputSwitch } from 'primereact/inputswitch';
 import "./Settings.scss";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import { useNavigate } from "react-router-dom";
-import BurgerMenu from "../../components/BurgerMenu";
-import {useOnClickOutside} from "../../components/ClickOutsideHook";
 import axios from "axios";
 
 export default function Settings(props) {
@@ -44,7 +41,7 @@ export default function Settings(props) {
         if (tabName === "password") {
             return (
                 <div className="grid ">
-                    <div className="col-12 md:col-5 md:ml-8">
+                    <div className="col-12 md:col-5">
                         <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />
                     </div>
                 </div>
@@ -77,7 +74,7 @@ export default function Settings(props) {
         return (
             <>
                 <div className="grid">
-                    <div className="col-12 md:col-5 md:ml-8">
+                    <div className="col-12 md:col-5 ">
                         <ChangeAccountDataForm
                             user={ props.user }
                             setUser={ props.setUser }
@@ -85,22 +82,13 @@ export default function Settings(props) {
                         />
                     </div>
                 </div>
-                <Divider className="my-0" />
                 <div className="grid">
-                    <div className="col-12 md:col-5 md:ml-8">
+                    <div className="col-12 md:col-5">
                         <DeleteAccountForm unsetUser={ props.unsetUser } displayError={ displayError } />
                     </div>
                 </div>
             </>
         );
-    }
-    const [open, setOpen] = useState(false);
-    const node = useRef();
-    useOnClickOutside(node, () => setOpen(false));
-    const divStyle = {
-        zIndex: "10",
-        position: "relative",
-        visible: "false"
     }
     return (
         <div className="grid h-screen">
@@ -111,13 +99,6 @@ export default function Settings(props) {
 
             <div id="settingsMainMenuContainer" className="mx-0 p-0 hidden md:block">
                 <MainMenu selected={ "Settings" } open={ true } />
-            </div>
-
-            <div id="settingsMainMenuContainer" className="mx-0 p-0 h-full absolute flex justify-content-center md:hidden">
-                <div className="h-full w-full" ref={ node } style={ divStyle }>
-                    <BurgerMenu open={ open } setOpen={ setOpen } />
-                    <MainMenu selected={ "Settings" } open={ open } />
-                </div>
             </div>
 
             <div id="settingsPageContainer" className="mx-0 p-0 h-full flex-column flex-1 hidden md:flex">
@@ -138,18 +119,12 @@ export default function Settings(props) {
                     displayError={ displayError }
                 />
                 <div className="grid overflow-y-auto">
-                    <div className="col-12 p-0">
-                        <Divider className="my-0" />
-                    </div>
                     <div className="col-12 ">
                         { getTabElement(props.tab) }
                     </div>
                 </div>
             </div>
             <div id="settingsPageContainer" className="mx-0 p-0 w-full md:hidden">
-                <div
-                    className={"black-overlay absolute h-full w-full z-5 " + (open ? null : "hidden")}
-                />
                 <PageHeader
                     user={ props.user }
                     unsetUser={ props.unsetUser }
@@ -167,9 +142,6 @@ export default function Settings(props) {
                     displayError={ displayError }
                 />
                 <div className="grid">
-                    <div className="col-12 p-0">
-                        <Divider className="my-0" />
-                    </div>
                     <div className="col-12">
                         { getTabElement(props.tab) }
                     </div>
