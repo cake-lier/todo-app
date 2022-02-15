@@ -582,7 +582,7 @@ function removeTag(request, response) {
                 const authorProfilePicturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text =
-                    `removed the tag "${item.tags.find(i => i._id.toString() === request.params.tagId).title}" `
+                    ` removed the tag "${item.tags.find(i => i._id.toString() === request.params.tagId).title}" `
                     + `from the item "${item.title}"`;
                 const users = list.members
                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
