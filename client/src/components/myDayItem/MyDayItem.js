@@ -87,6 +87,7 @@ export default function MyDayItem({ socket, displayError }) {
             </div>
         );
     };
+
     return (
         <div id="my-day-items"
              className={ "card flex flex-grow-1 flex-column "
@@ -116,11 +117,10 @@ export default function MyDayItem({ socket, displayError }) {
                   </Panel>
             }
             {
-                loading || prioritized.length === 0
+                loading || pastDue.length === 0
                 ? null
                 : <Panel
                       id="past-due"
-                      className={ !loading && pastDue.length > 0 ? "" : "hidden" }
                       headerTemplate={ template }
                       titleElement="P"
                       toggleable
@@ -133,11 +133,10 @@ export default function MyDayItem({ socket, displayError }) {
                   </Panel>
             }
             {
-                loading || prioritized.length === 0
+                loading || dueToday.length === 0
                 ? null
                 : <Panel
                       id="due-today"
-                      className={ !loading && dueToday.length > 0 ? "" : "hidden" }
                       headerTemplate={ template }
                       toggleable
                   >
@@ -149,11 +148,10 @@ export default function MyDayItem({ socket, displayError }) {
                   </Panel>
             }
             {
-                loading || prioritized.length === 0
+                loading || upcoming.length === 0
                 ? null
                 : <Panel
                       id="upcoming"
-                      className={ !loading && upcoming.length > 0 ? "" : "hidden" }
                       headerTemplate={template}
                       toggleable
                   >

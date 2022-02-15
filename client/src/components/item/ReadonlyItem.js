@@ -4,6 +4,7 @@ import {Chip} from "primereact/chip";
 import ChipAssignee from "./ChipAssignee";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import "./Item.scss"
 
 export default function ReadonlyItem({ item, lists, displayError }) {
     const [assignees, setAssignees] = useState(null);
@@ -34,7 +35,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                             x{ item.count }
                         </p>
                     </div>
-                    <span>
+                    <span className={(item.priority ? "priority-star-fill" : "priority-star")}>
                         <i className={ (item.priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2" } />
                     </span>
                 </div>
