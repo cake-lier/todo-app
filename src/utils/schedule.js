@@ -25,14 +25,16 @@ function scheduleForDate(listId, itemId, date) {
                     Item.findById(itemId)
                         .exec()
                         .then(item => {
+                            const text = `Don't forget the item "${item.title}"` + (item.dueDate ? `: it's due ${ new Date(item.dueDate).toDateString().substr(3)}!`
+                                : `!`);
                             if (item !== null) {
                                 Notification.create({
-                                    users: list.members.filter(m => m.userId !== null),
+                                    users: list.members.filter(m => m.userId !== null).map(m => m.userId),
                                     listId,
-                                    text: item.title
+                                    text: text
                                 })
                                 .catch(error => console.log(error))
-                                .then(_ => io.in(`list:${ listId }`).emit("reminder", listId, item.title));
+                                .then(_ => io.in(`list:${ listId }`).emit("reminder", listId, text));
                             }
                         });
                 }

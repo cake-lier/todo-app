@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const notificationsSchema = new mongoose.Schema({
     authorUsername: {
         type: String,
-        required: true
+        default: null
     },
     authorProfilePicturePath: {
         type: String,

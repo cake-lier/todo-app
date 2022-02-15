@@ -79,9 +79,10 @@ export default function Notifications({ notifications, setNotifications, socket,
             <div className="grid p-3 pl-3 w-full" >
                 <div className="col-11 p-0 flex align-items-center justify-content-start">
                     <Avatar
+                        icon = { !data.authorUsername ? "pi pi-info-circle" : null }
                         image={ data.authorProfilePicturePath !== null
                             ? "/static" + data.authorProfilePicturePath : "/static/images/default_profile_picture.jpg" }
-                        className="p-avatar-circle"
+                        className="p-avatar-circle notification"
                     />
                     <div className="mx-2">
                         <div className="flex align-items-center justify-content-start flex-wrap">
