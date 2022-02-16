@@ -68,13 +68,19 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
             visible={ display }
             header={ renderHeader() }
             dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
+            closable={ false }
             onHide={ () => setDisplay(false) }
         >
             <Dialog
                 className="w-27rem m-3"
                 header="Add a member"
                 visible={ displayAddMember }
+                closable={ false }
                 dismissableMask={ true }
+                draggable={ false }
+                resizable={ false }
                 onHide={ () => setDisplayAddMember(false) }
             >
                 <AddMemberDialogContent

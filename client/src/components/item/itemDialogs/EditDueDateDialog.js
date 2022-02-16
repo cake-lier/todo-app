@@ -42,8 +42,10 @@ export default function EditDueDateDialog({ item, anonymousId, updateItem, displ
     return (
         <Dialog
             footer={ dueDateFooter() }
-            dismissableMask={ true }
             closable={ false }
+            dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
             visible={ displayEditDueDate }
             onHide={ () => setDisplayEditDueDate(false) }>
             <div className="grid">

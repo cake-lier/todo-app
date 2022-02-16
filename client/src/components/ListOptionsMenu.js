@@ -110,11 +110,15 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
                 className="p-button-rounded p-button-icon-only p-button-text three-dots text-3xl"
             />
             <TieredMenu model={ items } popup ref={ menu } id="overlay_tmenu" />
-            <Dialog className="w-27rem m-3"
-                    header="Join code"
-                    visible={ displayJoinCodeDialog }
-                    dismissableMask={ true }
-                    onHide={ () => setDisplayJoinCodeDialog(false) }
+            <Dialog
+                className="w-27rem m-3"
+                header="Join code"
+                visible={ displayJoinCodeDialog }
+                closable={ false }
+                dismissableMask={ true }
+                draggable={ false }
+                resizable={ false }
+                onHide={ () => setDisplayJoinCodeDialog(false) }
             >
                 <JoinCodeMessage joinCode={ list.joinCode } />
             </Dialog>

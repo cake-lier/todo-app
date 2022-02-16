@@ -49,6 +49,8 @@ export default function AddAssigneeDialog({ item, anonymousId, members, updateIt
                 }
             }
             dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
             closable={ false }
         >
             <DataView

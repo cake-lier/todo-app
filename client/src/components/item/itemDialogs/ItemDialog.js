@@ -31,8 +31,10 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
     return (
         <Dialog
             header={ headerTitle }
-            dismissableMask={ true }
             closable={ false }
+            dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
             visible={ displayDialog }
             onHide={ () => setDisplayDialog(false) }
         >
@@ -62,8 +64,6 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
                                 onValueChange={ formik.handleChange }
                                 showButtons
                                 buttonLayout="horizontal"
-                                decrementButtonClassName="p-button-secondary"
-                                incrementButtonClassName="p-button-secondary"
                                 incrementButtonIcon="pi pi-plus"
                                 decrementButtonIcon="pi pi-minus"
                                 min={ 0 }

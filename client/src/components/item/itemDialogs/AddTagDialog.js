@@ -70,9 +70,11 @@ export default function AddTagDialog({ itemId, anonymousId, display, setDisplay,
             className="w-27rem m-3"
             visible={ display }
             footer={ renderFooter() }
-            closable={ false }
             showHeader={ false }
+            closable={ false }
             dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
             onHide={ () => setDisplay(false) }
         >
             <div className="grid">

@@ -25,8 +25,10 @@ export default function ListDialog({ dialogName, display, setDisplay, renderFoot
             visible={ display }
             footer={ renderFooter() }
             closable={ false }
-            showHeader={ false }
             dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
+            showHeader={ false }
             onHide={ () => setDisplay(false) }
         >
             <div className="grid">

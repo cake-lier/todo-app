@@ -107,7 +107,10 @@ class JoinDialog extends Component {
                 visible={ this.state.displayJoinDialog }
                 footer={ renderFooter() }
                 closable={ false }
+                draggable={ false }
+                resizable={ false }
                 showHeader={ false }
+                baseZIndex={ 1 }
             >
                 <div className="grid flex justify-content-center">
                     <div className="col-12 mt-5 flex align-items-center">

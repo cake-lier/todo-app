@@ -90,6 +90,10 @@ export default function SignupForm(props) {
                 header="Waffles' Terms of Service"
                 className="w-12 md:w-6"
                 visible={ isTermsDialogVisible }
+                closable={ false }
+                dismissableMask={ true }
+                draggable={ false }
+                resizable={ false }
                 onHide={ () => setTermsDialogVisible(false) }>
                 <TermsOfService />
             </Dialog>
@@ -97,6 +101,10 @@ export default function SignupForm(props) {
                 header="Waffles' Cookie Policy"
                 className="w-12 md:w-6"
                 visible={ isCookiesDialogVisible }
+                closable={ false }
+                dismissableMask={ true }
+                draggable={ false }
+                resizable={ false }
                 onHide={ () => setCookiesDialogVisible(false) }>
                 <CookiePolicy />
             </Dialog>

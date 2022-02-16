@@ -34,8 +34,6 @@ export default function AddAssigneeRow({ item, member, addAssignee, runningTotal
                     }
                     showButtons
                     buttonLayout="stacked"
-                    decrementButtonClassName="p-button-secondary"
-                    incrementButtonClassName="p-button-secondary"
                     incrementButtonIcon="pi pi-angle-up"
                     decrementButtonIcon="pi pi-angle-down"
                     min={ 0 }

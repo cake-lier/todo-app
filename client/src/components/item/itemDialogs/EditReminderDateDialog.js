@@ -46,8 +46,10 @@ export default function EditReminderDateDialog({ item, anonymousId, updateItem, 
     return (
         <Dialog
             footer={ reminderDateFooter() }
-            dismissableMask={ true }
             closable={ false }
+            dismissableMask={ true }
+            draggable={ false }
+            resizable={ false }
             visible={ displayEditReminderDate }
             onHide={ () => setDisplayEditReminderDate(false) }>
             <div className="grid">

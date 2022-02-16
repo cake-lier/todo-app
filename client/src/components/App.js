@@ -122,6 +122,9 @@ class App extends Component {
         return (
             <NotificationsContext.Provider value={ this.state }>
                 <Dialog
+                    dismissableMask={ true }
+                    draggable={ false }
+                    resizable={ false }
                     header={ <h2>It seems quite an error to me.</h2> }
                     visible={ this.state.displayError }
                     onHide={ () => this.setState({ displayError: false }) }>
