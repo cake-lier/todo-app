@@ -19,7 +19,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
         return null;
     }
     return (
-        <div className="flex justify-content-between m-2">
+        <div className="flex justify-content-between m-2 w-full">
             <div>
                 <div className="field-checkbox m-1 mb-0">
                     <Checkbox

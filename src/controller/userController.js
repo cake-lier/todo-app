@@ -529,7 +529,7 @@ function login(request, response) {
                                              io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }`);
                                              if (
                                                  l.members
-                                                  .filter(m => m.userId.toString() === userId)
+                                                  .filter(m => m.userId !== null && m.userId.toString() === userId)
                                                   .every(m => m.role === "owner")
                                              ) {
                                                  io.in(request.session.socketId).socketsJoin(`list:${ l._id.toString() }:owner`);
