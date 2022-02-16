@@ -123,7 +123,7 @@ export default function Item({ item, anonymousId, listMembers, deleteItem, updat
                         </div>
                         <span className={(priority ? "priority-star-fill" : "priority-star")}>
                             <i
-                                className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 text-xl cursor-pointer" }
+                                className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 cursor-pointer" }
                                 onClick={ togglePriority }
                             />
                         </span>
