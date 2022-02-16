@@ -640,9 +640,9 @@ function getAchievements(request, response) {
         .then(user => {
             if (user === null) {
                 sendError(response, Error.ResourceNotFound);
-                return Promise.resolve();
+                return;
             }
-            return user.achievements;
+            response.json(user.achievements);
         });
 }
 

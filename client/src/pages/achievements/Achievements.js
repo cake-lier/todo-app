@@ -13,6 +13,8 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
     }, [errors]);
     const [achievements, setAchievements] = useState([]);
     const updateAchievements = useCallback(() => {
+        console.log("updateAchievements");
+        console.log(achievements);
         axios.get("/users/me/achievements")
             .then(
                 achievements => setAchievements(achievements.data),
@@ -67,7 +69,7 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                         <div className="grid">
                             {
                                 _.range(0, 14).map(index =>
-                                    <div className="col-3 px-5 lg:col-2 lg:px-5 xl:px-6" style={{ overflowWrap: "break-word" }}>
+                                    <div key={index} className="col-3 px-5 lg:col-2 lg:px-5 xl:px-6" style={{ overflowWrap: "break-word" }}>
                                         <img
                                             src={ `/static/images/achievements/${ index }.png` }
                                             alt={ achievementsNames[index] }
@@ -103,7 +105,7 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                     <div className="col-12 flex flex-wrap">
                         {
                             _.range(0, 14).map(index =>
-                                <div className="col-4 sm:col-3 px-5">
+                                <div key={index} className="col-4 sm:col-3 px-5">
                                     <img
                                         src={ `/static/images/achievements/${ index }.png` }
                                         alt={ achievementsNames[index] }
