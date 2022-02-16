@@ -2,7 +2,7 @@ import ErrorMessages from "../../components/ErrorMessages";
 import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import { useCallback, useRef, useState } from "react";
-import ListItem from "../../components/listItem/ListItem";
+import ListsItem from "../../components/listsItem/ListsItem";
 import {Button} from "primereact/button";
 import {Menu} from "primereact/menu";
 
@@ -50,7 +50,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         <Menu model={ menuItems } popup ref={ menu } />
                     </div>
                 </div>
-                <ListItem
+                <ListsItem
                     setUser={ setUser }
                     lists={ lists }
                     setLists={ setLists }
@@ -88,7 +88,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                             <Menu model={ menuItems } popup ref={ menu } />
                         </div>
                     </div>
-                    <ListItem
+                    <ListsItem
                         setUser={ setUser }
                         lists={ lists }
                         setLists={ setLists }

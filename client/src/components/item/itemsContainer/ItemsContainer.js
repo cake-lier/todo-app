@@ -11,10 +11,9 @@ import {useNavigate} from "react-router-dom";
 import {Menu} from "primereact/menu";
 import {DataView} from "primereact/dataview";
 
-export default function ItemsContainer({ userId, anonymousId, setUser, list, setList, disabledNotificationsLists, socket, displayError }) {
+export default function ItemsContainer({ userId, anonymousId, setUser, list, setList, members, setMembers, disabledNotificationsLists, socket, displayError }) {
     // checklist
     const [items, setItems] = useState([]);
-    const [listMembers, setListMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
     const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
@@ -55,13 +54,8 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
     const getItems = useCallback(() => {
         axios.get(`/lists/${ list._id }/items/`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
-                 items => setItems(items.data),
-                 error => displayError(error.response.data.error)
-             )
-             .then(_ => axios.get(`/lists/${ list._id }/members`, { params: anonymousId !== null ? { anonymousId } : {} }))
-             .then(
-                 members => {
-                     setListMembers(members.data);
+                 items => {
+                     setItems(items.data);
                      setLoading(false);
                  },
                  error => displayError(error.response.data.error)
@@ -122,6 +116,8 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                             userId={ userId }
                             anonymousId={ anonymousId }
                             setUser={ setUser }
+                            members={ members }
+                            setMembers={ setMembers }
                             ownership={ userId ? list.members.filter(m => m.userId === userId)[0].role === "owner" : false }
                             disabledNotificationsLists={ disabledNotificationsLists }
                             list={ list }
@@ -154,7 +150,7 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                                       key={ item._id }
                                       item={ item }
                                       anonymousId={ anonymousId }
-                                      listMembers={ listMembers }
+                                      listMembers={ members }
                                       deleteItem={ deleteItem }
                                       updateItem={ updateItem }
                                       displayError={ displayError }

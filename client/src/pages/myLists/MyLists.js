@@ -3,7 +3,7 @@ import MainMenu from "../../components/mainMenu/MainMenu";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import {useCallback, useRef, useState} from "react";
 import MyListsHeader from "../../components/myListsHeader/MyListsHeader";
-import ListItem from "../../components/listItem/ListItem";
+import ListsItem from "../../components/listsItem/ListsItem";
 import "./MyLists.scss";
 
 export default function MyLists({ user, setUser, unsetUser, notifications, setNotifications, socket }) {
@@ -37,7 +37,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                     displayError={ displayError }
                 />
                 <MyListsHeader appendList={ appendList } displayError={ displayError } setOrdering={ setOrdering } />
-                <ListItem
+                <ListsItem
                     setUser={ setUser }
                     lists={ lists }
                     setLists={ setLists }
@@ -63,7 +63,7 @@ export default function MyLists({ user, setUser, unsetUser, notifications, setNo
                         displayError={ displayError }
                     />
                     <MyListsHeader appendList={ appendList } displayError={ displayError } setOrdering={ setOrdering } />
-                    <ListItem
+                    <ListsItem
                         setUser={ setUser }
                         lists={ lists }
                         setLists={ setLists }

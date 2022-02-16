@@ -2,20 +2,12 @@ import {Dialog} from "primereact/dialog";
 import { DataView} from 'primereact/dataview';
 import { Avatar } from 'primereact/avatar';
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {Button} from "primereact/button";
 import AddMemberDialogContent from "./AddMemberDialogContent";
 
-export default function MembersDialog({ anonymousId, display, setDisplay, list, updateList, ownership, displayError }){
+export default function MembersDialog({ members, setMembers, display, setDisplay, list, updateList, ownership, displayError }){
     const [displayAddMember, setDisplayAddMember] = useState(false);
-    const [members, setMembers] = useState([]);
-    useEffect(() => {
-        axios.get(`/lists/${ list._id }/members/`, { params: anonymousId !== null ? { anonymousId } : {} })
-             .then(
-                 members => setMembers(members.data),
-                 error => displayError(error.response.data.error)
-             );
-    }, [list, setMembers, displayError]);
     const removeMember = member => {
         axios.delete(`/lists/${ list._id }/members/${ member._id }`)
              .then(

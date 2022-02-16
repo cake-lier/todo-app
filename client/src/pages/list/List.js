@@ -82,6 +82,8 @@ export default function List({ user, anonymousId, setUser, unsetUser, notificati
                     setUser={ setUser }
                     list={ list }
                     setList={ setList }
+                    members={ members }
+                    setMembers={ setMembers }
                     disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
                     socket={ socket }
                     displayError={ displayError }
@@ -107,6 +109,8 @@ export default function List({ user, anonymousId, setUser, unsetUser, notificati
                         setUser={ setUser }
                         list={ list }
                         setList={ setList }
+                        members={ members }
+                        setMembers={ setMembers }
                         disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
                         socket={ socket }
                         displayError={ displayError }

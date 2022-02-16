@@ -8,7 +8,7 @@ import JoinCodeMessage from "./listDialogs/JoinCodeMessage";
 import EditListDialog from "./listDialogs/EditListDialog";
 import MembersDialog from "./listDialogs/MembersDialog";
 
-export default function ListOptionsMenu({ userId, anonymousId, setUser, ownership, disabledNotificationsLists, list, lists = [], setLists = () => {}, displayError }) {
+export default function ListOptionsMenu({ userId, anonymousId, members, setMembers, setUser, ownership, disabledNotificationsLists, list, lists = [], setLists = () => {}, displayError }) {
     const menu = useRef(null);
     const [displayJoinCodeDialog, setDisplayJoinCodeDialog] = useState(false);
     const [displayEditDialog, setDisplayEditDialog] = useState(false);
@@ -131,7 +131,8 @@ export default function ListOptionsMenu({ userId, anonymousId, setUser, ownershi
                 displayError={ displayError }
             />
             <MembersDialog
-                anonymousId={ anonymousId }
+                members={ members }
+                setMembers={ setMembers }
                 display={ displayMembersDialog }
                 setDisplay={ setDisplayMemberDialog }
                 list={ list }

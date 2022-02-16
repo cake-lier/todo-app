@@ -1,13 +1,12 @@
-import React, {useCallback, useEffect, useState} from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { DataView } from 'primereact/dataview';
 import axios from "axios";
-import "./ListItem.scss";
 import EmptyPlaceholder from "../EmptyPlaceholder";
 import { ProgressSpinner } from 'primereact/progressspinner';
-import ListOptionsMenu from "../ListOptionsMenu";
+import "./ListsItem.scss";
+import ListItem from "../ListItem";
 
-export default function ListItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, disabledNotificationsLists, ordering }) {
+export default function ListsItem({ setUser, lists, setLists, userId, ownership = true, displayError, socket, disabledNotificationsLists, ordering }) {
     const [loading, setLoading] = useState(true);
     const getSortField = ordering => {
         switch (ordering) {
@@ -33,7 +32,6 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
                 return null;
         }
     };
-
     useEffect(() => {
         axios.get(ownership ? "/lists?shared=false" : "/lists?shared=true")
              .then(
@@ -42,7 +40,6 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
              )
             .then(_ => setLoading(false));
     }, [ownership, setLists, displayError, setLoading]);
-
     useEffect(() => {
         function handleUpdates(event) {
             if ((/^list(?:Created|Deleted|(?:Title|Visibility|Color)Changed|Member(?:Added|Removed))Reload$/.test(event))
@@ -57,35 +54,6 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
     }, [ownership, displayError, socket, setLists]);
-    const navigate = useNavigate();
-    const onTitleClick = useCallback(id => navigate(`/my-lists/${ id }`), [navigate]);
-    const itemTemplate = useCallback(list => {
-        const listColor = [ "red-list", "purple-list", "blue-list", "green-list", "yellow-list" ];
-        if (!list) {
-            return;
-        }
-        return (
-            <div className="col-12 m-0 p-0 pl-2 flex flex-row align-items-center list-item">
-                <div className="col-11 flex align-items-center" id="list-icon">
-                    <i className={ "pi pi-circle-fill item " + (listColor[list.colorIndex]) } />
-                    <i className="pi pi-list item ml-2 pl-1" />
-                    <h1 className="ml-2 cursor-pointer text-xl" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
-                </div>
-                <div className="col-1 flex flex-row-reverse align-items-center">
-                    <ListOptionsMenu
-                        userId={ userId }
-                        setUser={ setUser }
-                        ownership={ ownership }
-                        disabledNotificationsLists={ disabledNotificationsLists }
-                        list={ list }
-                        lists={ lists }
-                        setLists={ setLists }
-                        displayError={ displayError }
-                    />
-                </div>
-            </div>
-        );
-    }, [userId, setUser, ownership, disabledNotificationsLists, lists, setLists, displayError, onTitleClick]);
     return (
         <div className={"card flex flex-grow-1 " + (!lists.length ? "justify-content-center align-items-center" : null) }>
             <ProgressSpinner
@@ -99,7 +67,18 @@ export default function ListItem({ setUser, lists, setLists, userId, ownership =
                 className={ !loading && lists.length ? "w-full" : "hidden"}
                 value={ lists }
                 layout="list"
-                itemTemplate={ itemTemplate }
+                itemTemplate={ list =>
+                    <ListItem
+                        userId={ userId }
+                        setUser={ setUser }
+                        list={ list }
+                        lists={ lists }
+                        setLists={ setLists }
+                        ownership={ ownership }
+                        disabledNotificationsLists={ disabledNotificationsLists }
+                        displayError={ displayError }
+                    />
+                }
                 rows={ 10 }
                 paginator={ lists.length > 10 }
                 alwaysShowPaginator={ false }
