@@ -13,8 +13,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
     }, [errors]);
     const [achievements, setAchievements] = useState([]);
     const updateAchievements = useCallback(() => {
-        console.log("updateAchievements");
-        console.log(achievements);
         axios.get("/users/me/achievements")
             .then(
                 achievements => setAchievements(achievements.data),
@@ -76,13 +74,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                                             className={ "w-full " + (achievements[index] ? "" : "achievementDisabled") }
                                         />
                                         <p className="mt-3 text-lg text-center">{ achievementsNames[index] }</p>
-                                        {
-                                            achievements[index]
-                                                ? <p className="text-lg text-center">
-                                                    Achievement unlocked on { new Date(achievements[index]).toLocaleDateString("en-GB") }
-                                                </p>
-                                                : null
-                                        }
                                     </div>
                                 )
                             }
@@ -114,13 +105,6 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                                     <p className="mt-3 text-lg text-center" style={{ overflowWrap: "break-word" }}>
                                         { achievementsNames[index] }
                                     </p>
-                                    {
-                                        achievements[index]
-                                            ? <p className="text-lg text-center">
-                                                Achievement unlocked on { new Date(achievements[index]).toLocaleDateString("en-GB") }
-                                            </p>
-                                            : null
-                                    }
                                 </div>
                             )
                         }
