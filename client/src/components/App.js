@@ -38,6 +38,7 @@ class App extends Component {
         this.setUser = this.setUser.bind(this);
         this.unsetUser = this.unsetUser.bind(this);
         this.setAnonymousId = this.setAnonymousId.bind(this);
+        this.unsetAnonymousId = this.unsetAnonymousId.bind(this);
         this.setNotifications = this.setNotifications.bind(this);
     }
 
@@ -70,6 +71,25 @@ class App extends Component {
 
     setAnonymousId(anonymousId) {
         this.setState({ anonymousId });
+    }
+
+    unsetAnonymousId() {
+        if (this.state.socket !== null) {
+            this.state.socket.disconnect();
+        }
+        const socket = io();
+        socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
+        socket.on(
+            "connect",
+            () => axios.post("/socket", { socketId: socket.id })
+                .then(
+                    _ => this.setState({
+                        anonymousId: null,
+                        socket
+                    }),
+                    _ => this.setState({ displayError: true })
+                )
+        );
     }
 
     setNotifications(notifications) {
@@ -276,6 +296,7 @@ class App extends Component {
                             ? <List
                                 user={ this.state.user }
                                 anonymousId={ this.state.anonymousId }
+                                unsetAnonymousId={ this.unsetAnonymousId }
                                 setUser={ this.setUser }
                                 unsetUser={ this.unsetUser }
                                 notifications={ this.state.notifications }

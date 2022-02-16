@@ -7,7 +7,7 @@ import axios from "axios";
 import JoinDialog from "../../components/joinDialog/JoinDialog";
 import ItemsContainer from "../../components/item/itemsContainer/ItemsContainer";
 
-export default function List({ user, anonymousId, setUser, unsetUser, notifications, setNotifications, socket }) {
+export default function List({ user, anonymousId, unsetAnonymousId, setUser, unsetUser, notifications, setNotifications, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -37,13 +37,17 @@ export default function List({ user, anonymousId, setUser, unsetUser, notificati
                 if (new RegExp("^list(?:TitleChanged|Member(?:Added|Removed))Reload$").test(event)) {
                     getHeader();
                 } else if (new RegExp("^list(?:Deleted|SelfRemoved)Reload$").test(event)) {
-                    navigate("/my-day");
+                    if (user) {
+                        navigate("/my-day");
+                    } else {
+                        unsetAnonymousId();
+                    }
                 }
             }
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [id, socket, getHeader, navigate]);
+    }, [id, socket, getHeader, navigate, unsetAnonymousId, user]);
     if (list === null) {
         return null;
     }
