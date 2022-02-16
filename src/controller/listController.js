@@ -476,6 +476,7 @@ function addMember(request, response) {
                                     )
                             }
                         );
+                        achievementHelper.addAchievement(request.session.userId, 12);
                     })
             ));
         return;
