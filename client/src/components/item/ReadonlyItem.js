@@ -27,8 +27,8 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                         name="item"
                         checked={ !!item.completionDate }
                     />
-                    <label htmlFor={ item._id }>
-                        { item.title } - From: { lists.filter(l => l._id === item.listId)[0].title }
+                    <label className="text-xl" htmlFor={ item._id }>
+                        { item.title }
                     </label>
                     <div className="flex align-items-center">
                         <p className="count-items flex m-1 text-xl" style={{ color: "#E61950" }}>
@@ -39,7 +39,13 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                         <i className={ (item.priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2" } />
                     </span>
                 </div>
-                <div className="flex align-items-center flex-wrap pl-4">
+                <div className="flex align-items-center flex-wrap pl-5">
+                    {
+                        <Chip
+                            className="mr-1 mb-1"
+                            label={"List: " + lists.filter(l => l._id === item.listId)[0].title }
+                        />
+                    }
                     {
                         item.tags.map(tag =>
                             <ChipTag
@@ -53,7 +59,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                     {
                         item.dueDate
                             ? <Chip
-                                  className="mr-1"
+                                  className="mr-1 mb-1"
                                   label={ new Date(item.dueDate).toLocaleDateString("en-GB")}
                                   icon="pi pi-calendar"
                             />
@@ -62,7 +68,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                     {
                         item.reminderDate
                             ? <Chip
-                                  className="mr-1"
+                                  className="mr-1 mb-1"
                                   label={ new Date(item.reminderDate).toLocaleString("en-GB").replace(/:[^:]*$/, "") }
                                   icon="pi pi-bell"
                             />
