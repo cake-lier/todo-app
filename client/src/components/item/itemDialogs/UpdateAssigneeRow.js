@@ -3,10 +3,12 @@ import { InputNumber } from "primereact/inputnumber";
 import { useState } from "react";
 import {Button} from "primereact/button";
 import "./AddAssigneeRow.scss";
+import _ from "lodash";
 
-export default function AddAssigneeRow({ item, member, addAssignee, runningTotal, setRunningTotal }) {
+export default function UpdateAssigneeRow({ item, member, updateAssignee, assigneeSelectedId, setAssigneeSelectedId }) {
     const defaultProfilePicture = "/static/images/default_profile_picture.jpg";
-    const [count, setCount] = useState(item.assignees.filter(a => a.memberId === member._id)?.[0]?.count ?? 0);
+    const defaultCount = item.assignees.filter(a => a.memberId === member._id)?.[0]?.count ?? 0;
+    const [count, setCount] = useState(defaultCount);
     return (
         <div className="col-12 grid justify-content-center">
             <div className="col-6 md:col-1 flex justify-content-center align-items-center">
@@ -20,7 +22,7 @@ export default function AddAssigneeRow({ item, member, addAssignee, runningTotal
             <div className="col-6 md:col-2 flex justify-content-center align-items-center">
                 <p className="ml-2">{ member.username }</p>
             </div>
-            <div className="col-12 md:col-4">
+            <div className="col-12 md:col-3">
                 <InputNumber
                     id="count"
                     name="count"
@@ -28,23 +30,40 @@ export default function AddAssigneeRow({ item, member, addAssignee, runningTotal
                     value={ count }
                     onValueChange={
                         e => {
-                            setRunningTotal(runningTotal + (e.value - count));
+                            if (e.value !== defaultCount) {
+                                setAssigneeSelectedId(member._id);
+                            } else {
+                                setAssigneeSelectedId("");
+                            }
                             setCount(e.value);
                         }
                     }
                     showButtons
+                    disabled={ assigneeSelectedId !== "" && assigneeSelectedId !== member._id }
                     buttonLayout="stacked"
                     incrementButtonIcon="pi pi-angle-up"
                     decrementButtonIcon="pi pi-angle-down"
                     min={ 0 }
-                    max={ count + (item.count - runningTotal) }
+                    max={ defaultCount + item.count - _.sum(item.assignees.map(a => a.count)) }
                 />
             </div>
-            <div className="col-12 md:col-2 flex justify-content-center align-items-center">
+            <div className="col-6 md:col-2 flex justify-content-center align-items-center">
                 <Button
                     label={ item.assignees.findIndex(a => a.memberId === member._id) !== -1 ? "Update" : "Add" }
                     className="w-full"
-                    onClick={ () => addAssignee(member, count) }
+                    disabled={ (assigneeSelectedId !== "" && assigneeSelectedId !== member._id) || count === defaultCount }
+                    onClick={ () => updateAssignee(member, count) }
+                />
+            </div>
+            <div className="col-6 md:col-2 flex justify-content-center align-items-center">
+                <Button
+                    label="Reset"
+                    className="w-full"
+                    disabled={ count === defaultCount }
+                    onClick={ () => {
+                        setCount(defaultCount);
+                        setAssigneeSelectedId("");
+                    } }
                 />
             </div>
         </div>

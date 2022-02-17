@@ -8,7 +8,7 @@ import ChipTag from "./ChipTag";
 import EditItemDialog from "./itemDialogs/EditItemDialog";
 import axios from "axios";
 import AddTagDialog from "./itemDialogs/AddTagDialog";
-import AddAssigneeDialog from "./itemDialogs/AddAssigneeDialog";
+import UpdateAssigneeDialog from "./itemDialogs/UpdateAssigneeDialog";
 import {Chip} from "primereact/chip";
 import ChipAssignee from "./ChipAssignee";
 import "./Item.scss"
@@ -217,7 +217,7 @@ export default function Item({ item, anonymousId, listMembers, deleteItem, updat
                 setDisplayEdit={ setDisplayEdit }
                 displayError={ displayError }
             />
-            <AddAssigneeDialog
+            <UpdateAssigneeDialog
                 item={ item }
                 anonymousId={ anonymousId }
                 members={ listMembers }

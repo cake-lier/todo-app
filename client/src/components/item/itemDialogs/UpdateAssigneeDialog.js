@@ -1,12 +1,12 @@
 import {Dialog} from "primereact/dialog";
 import {DataView} from "primereact/dataview";
-import AddAssigneeRow from "./AddAssigneeRow";
+import UpdateAssigneeRow from "./UpdateAssigneeRow";
 import {useCallback, useState} from "react";
 import axios from "axios";
 
-export default function AddAssigneeDialog({ item, anonymousId, members, updateItem, display, setDisplay, displayError }) {
-    const [runningTotal, setRunningTotal] = useState(item.count - item.remainingCount);
-    const addAssignee = useCallback((member, count) => {
+export default function UpdateAssigneeDialog({ item, anonymousId, members, updateItem, display, setDisplay, displayError }) {
+    const [assigneeSelectedId, setAssigneeSelectedId] = useState("");
+    const updateAssignee = useCallback((member, count) => {
         const assignee = item.assignees.filter(a => a.memberId === member._id)?.[0];
         if (assignee === undefined) {
             axios.post(
@@ -17,7 +17,7 @@ export default function AddAssigneeDialog({ item, anonymousId, members, updateIt
             .then(
                 item => {
                     updateItem(item.data);
-                    setDisplay(false);
+                    setAssigneeSelectedId("");
                 },
                 error => displayError(error.response.data.error)
             );
@@ -30,24 +30,19 @@ export default function AddAssigneeDialog({ item, anonymousId, members, updateIt
             .then(
                 item => {
                     updateItem(item.data);
-                    setDisplay(false);
+                    setAssigneeSelectedId("");
                 },
                 error => displayError(error.response.data.error)
             );
         }
-    }, [item, anonymousId, updateItem, displayError, setDisplay]);
+    }, [item, anonymousId, updateItem, displayError]);
 
     return (
         <Dialog
             className="m-3"
             header="Assign the item to"
             visible={ display }
-            onHide={
-                () => {
-                    setDisplay(false);
-                    setRunningTotal(item.count - item.remainingCount);
-                }
-            }
+            onHide={ () => setDisplay(false) }
             dismissableMask={ true }
             draggable={ false }
             resizable={ false }
@@ -57,12 +52,12 @@ export default function AddAssigneeDialog({ item, anonymousId, members, updateIt
                 value={ members }
                 itemTemplate={
                     member =>
-                        <AddAssigneeRow
+                        <UpdateAssigneeRow
                             item={ item }
                             member={ member }
-                            addAssignee={ addAssignee }
-                            runningTotal={ runningTotal }
-                            setRunningTotal={ setRunningTotal }
+                            updateAssignee={ updateAssignee }
+                            assigneeSelectedId={ assigneeSelectedId }
+                            setAssigneeSelectedId={ setAssigneeSelectedId }
                         />
                 }
                 rows={ 10 }
