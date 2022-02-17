@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+    nodeapp: 
+        build:
+            context: .
+            dockerfile: Dockerfile 
+        image: nodeapp
+        container_name: nodeapp
+        ports: 
+            - 8080:8080
+        networks: 
+            - nodeapp_network
+        depends_on:
+            - mongosetup
+    mongosetup:
+        build:
+            context: ./docker-replicaset
+            dockerfile: Dockerfile
+        image: mongosetup
+        container_name: mongosetup
+        networks:
+            - nodeapp_network
+        depends_on:
+            - mongodb1
+            - mongodb2
+            - mongodb3
+    mongodb1:
+        build:
+            context: ./docker-mongodb
+            dockerfile: Dockerfile
+        image: mongodb
+        container_name: mongodb1
+        hostname: mongodb1
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rs", "--bind_ip_all", "--journal" ]
+        networks:
+            - nodeapp_network
+        logging:
+            driver: none
+    mongodb2:
+        build:
+            context: ./docker-mongodb
+            dockerfile: Dockerfile
+        image: mongodb
+        container_name: mongodb2
+        hostname: mongodb2
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rs", "--bind_ip_all", "--journal" ]
+        networks:
+            - nodeapp_network
+        logging:
+            driver: none
+    mongodb3:
+        build:
+            context: ./docker-mongodb
+            dockerfile: Dockerfile
+        image: mongodb
+        container_name: mongodb3
+        hostname: mongodb3
+        entrypoint: [ "/usr/bin/mongod", "--replSet", "rs", "--bind_ip_all", "--journal" ]
+        networks:
+            - nodeapp_network
+        logging:
+            driver: none
+
+networks:
+    nodeapp_network:
+        driver: bridge
+        driver_opts:
+            com.docker.network.bridge.name: "brnodeapp"
