@@ -5,7 +5,7 @@ import "./ItemsReadonlyContainer.scss";
 
 export default function ItemsReadonlyContainer({ emptyTitle, emptySubtitle, currentItems, lists, displayError }) {
     return (
-        <div className="grid flex-column flex-grow-1">
+        <div className="grid flex-column flex-grow-1 overflow-y-auto">
             {
                 currentItems.length
                 ? <DataView
@@ -15,9 +15,6 @@ export default function ItemsReadonlyContainer({ emptyTitle, emptySubtitle, curr
                       itemTemplate={
                           item => <ReadonlyItem key={ item._id } item={ item } lists={ lists } displayError={ displayError } />
                       }
-                      rows={ 10 }
-                      paginator={ currentItems.length > 10 }
-                      alwaysShowPaginator={ false }
                   />
                 : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
                       <EmptyPlaceholder

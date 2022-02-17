@@ -60,7 +60,7 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                  },
                  error => displayError(error.response.data.error)
              );
-    }, [displayError, list, anonymousId]);
+    }, [displayError, list, anonymousId, setItems, setLoading]);
     useEffect(getItems, [getItems]);
     useEffect(() => {
         function handleUpdates(event, eventListId) {
@@ -95,7 +95,7 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
     }, [navigate, setList]);
     return (
         <>
-            <div className="grid flex-column flex-grow-1">
+            <div className="grid flex-column">
                 <div className="col-12 m-0 p-0 pr-2 grid">
                     <div className="col-10 p-0">
                         <Button className="m-3"
@@ -127,6 +127,8 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                         />
                     </div>
                 </div>
+            </div>
+            <div className="grid flex-column flex-grow-1 overflow-y-auto">
                 {
                     loading
                     ? <ProgressSpinner
@@ -139,37 +141,37 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                           fill="var(--surface-ground)"
                           animationDuration=".5s"
                       />
-                    : (
-                        items.length
-                        ? <DataView
-                              className="w-full"
-                              value={ items }
-                              layout="list"
-                              itemTemplate={ item =>
-                                  <Item
-                                      key={ item._id }
-                                      item={ item }
-                                      anonymousId={ anonymousId }
-                                      listMembers={ members }
-                                      deleteItem={ deleteItem }
-                                      updateItem={ updateItem }
-                                      displayError={ displayError }
-                                  />
-                              }
-                              rows={ 10 }
-                              paginator={ items.length > 10 }
-                              alwaysShowPaginator={ false }
-                              sortField={ getSortField(ordering) }
-                              sortOrder={ getSortOrder(ordering) }
-                          />
-                        : <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
-                              <EmptyPlaceholder
-                                  title={ "No items to display" }
-                                  subtitle={ "Items that have a due date will show up here." }
-                                  type={"items"}
-                              />
-                          </div>
-                      )
+                    :
+                        (
+                            items.length
+                            ? <DataView
+                                    className="w-full"
+                                    value={items}
+                                    layout="list"
+                                    itemTemplate={item =>
+                                        <Item
+                                            key={item._id}
+                                            item={item}
+                                            anonymousId={anonymousId}
+                                            listMembers={members}
+                                            deleteItem={deleteItem}
+                                            updateItem={updateItem}
+                                            displayError={displayError}
+                                        />
+                                    }
+                                    sortField={getSortField(ordering)}
+                                    sortOrder={getSortOrder(ordering)}
+                                />
+                                :
+                                <div
+                                    className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
+                                    <EmptyPlaceholder
+                                        title={"No items to display"}
+                                        subtitle={"Items that have a due date will show up here."}
+                                        type={"items"}
+                                    />
+                                </div>
+                        )
                 }
             </div>
             <CreateItemDialog

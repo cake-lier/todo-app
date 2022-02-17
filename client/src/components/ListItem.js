@@ -22,8 +22,8 @@ export default function ListItem({ userId, setUser, list, lists, setLists, owner
         <div className="col-12 m-0 p-0 pl-2 flex flex-row align-items-center list-item">
             <div className="col-11 flex align-items-center" id="list-icon">
                 <i className={ "pi pi-circle-fill item " + (listColor[list.colorIndex]) } />
-                <i className="pi pi-list item ml-2 pl-1" />
-                <h1 className="ml-2 cursor-pointer text-xl" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
+                <i className="pi pi-list item" />
+                <h1 className="ml-2 cursor-pointer text-xl list-title" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
             </div>
             <div className="col-1 flex flex-row-reverse align-items-center">
                 <ListOptionsMenu
