@@ -1,5 +1,5 @@
 import {Button} from "primereact/button";
-import {TieredMenu} from "primereact/tieredmenu";
+import {Menu} from "primereact/menu";
 import {PrimeIcons} from "primereact/api";
 import axios from "axios";
 import {useRef, useState} from "react";
@@ -16,22 +16,18 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
 
     const openEditDialog = () => {
         setDisplayEditDialog(true);
-        menu.current.hide();
     };
     const openShareDialog = () => {
         setDisplayJoinCodeDialog(true);
-        menu.current.hide();
     };
     const openMembersDialog = () => {
         setDisplayMemberDialog(true);
-        menu.current.hide();
     };
     const deleteList = () => {
         axios.delete("/lists/" + list._id)
              .then(
                  _ => {
                      setLists(lists.filter(l => l._id !== list._id));
-                     menu.current.toggle();
                  },
                  error => displayError(error.response.data.error)
              );
@@ -42,7 +38,6 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
              .then(
                  _ => {
                      setLists(lists.filter(l => l._id !== list._id))
-                     menu.current.toggle();
                  },
                  error => displayError(error.response.data.error)
              );
@@ -53,7 +48,6 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
             { enabled: disabledNotificationsLists.includes(list._id), listId: list._id }
         ).then(
             user => {
-                menu.current.toggle();
                 setUser(user.data);
             },
             error => displayError(error.response.data.error)
@@ -109,7 +103,7 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
                 onClick={ e => menu.current.toggle(e) }
                 className="p-button-rounded p-button-icon-only p-button-text three-dots text-3xl"
             />
-            <TieredMenu model={ items } popup ref={ menu } id="overlay_tmenu" />
+            <Menu model={ items } popup ref={ menu } id="overlay_tmenu" />
             <Dialog
                 className="w-27rem m-3"
                 header="Join code"

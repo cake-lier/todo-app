@@ -55,7 +55,7 @@ export default function ListsItem({ setUser, lists, setLists, userId, ownership 
         return () => socket.offAny(handleUpdates);
     }, [ownership, displayError, socket, setLists]);
     return (
-        <div className={"card flex flex-grow-1 " + (!lists.length ? "justify-content-center align-items-center" : null) }>
+        <div className={"card flex flex-grow-1 overflow-y-auto " + (!lists.length ? "justify-content-center align-items-center" : null) }>
             <ProgressSpinner
                 className={loading? null : "hidden"}
                 style={{width: '50px', height: '50px'}}
@@ -64,7 +64,7 @@ export default function ListsItem({ setUser, lists, setLists, userId, ownership 
                 animationDuration=".5s"
             />
             <DataView
-                className={ !loading && lists.length ? "w-full" : "hidden"}
+                className={ !loading && lists.length ? "w-full " : "hidden"}
                 value={ lists }
                 layout="list"
                 itemTemplate={ list =>
@@ -79,9 +79,6 @@ export default function ListsItem({ setUser, lists, setLists, userId, ownership 
                         displayError={ displayError }
                     />
                 }
-                rows={ 10 }
-                paginator={ lists.length > 10 }
-                alwaysShowPaginator={ false }
                 sortField={ getSortField(ordering) }
                 sortOrder={ getSortOrder(ordering) }
             />

@@ -21,6 +21,9 @@ export default function ReadonlyItem({ item, lists, displayError }) {
     return (
         <div className="flex justify-content-between m-2 w-full">
             <div>
+                <label className="text-base ml-5 p-1">
+                    List: { lists.filter(l => l._id === item.listId)[0].title }
+                </label>
                 <div className="field-checkbox m-1 mb-0">
                     <Checkbox
                         inputId={ item._id }
@@ -40,12 +43,6 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                     </span>
                 </div>
                 <div className="flex align-items-center flex-wrap pl-5">
-                    {
-                        <Chip
-                            className="mr-1 mb-1"
-                            label={"List: " + lists.filter(l => l._id === item.listId)[0].title }
-                        />
-                    }
                     {
                         item.tags.map(tag =>
                             <ChipTag

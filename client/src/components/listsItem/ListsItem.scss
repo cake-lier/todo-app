@@ -13,7 +13,13 @@
 }
 
 #list-icon .pi-list {
-  position: absolute;
+  position: relative;
+  right: 37px;
+}
+
+.list-title {
+  position: relative;
+  right: 20px;
 }
 
 .list-item {
