@@ -32,7 +32,7 @@ export default function Join(props) {
             const handleJoinResponse = (listId, anonymousId) => {
                 if (listId !== null) {
                     props.setAnonymousId(anonymousId);
-                    navigate("/my-lists/" + listId);
+                    navigate("/lists/" + listId);
                 } else {
                     errors.current.displayError(96);
                     formik.setSubmitting(false);
