@@ -25,7 +25,7 @@ const notificationsSchema = new mongoose.Schema({
     },
     listId: {
         type: mongoose.ObjectId,
-        required: true
+        default: null
     },
     listTitle: {
         type: String,

@@ -63,17 +63,17 @@ function signup(request, response) {
     const now = new Date();
     const date0 = new Date().setMonth(now.getMonth() + 6);
     schedule.scheduleJob(date0, function (){
-        achievementHelper.addAchievement(request.session.userId, 0);
+        achievementHelper.addAchievement(request.session.userId, 0, "6 months!");
     })
 
     const date1 = new Date().setFullYear(now.getFullYear() + 1);
     schedule.scheduleJob(date1, function (){
-        achievementHelper.addAchievement(request.session.userId, 1);
+        achievementHelper.addAchievement(request.session.userId, 1, "1 year!");
     })
 
     const date2 = new Date().setFullYear(now.getFullYear() + 2);
     schedule.scheduleJob(date2, function (){
-        achievementHelper.addAchievement(request.session.userId, 2);
+        achievementHelper.addAchievement(request.session.userId, 2, "2 years!");
     })
 
     // ---
@@ -651,7 +651,7 @@ function addReportsAchievement(request, response) {
         return;
     }
 
-    achievementHelper.addAchievement(request.session.userId, 10);
+    achievementHelper.addAchievement(request.session.userId, 10, "you visited the reports page!");
 
 }
 

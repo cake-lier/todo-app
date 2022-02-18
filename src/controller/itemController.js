@@ -7,7 +7,7 @@ const Notification = require("../model/notificationsModel").createNotificationMo
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
 const achievementHelper = require("./achievementHelper");
-const { scheduleNextReminder, scheduleForDate } = require("../utils/schedule");
+const { scheduleForDate } = require("../utils/schedule");
 
 function createItem(request, response) {
     if (!validateRequest(request, response, ["title"], ["id"])) {
@@ -47,7 +47,7 @@ function createItem(request, response) {
                 .then(item => {
 
                     if (userId !== undefined){
-                        achievementHelper.addAchievement(request.session.userId, 13);
+                        achievementHelper.addAchievement(request.session.userId, 13, "your first item!");
                     }
 
                     (
@@ -527,25 +527,25 @@ function updateCompletion(request, response) {
                     .then(user => {
                         switch (user.completedTasks) {
                             case 5:
-                                achievementHelper.addAchievement(request.session.userId, 3);
+                                achievementHelper.addAchievement(request.session.userId, 3, "5 items completed!");
                                 break;
                             case 10:
-                                achievementHelper.addAchievement(request.session.userId, 4);
+                                achievementHelper.addAchievement(request.session.userId, 4, "10 items completed!");
                                 break;
                             case 25:
-                                achievementHelper.addAchievement(request.session.userId, 5);
+                                achievementHelper.addAchievement(request.session.userId, 5, "25 items completed!");
                                 break;
                             case 50:
-                                achievementHelper.addAchievement(request.session.userId, 6);
+                                achievementHelper.addAchievement(request.session.userId, 6, "50 items completed!");
                                 break;
                             case 100:
-                                achievementHelper.addAchievement(request.session.userId, 7);
+                                achievementHelper.addAchievement(request.session.userId, 7, "100 items completed!");
                                 break;
                             case 150:
-                                achievementHelper.addAchievement(request.session.userId, 8);
+                                achievementHelper.addAchievement(request.session.userId, 8, "150 items completed!");
                                 break;
                             case 200:
-                                achievementHelper.addAchievement(request.session.userId, 9);
+                                achievementHelper.addAchievement(request.session.userId, 9, "200 items completed!");
                                 break;
                         }
                     }, error => console.log(error));

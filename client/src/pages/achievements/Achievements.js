@@ -22,7 +22,7 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
     useEffect(updateAchievements, [updateAchievements]);
     useEffect(() => {
         function handleUpdates(event) {
-            if (event === "achievementGotReload") {
+            if (event === "achievementReload") {
                 updateAchievements();
             }
         }

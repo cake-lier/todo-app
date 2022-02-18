@@ -25,7 +25,8 @@ function createList(request, response) {
     })
     .then(
         list => {
-            achievementHelper.addAchievement(request.session.userId, 12);
+            achievementHelper.addAchievement(request.session.userId, 12, "your first list!");
+
             const listId = list._id.toString();
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
             io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
@@ -476,7 +477,7 @@ function addMember(request, response) {
                                     )
                             }
                         );
-                        achievementHelper.addAchievement(request.session.userId, 12);
+                        achievementHelper.addAchievement(request.session.userId, 11, "your first collaboration!");
                     })
             ));
         return;
