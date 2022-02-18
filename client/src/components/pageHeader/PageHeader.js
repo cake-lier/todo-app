@@ -29,7 +29,7 @@ export default function PageHeader({ user, isAnonymous, unsetUser, title, showDa
                           </>
                         : null
                     }
-                    <div className="w-max m-0 flex flex-column justify-content-center">
+                    <div className="w-max m-0 p-2 py-3 flex flex-column justify-content-center">
                         <h3 className="text-3xl font-semibold flex align-items-center">{ title }</h3>
                         {
                           showDate
