@@ -8,14 +8,14 @@ services:
         image: nodeapp
         container_name: nodeapp
         ports: 
-            - 8080:8080
+            - "8080:8080"
         networks: 
             - nodeapp_network
         depends_on:
             - mongosetup
     mongosetup:
         build:
-            context: ./docker-replicaset
+            context: ./docker-mongodbsetup
             dockerfile: Dockerfile
         image: mongosetup
         container_name: mongosetup
