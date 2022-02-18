@@ -109,7 +109,7 @@ export default function SignupForm(props) {
                 <CookiePolicy />
             </Dialog>
             <div className="col-12 flex justify-content-center">
-                <img className="h-5rem" src="images/logo512.png"  alt="App logo" />
+                <img className="h-5rem" src="/images/logo512.png"  alt="App logo" />
             </div>
             <div className="col-12 mt-3">
                 <h1 className="font-bold text-4xl">Sign up</h1>

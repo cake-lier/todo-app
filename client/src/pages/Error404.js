@@ -8,7 +8,7 @@ export default function Error404() {
                 <Card>
                     <div className="grid px-5">
                         <div className="col-12 flex justify-content-center">
-                            <img className="h-5rem" src="images/logo512.png"  alt="App logo" />
+                            <img className="h-5rem" src="/images/logo512.png"  alt="App logo" />
                         </div>
                         <div className="col-12 my-5">
                             <h1 className="font-bold text-4xl">Uh Oh! You have followed a dead end!</h1>
