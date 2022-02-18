@@ -16,7 +16,7 @@ import List from "../pages/list/List";
 import Reports from "../pages/reports/Reports";
 import Achievements from "../pages/achievements/Achievements";
 import { NotificationsContext } from "../utils/contexts";
-import LegalAdvisory from "../pages/termsAndCookies/LegalAdvisory";
+import LegalAdvisory from "../pages/LegalAdvisory";
 import Search from "../pages/search/Search";
 import Error404 from "../pages/Error404";
 

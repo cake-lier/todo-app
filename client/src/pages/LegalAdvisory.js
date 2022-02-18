@@ -1,12 +1,12 @@
 import { Card } from 'primereact/card';
-import TermsOfService from "../../components/TermsOfService";
-import CookiePolicy from "../../components/CookiePolicy";
+import TermsOfService from "../components/TermsOfService";
+import CookiePolicy from "../components/CookiePolicy";
 import { useNavigate } from "react-router-dom";
 import {Button} from "primereact/button";
 import { useCallback, useRef } from "react";
-import ErrorMessages from "../../components/ErrorMessages";
-import MainMenu from "../../components/mainMenu/MainMenu";
-import PageHeader from "../../components/pageHeader/PageHeader";
+import ErrorMessages from "../components/ErrorMessages";
+import MainMenu from "../components/mainMenu/MainMenu";
+import PageHeader from "../components/pageHeader/PageHeader";
 import {Divider} from "primereact/divider";
 
 export default function LegalAdvisory({ user, unsetUser, notifications, setNotifications, socket, displayTerms }) {

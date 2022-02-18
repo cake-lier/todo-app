@@ -9,7 +9,7 @@ MONGODB_SETUP_DOCKERFILE_PATH=./docker-mongodbsetup
  
 all: build up 
  
-.PHONY: build up clean
+.PHONY: build up down clean
  
 build:  
 	docker build -t ${NODEAPP_IMAGE} . 
@@ -18,7 +18,6 @@ build:
  
 up: 
 	docker compose up | grep -E "(?:${NODEAPP_IMAGE}|${MONGODB_SETUP_IMAGE})"
-
 
 down:
 	docker compose down
