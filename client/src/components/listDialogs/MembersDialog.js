@@ -40,7 +40,7 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
     const iconTemplate = member => {
         return (
             <div className="col-12 m-0 p-0 flex flex-row align-items-center">
-                <div className="col-1 m-0 p-0">
+                <div className="col-10 m-0 p-0 flex flex-row align-items-center">
                     <Avatar
                         className="custom-target-icon"
                         image={ member.profilePicturePath !== null ? member.profilePicturePath : "/static/images/default_profile_picture.jpg" }
@@ -48,9 +48,7 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
                         shape="circle"
                         alt={ member.username + "'s profile picture" }
                     />
-                </div>
-                <div className="col-9">
-                    <h1>{ member.username }</h1>
+                    <h1 className="px-1">{ member.username }</h1>
                 </div>
                 <div className="col-2 flex justify-content-end">
                     <h1 className={(member.role === "owner") ? null : "hidden"}>Admin</h1>
@@ -64,9 +62,10 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
     }
     return (
         <Dialog
-            className="w-27rem m-3"
+            className="w-27rem h-20rem m-3"
             visible={ display }
             header={ renderHeader() }
+            footer={<div className="grid"><br/><br/></div>}
             dismissableMask={ true }
             draggable={ false }
             resizable={ false }
@@ -77,6 +76,7 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
                 className="w-27rem m-3"
                 header="Add a member"
                 visible={ displayAddMember }
+                footer={<div className="grid"><br/></div>}
                 closable={ false }
                 dismissableMask={ true }
                 draggable={ false }
@@ -94,9 +94,6 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
             <DataView
                 value={ members }
                 itemTemplate={ iconTemplate }
-                rows={ 10 }
-                paginator={ members.length > 10 }
-                alwaysShowPaginator={ false }
                 emptyMessage="An error has occurred while displaying the members of this list."
             />
         </Dialog>

@@ -5,15 +5,9 @@
 }
 
 #list-dialog_content {
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
+  border-top-right-radius: 4px !important;
+  border-top-left-radius: 4px !important;
   padding-bottom: 0 !important;
-}
-
-.p-dialog .p-dialog-footer {
-  border-bottom-right-radius: 10px !important;
-  border-bottom-left-radius: 10px !important;
-  padding: 0 !important;
 }
 
 .p-button{

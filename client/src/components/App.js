@@ -146,6 +146,7 @@ class App extends Component {
                     dismissableMask={ true }
                     draggable={ false }
                     resizable={ false }
+                    footer={<div className="grid"><br/><br/></div>}
                     header={ <h2>It seems quite an error to me.</h2> }
                     visible={ this.state.displayError }
                     onHide={ () => this.setState({ displayError: false }) }>

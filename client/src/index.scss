@@ -118,6 +118,16 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     }
 }
 
+.p-dialog .p-dialog-content {
+    padding-bottom: 0 !important;
+}
+
+.p-dialog .p-dialog-footer {
+    border-bottom-right-radius: 4px !important;
+    border-bottom-left-radius: 4px !important;
+    padding: 0 !important;
+}
+
 .p-checkbox.p-checkbox-checked:not(.p-checkbox-disabled):hover {
     box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
 }

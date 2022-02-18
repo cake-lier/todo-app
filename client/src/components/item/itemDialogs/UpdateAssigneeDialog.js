@@ -39,8 +39,9 @@ export default function UpdateAssigneeDialog({ item, anonymousId, members, updat
 
     return (
         <Dialog
-            className="m-3"
+            className="m-3 h-20rem"
             header="Assign the item to"
+            footer={<div className="grid"><br/><br/></div>}
             visible={ display }
             onHide={ () => setDisplay(false) }
             dismissableMask={ true }
@@ -60,8 +61,6 @@ export default function UpdateAssigneeDialog({ item, anonymousId, members, updat
                             setAssigneeSelectedId={ setAssigneeSelectedId }
                         />
                 }
-                rows={ 10 }
-                paginator={ members.length > 10 }
                 alwaysShowPaginator={ false }
             />
         </Dialog>

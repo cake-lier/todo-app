@@ -108,6 +108,7 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
                 className="w-27rem m-3"
                 header="Join code"
                 visible={ displayJoinCodeDialog }
+                footer={<div className="grid"><br/><br/></div>}
                 closable={ false }
                 dismissableMask={ true }
                 draggable={ false }

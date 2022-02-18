@@ -33,6 +33,7 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
             header={ headerTitle }
             closable={ false }
             dismissableMask={ true }
+            footer={<div className="grid"><br/><br/></div>}
             draggable={ false }
             resizable={ false }
             visible={ displayDialog }
