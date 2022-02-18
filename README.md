@@ -32,15 +32,23 @@ This app keeps on giving: a system of achievements is in place for making the or
 The installation procedure of the whole app under any system is fast and easy.
 
 1. For first, just clone this repo.
-2. Then, move to the main folder of the cloned repo with:
-
-   cd todo-app
+2. Then, move to the main folder of the cloned repo with: 
+ 
+   ```cd todo-app```
 
 3. As a last step, compile the project using:
 
-   make
+   ```make```
 
-Et voilà! When the message "Node app setup completed, you can now access the web app" appears on-screen, the app will be correctly installed onto your system. For using it, just reach "localhost:8080" from your browser to access the app.
+Et voilà! When the message 
+
+> "Node app setup completed, you can now access the web app" 
+
+appears on-screen, the app will be correctly installed onto your system. For using it, just reach 
+
+``` localhost:8080 ```
+
+from your browser to access the app.
 
 The installation will require git, make, and Docker to correctly work and nothing else. Node, npm, MongoDB, and its replica set services will be installed and set up automatically.
 
