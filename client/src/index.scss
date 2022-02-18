@@ -1,11 +1,14 @@
 @import "colors";
 
-@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+* {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+                 "Droid Sans", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
 
-h1, h1 a, h2, h2 a, h3, h3 a, h4, h4 a, h5, h5 a, h6, h6 a,
-p, div, .p-menu .p-menuitem-link, .p-menu .p-menuitem-link .p-menuitem-text,
-#nav li a, div.title a, .headline, .subtitle, .Heading, .Footer {
-    font-family: 'Source Sans Pro', sans-serif !important;
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 body {

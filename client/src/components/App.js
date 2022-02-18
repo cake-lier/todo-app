@@ -18,6 +18,7 @@ import Achievements from "../pages/achievements/Achievements";
 import { NotificationsContext } from "../utils/contexts";
 import LegalAdvisory from "../pages/termsAndCookies/LegalAdvisory";
 import Search from "../pages/search/Search";
+import Error404 from "../pages/Error404";
 
 class App extends Component {
 
@@ -383,6 +384,7 @@ class App extends Component {
                               : <Navigate to="/"/>
                         }
                     />
+                    <Route path="*" element={ <Error404 /> } />
                 </Routes>
             </NotificationsContext.Provider>
         );

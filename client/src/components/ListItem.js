@@ -13,7 +13,7 @@ export default function ListItem({ userId, setUser, list, lists, setLists, owner
                 members => setMembers(members.data),
                 error => displayError(error.response.data.error)
             );
-    }, [setMembers, displayError]);
+    }, [setMembers, displayError, list]);
     const listColor = [ "red-list", "purple-list", "blue-list", "green-list", "yellow-list" ];
     if (!list) {
         return;
