@@ -316,6 +316,7 @@ class App extends Component {
                             this.state.user !== null
                             ? <Reports
                                   user={ this.state.user }
+                                  setUser={ this.setUser }
                                   unsetUser={ this.unsetUser }
                                   tab="completion-rate"
                                   socket={ this.state.socket }
@@ -331,6 +332,7 @@ class App extends Component {
                             this.state.user !== null
                             ? <Reports
                                   user={ this.state.user }
+                                  setUser={ this.setUser }
                                   unsetUser={ this.unsetUser }
                                   tab="items-completed"
                                   socket={ this.state.socket }

@@ -8,33 +8,38 @@ const uuid = require("uuid");
 const otp = require("otp-generator");
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
+const { addAchievement } = require("../utils/achievements");
 
 function createList(request, response) {
     if (!validateRequest(request, response, ["title"], [], true)) {
         return;
     }
-    List.create({
-        title: request.body.title,
-        joinCode: request.body.isVisible ? uuid.v4() : null,
-        colorIndex: request.body.colorIndex,
-        members: [{
-            userId: request.session.userId,
-            role: "owner"
-        }]
-    })
-    .then(
-        list => {
-            const listId = list._id.toString();
-            io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
-            io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
-            io.in(`list:${ listId }`).emit("listCreatedReload", listId);
-            response.json(list);
-        },
-        error => {
+    List.startSession()
+        .then(session => session.withTransaction(() =>
+            List.create(
+                [{
+                    title: request.body.title,
+                    joinCode: request.body.isVisible ? uuid.v4() : null,
+                    colorIndex: request.body.colorIndex,
+                    members: [{
+                        userId: request.session.userId,
+                        role: "owner"
+                    }]
+                }],
+                { session }
+            )
+            .then(list => {
+                const listId = list._id.toString();
+                io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
+                io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
+                io.in(`list:${ listId }`).emit("listCreatedReload", listId);
+                return addAchievement(request.session.userId, 12, session).then(list => response.json(list));
+            })
+        ))
+        .catch(error => {
             console.log(error);
             sendError(response, Error.GeneralError);
-        }
-    );
+        });
 }
 
 function deleteList(request, response) {
@@ -61,12 +66,12 @@ function deleteList(request, response) {
                                    .then(
                                        user => {
                                            const authorUsername = user.username;
-                                           const authorProfilePicturePath = user.profilePicturePath;
+                                           const picturePath = user.profilePicturePath;
                                            const listId = list._id.toString();
                                            const text = ` deleted the list "${ list.title }"`;
                                            return Notification.create({
                                                authorUsername,
-                                               authorProfilePicturePath,
+                                               picturePath,
                                                users: list.members
                                                    .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
                                                    .map(m => m.userId),
@@ -300,12 +305,12 @@ function updateTitle(request, response) {
             .then(
                 user => {
                     const authorUsername = user.username;
-                    const authorProfilePicturePath = user.profilePicturePath;
+                    const picturePath = user.profilePicturePath;
                     const listId = list._id.toString();
                     const text = ` changed the title of the list "${ list.title }" to "${ request.body.title }"`;
                     Notification.create({
                         authorUsername,
-                        authorProfilePicturePath,
+                        picturePath,
                         users: list.members
                                    .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
                                    .map(m => m.userId),
@@ -350,12 +355,12 @@ function updateVisibility(request, response) {
                 .then(
                     user => {
                         const authorUsername = user.username;
-                        const authorProfilePicturePath = user.profilePicturePath;
+                        const picturePath = user.profilePicturePath;
                         const listId = list._id.toString();
                         const text = ` made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non-registered users`;
                         Notification.create({
                             authorUsername,
-                            authorProfilePicturePath,
+                            picturePath,
                             users: list.members
                                 .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
                                 .map(m => m.userId),
@@ -432,13 +437,13 @@ function addMember(request, response) {
                                     .then(
                                         user => {
                                             const authorUsername = user.username;
-                                            const authorProfilePicturePath = user.profilePicturePath;
+                                            const picturePath = user.profilePicturePath;
                                             const listId = list._id.toString();
                                             const newMemberText = ` added you to the the list "${ list.title }"`;
                                             const oldMembersText = ` added the new member ${newMemberUsername} to the list "${ list.title }"`;
                                             Notification.create({
                                                 authorUsername,
-                                                authorProfilePicturePath,
+                                                picturePath,
                                                 users: [newMemberUserId],
                                                 text: newMemberText,
                                                 listId
@@ -450,7 +455,7 @@ function addMember(request, response) {
                                                 })
                                                 .then(_ => Notification.create({
                                                     authorUsername,
-                                                    authorProfilePicturePath,
+                                                    picturePath,
                                                     users: list.members
                                                         .filter(m => m.userId !== null
                                                                 && m.userId.toString() !== request.session.userId
@@ -466,8 +471,9 @@ function addMember(request, response) {
                                                         .emit("listMemberAdded", listId, `${authorUsername}${oldMembersText}`);
                                                     io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
                                                     io.in(`user:${ newMemberUserId }`).socketsJoin(`list:${ listId }`);
-                                                });
-                                            response.json(list);
+                                                })
+                                                .then(_ => addAchievement(request.session.userId, 11, session))
+                                                .then(_ => response.json(list));
 
                                         },
                                         error => console.log(error)
@@ -495,7 +501,7 @@ function addMember(request, response) {
             const text = ` joined the list "${ list.title }"`;
             Notification.create({
                 authorUsername: request.body.username,
-                authorProfilePicturePath: null,
+                picturePath: null,
                 users: list.members
                            .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
                            .map(m => m.userId),

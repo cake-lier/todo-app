@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useRef, useState} from "react";
+import { useCallback, useEffect, useRef } from "react";
 import axios from "axios";
 import ErrorMessages from "../../components/ErrorMessages";
 import MainMenu from "../../components/mainMenu/MainMenu";
@@ -6,23 +6,21 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 import _ from "lodash";
 import "./Achievements.scss";
 
-export default function Achievements({ user, unsetUser, socket, notifications, setNotifications }) {
+export default function Achievements({ user, setUser, unsetUser, socket, notifications, setNotifications }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
-    const [achievements, setAchievements] = useState([]);
     const updateAchievements = useCallback(() => {
-        axios.get("/users/me/achievements")
-            .then(
-                achievements => setAchievements(achievements.data),
-                error => displayError(error.response.data.error)
-            );
-    }, [setAchievements, displayError]);
-    useEffect(updateAchievements, [updateAchievements]);
+        axios.get("/users/me")
+             .then(
+                 user => setUser(user.data),
+                 error => displayError(error.response.data.error)
+             );
+    }, [setUser, displayError]);
     useEffect(() => {
         function handleUpdates(event) {
-            if (event === "achievementGotReload") {
+            if (event === "achievementReload") {
                 updateAchievements();
             }
         }
@@ -67,19 +65,25 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                         <div className="grid">
                             {
                                 _.range(0, 14).map(index =>
-                                    <div className="col-3 px-5 lg:col-2 lg:px-5 xl:px-6" style={{ overflowWrap: "break-word" }}>
+                                    <div
+                                        key={index}
+                                        className="col-3 px-5 lg:col-2 lg:px-5 xl:px-6"
+                                        style={{ overflowWrap: "break-word" }}
+                                    >
                                         <img
                                             src={ `/static/images/achievements/${ index }.png` }
                                             alt={ achievementsNames[index] }
-                                            className={ "w-full " + (achievements[index] ? "" : "achievementDisabled") }
+                                            className={ "w-full " + (user.achievements[index] ? "" : "achievementDisabled") }
                                         />
                                         <p className="mt-3 text-lg text-center">{ achievementsNames[index] }</p>
                                         {
-                                            achievements[index]
-                                                ? <p className="text-lg text-center">
-                                                    Achievement unlocked on { new Date(achievements[index]).toLocaleDateString("en-GB") }
-                                                </p>
-                                                : null
+                                            user.achievements[index]
+                                            ? <p className="text-lg text-center">
+                                                Achievement unlocked on {
+                                                    new Date(user.achievements[index]).toLocaleDateString("en-GB")
+                                                }
+                                              </p>
+                                            : null
                                         }
                                     </div>
                                 )
@@ -103,21 +107,23 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
                     <div className="col-12 flex flex-wrap">
                         {
                             _.range(0, 14).map(index =>
-                                <div className="col-4 sm:col-3 px-5">
+                                <div key={index} className="col-4 sm:col-3 px-5">
                                     <img
                                         src={ `/static/images/achievements/${ index }.png` }
                                         alt={ achievementsNames[index] }
-                                        className={ "w-full " + (achievements[index] ? "" : "achievementDisabled") }
+                                        className={ "w-full " + (user.achievements[index] ? "" : "achievementDisabled") }
                                     />
                                     <p className="mt-3 text-lg text-center" style={{ overflowWrap: "break-word" }}>
                                         { achievementsNames[index] }
                                     </p>
                                     {
-                                        achievements[index]
-                                            ? <p className="text-lg text-center">
-                                                Achievement unlocked on { new Date(achievements[index]).toLocaleDateString("en-GB") }
-                                            </p>
-                                            : null
+                                        user.achievements[index]
+                                        ? <p className="text-lg text-center">
+                                              Achievement unlocked on {
+                                                  new Date(user.achievements[index]).toLocaleDateString("en-GB")
+                                              }
+                                          </p>
+                                          : null
                                     }
                                 </div>
                             )

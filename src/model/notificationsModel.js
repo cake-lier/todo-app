@@ -7,7 +7,7 @@ const notificationsSchema = new mongoose.Schema({
         type: String,
         default: null
     },
-    authorProfilePicturePath: {
+    picturePath: {
         type: String,
         default: null
     },
@@ -25,7 +25,7 @@ const notificationsSchema = new mongoose.Schema({
     },
     listId: {
         type: mongoose.ObjectId,
-        required: true
+        default: null
     },
     listTitle: {
         type: String,

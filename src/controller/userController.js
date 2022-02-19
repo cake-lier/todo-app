@@ -9,6 +9,9 @@ const Notification = require("../model/notificationsModel").createNotificationMo
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const mongoose = require("mongoose");
+const schedule = require("node-schedule");
+const { addAchievement } = require("../utils/achievements");
+const _ = require("lodash");
 const rounds = 12;
 
 function decodeImage(encodedImage, response) {
@@ -47,11 +50,7 @@ function createUser(request, response, path, hashedPassword) {
 }
 
 function signup(request, response) {
-    if (!validateRequest(
-        request,
-        response,
-        ["username", "email", "password"]
-    )) {
+    if (!validateRequest(request, response, ["username", "email", "password"])) {
         return;
     }
     bcrypt.hash(request.body.password, rounds)
@@ -606,6 +605,13 @@ function enableListNotifications(request, response) {
     );
 }
 
+function addReportsAchievement(request, response) {
+    if (!validateRequest(request, response, [], [], true)) {
+        return;
+    }
+    User.startSession().then(session => session.withTransaction(() => addAchievement(request.session.userId, 10, session)));
+}
+
 module.exports = {
     signup,
     getUser,
@@ -615,5 +621,6 @@ module.exports = {
     enableListNotifications,
     unregister,
     login,
-    logout
+    logout,
+    addReportsAchievement
 }
