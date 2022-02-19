@@ -11,21 +11,20 @@ import {SelectButton} from "primereact/selectbutton";
 import EmptyPlaceholder from "../../components/EmptyPlaceholder";
 import { ProgressSpinner } from 'primereact/progressspinner';
 
-export default function Reports({ user, unsetUser, tab, socket, notifications, setNotifications }) {
-
-    // achievement
-    useEffect( ()=> {
-        if (!user.achievements[10]){ // if not yet unlocked
-            axios.put("/users/me/achievements").then(_ => {});
-            user.achievements[10] = true;
-        }
-    }, []);
-    // ---
-
+export default function Reports({ user, setUser, unsetUser, tab, socket, notifications, setNotifications }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
     }, [errors]);
+    useEffect(() => {
+        if (!user.achievements[10]) {
+            axios.put("/users/me/achievements/reports")
+                 .then(
+                     user => setUser(user.data),
+                     error => displayError(error.response.data.error)
+                 );
+        }
+    }, [user, setUser, displayError]);
     const [filter, setFilter] = useState(0);
     const [lists, setLists] = useState([]);
     const [items, setItems] = useState([]);

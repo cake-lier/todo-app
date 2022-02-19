@@ -15,8 +15,7 @@ function initializeUserRoutes(app) {
     app.route("/users/me/notifications/:id").delete(controller.notification.deleteNotification);
     app.route("/users/me/enableNotifications").put(controller.user.enableNotifications);
     app.route("/users/me/enableListNotifications").put(controller.user.enableListNotifications);
-    app.route("/users/me/achievements").get(controller.user.getAchievements)
-                                        .put(controller.user.addReportsAchievement);
+    app.route("/users/me/achievements/reports").put(controller.user.addReportsAchievement);
 }
 
 function initializeListRoutes(app) {

@@ -9,6 +9,7 @@ import {Avatar} from "primereact/avatar";
 import {Divider} from "primereact/divider";
 import {Button} from "primereact/button";
 import Moment from "moment";
+import {Link} from "react-router-dom";
 
 export default function Notifications({ notifications, setNotifications, socket, displayError, notificationsEnabled, disabledNotificationsLists, notificationsUnread, setNotificationsUnread, isAnonymous }) {
     const toast = useRef(null);
@@ -45,7 +46,17 @@ export default function Notifications({ notifications, setNotifications, socket,
         }
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
-    }, [displayError, socket, setNotifications, notifications, setNotificationsUnread, toast, disabledNotificationsLists, notificationsEnabled, isAnonymous]);
+    }, [
+        displayError,
+        socket,
+        setNotifications,
+        notifications,
+        setNotificationsUnread,
+        toast,
+        disabledNotificationsLists,
+        notificationsEnabled,
+        isAnonymous
+    ]);
 
     const deleteNotification = id => {
         axios.delete(`/users/me/notifications/${ id }`)
@@ -65,37 +76,46 @@ export default function Notifications({ notifications, setNotifications, socket,
 
     const itemTemplate = data => {
         const subtitle = Moment(data.insertionDate).fromNow().toString() + (data.listTitle ? " - List: " + data.listTitle : "");
-        const authorUsername = data.authorUsername;
         const memberIndex = data.text.indexOf("member")
-        const secondPartIndex = data.text.includes("in") ?
-            data.text.indexOf("in") : data.text.includes("from") ?
-                data.text.indexOf("from") : data.text.indexOf("to");
-        const firstPartText = data.text.substring(0,
-            (memberIndex === -1 ? data.text.length : (memberIndex+7)))
-        const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex-2) : null;
-        const memberUsername = secondPartText !== null ? data.text.substring(memberIndex+7, secondPartIndex) : null;
-
+        const secondPartIndex =
+            data.text.includes("in")
+            ? data.text.indexOf("in")
+            : (data.text.includes("from") ? data.text.indexOf("from") : data.text.indexOf("to"));
+        const firstPartText = data.text.substring(
+            0,
+            (memberIndex === -1 ? data.text.length : (memberIndex + 7))
+        );
+        const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex - 2) : null;
+        const memberUsername = secondPartText !== null ? data.text.substring(memberIndex + 7, secondPartIndex) : null;
         return (
             <div className="grid p-3 pl-3 w-full" >
                 <div className="col-11 p-0 flex align-items-center justify-content-start">
-                    <Avatar
-                        icon = { !data.authorUsername ? "pi pi-info-circle" : null }
-                        image={ data.authorProfilePicturePath !== null
-                            ? "/static" + data.authorProfilePicturePath : "/static/images/default_profile_picture.jpg" }
-                        className="p-avatar-circle notification"
-                    />
-                    <div className="mx-2">
-                        <div className="flex align-items-center justify-content-start flex-wrap">
-                            <p><span className="font-semibold">{authorUsername} </span>
-                                {firstPartText}
-                                <span className="font-semibold"> {memberIndex === -1 ? null : memberUsername} </span>
-                                {memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ")+1)}
+                    <Link to={ data.listId !== null ? "/lists/" + data.listId : "#" }>
+                        <Avatar
+                            icon={ !data.authorUsername && !data.picturePath ? "pi pi-info-circle" : null }
+                            image={
+                                data.authorUsername && data.picturePath
+                                    ? "/static" + data.picturePath
+                                    : (data.authorUsername ? "/static/images/default_profile_picture.jpg" : null)
+                            }
+                            className="p-avatar-circle notification"
+                        />
+                        <div className="mx-2">
+                            <div className="flex align-items-center justify-content-start flex-wrap">
+                                <p>
+                                    <span className="font-semibold">{ data.authorUsername }</span>
+                                    <span>{ firstPartText }</span>
+                                    <span className="font-semibold">{ memberIndex === -1 ? null : memberUsername }</span>
+                                    <span>
+                                    { memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ") + 1) }
+                                </span>
                                 </p>
+                            </div>
+                            <div>
+                                <p className="text-sm py-1">{ subtitle }</p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-sm py-1">{subtitle}</p>
-                        </div>
-                    </div>
+                    </Link>
                 </div>
                 <div className="col-1 px-0 flex justify-content-end align-items-start">
                     <Button
@@ -107,7 +127,6 @@ export default function Notifications({ notifications, setNotifications, socket,
             </div>
         );
     }
-
     return (
         <>
             <Toast ref={ toast } />
@@ -115,7 +134,12 @@ export default function Notifications({ notifications, setNotifications, socket,
                 isAnonymous
                 ? null
                 : <>
-                      <OverlayPanel ref={ panel } id="notifications-overlay-panel" breakpoints={{'662px': '95vw'}} style={{width: '460px'}}>
+                      <OverlayPanel
+                          ref={ panel }
+                          id="notifications-overlay-panel"
+                          breakpoints={{'662px': '95vw'}}
+                          style={{width: '460px'}}
+                      >
                           <DataScroller
                               rows={ 5 }
                               inline
@@ -128,16 +152,31 @@ export default function Notifications({ notifications, setNotifications, socket,
                                           <p>Notifications</p>
                                           <Divider className="mt-3 mb-1"/>
                                       </div>
-                                      <div className={"col-12 py-0 " + (notifications.length ? "flex justify-content-start" : "hidden")}>
-                                          <Button className="p-button-rounded p-button-text m-0 p-0 pr-1 red-color">Delete all</Button>
+                                      <div
+                                          className={
+                                              "col-12 py-0 " + (notifications.length ? "flex justify-content-start" : "hidden")
+                                          }
+                                      >
+                                          <Button className="p-button-rounded p-button-text m-0 p-0 pr-1 red-color">
+                                              Delete all
+                                          </Button>
                                       </div>
                                   </div>
                               }
                               scrollHeight="350px"
                               itemTemplate={ itemTemplate }
                               emptyMessage={
-                                  <div className="grid flex flex-1 pt-5 pb-6 flex-column justify-content-center align-items-center">
-                                      <svg className="opacity-20" width="150" height="84" viewBox="0 0 150 84" fill="none" xmlns="http://www.w3.org/2000/svg" >
+                                  <div
+                                      className="grid flex flex-1 pt-5 pb-6 flex-column justify-content-center align-items-center"
+                                  >
+                                      <svg
+                                          className="opacity-20"
+                                          width="150"
+                                          height="84"
+                                          viewBox="0 0 150 84"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                      >
                                           <rect x="5" width="140" height="8" rx="4" fill="#999"/>
                                           <rect x="30" y="13" width="90" height="8" rx="4" fill="#999"/>
                                           <rect x="15" y="31" width="120" height="8" rx="4" fill="#999"/>

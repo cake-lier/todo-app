@@ -6,7 +6,7 @@ const Item = require("../model/itemModel").createItemModel();
 const Notification = require("../model/notificationsModel").createNotificationModel();
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
-const achievementHelper = require("./achievementHelper");
+const { addAchievement } = require("../utils/achievements");
 const { scheduleForDate } = require("../utils/schedule");
 
 function createItem(request, response) {
@@ -44,53 +44,52 @@ function createItem(request, response) {
                     count: request.body.count,
                     remainingCount: request.body.count
                 })
-                .then(item => {
-
-                    if (userId !== undefined){
-                        achievementHelper.addAchievement(request.session.userId, 13, "your first item!");
-                    }
-
-                    (
-                        request.session.userId
-                        ? User.findById(request.session.userId).exec()
-                        : Promise.resolve({
-                              username: list.members.filter(m => m.anonymousId === request.query.anonymousId)[0].username,
-                              profilePicturePath: null
-                          })
-                    )
-                    .then(user => {
-                        const authorUsername = user.username;
-                        const authorProfilePicturePath = user.profilePicturePath;
-                        const listId = list._id.toString();
-                        const text = ` created the new item "${ item.title }"`;
-                        const users = list.members
-                                          .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
-                                          .map(m => m.userId);
-                        return (
-                            users.length > 0
-                            ? Notification.create({
-                                  authorUsername,
-                                  authorProfilePicturePath,
-                                  users,
-                                  text,
-                                  listId,
-                                  listTitle: list.title
-                              })
-                              .catch(error => console.log(error))
-                            : Promise.resolve()
+                .then(item =>
+                    addAchievement(request.session.userId, 13, session)
+                        .then(_ =>
+                            (
+                                request.session.userId
+                                ? User.findById(request.session.userId).exec()
+                                : Promise.resolve({
+                                      username: list.members.filter(m => m.anonymousId === request.query.anonymousId)[0].username,
+                                      profilePicturePath: null
+                                  })
+                            )
+                            .then(user => {
+                                const authorUsername = user.username;
+                                const picturePath = user.profilePicturePath;
+                                const listId = list._id.toString();
+                                const text = ` created the new item "${ item.title }"`;
+                                const users = list.members
+                                                  .filter(m => m.userId !== null
+                                                               && m.userId.toString() !== request.session.userId)
+                                                  .map(m => m.userId);
+                                return (
+                                    users.length > 0
+                                    ? Notification.create({
+                                          authorUsername,
+                                          picturePath,
+                                          users,
+                                          text,
+                                          listId,
+                                          listTitle: list.title
+                                      })
+                                      .catch(error => console.log(error))
+                                    : Promise.resolve()
+                                )
+                                .then(_ => {
+                                    io.in(`list:${ listId }`)
+                                      .except(`user:${ request.session.userId }`)
+                                      .except(`anon:${ request.query.anonymousId }`)
+                                      .emit("itemCreated", listId, `${authorUsername}${text}`);
+                                    io.in(`list:${ listId }`)
+                                      .except(request.session.socketId)
+                                      .emit("itemCreatedReload", listId);
+                                    response.json(item);
+                                });
+                            })
                         )
-                        .then(_ => {
-                            io.in(`list:${ listId }`)
-                              .except(`user:${ request.session.userId }`)
-                              .except(`anon:${ request.query.anonymousId }`)
-                              .emit("itemCreated", listId, `${authorUsername}${text}`);
-                            io.in(`list:${ listId }`)
-                              .except(request.session.socketId)
-                              .emit("itemCreatedReload", listId);
-                            response.json(item);
-                        });
-                    })
-                });
+                );
             })
         ))
         .catch(error => {
@@ -312,7 +311,7 @@ function updateTitle(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text = ` changed the title of the item "${ item.title }" to "${ request.body.title }"`;
                 const users = list.members
@@ -322,7 +321,7 @@ function updateTitle(request, response) {
                     users.length > 0
                     ? Notification.create({
                           authorUsername,
-                          authorProfilePicturePath,
+                          picturePath,
                           users,
                           text,
                           listId,
@@ -369,7 +368,7 @@ function updateDueDate(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text =
                     request.body.dueDate
@@ -382,7 +381,7 @@ function updateDueDate(request, response) {
                     users.length > 0
                     ? Notification.create({
                         authorUsername,
-                        authorProfilePicturePath,
+                        picturePath,
                         users,
                         text,
                         listId,
@@ -426,7 +425,7 @@ function updateReminderDate(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text = request.body.reminderDate
                     ? ` set the reminder of the item "${item.title}" to `
@@ -445,7 +444,7 @@ function updateReminderDate(request, response) {
                     users.length > 0
                     ? Notification.create({
                           authorUsername,
-                          authorProfilePicturePath,
+                          picturePath,
                           users,
                           text,
                           listId,
@@ -487,7 +486,7 @@ function updateCompletion(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text = ` set the item "${item.title}" as ${request.body.isComplete ? "" : "in"}complete`;
                 const users = list.members
@@ -497,13 +496,12 @@ function updateCompletion(request, response) {
                     users.length > 0
                     ? Notification.create({
                           authorUsername,
-                          authorProfilePicturePath,
+                          picturePath,
                           users,
                           text,
                           listId,
                           listTitle: list.title
                       })
-                      .catch(error => console.log(error))
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -514,42 +512,43 @@ function updateCompletion(request, response) {
                     io.in(`list:${listId}`)
                       .except(request.session.socketId)
                       .emit("itemCompletionChangedReload", listId);
-                    response.json(item);
                 });
             })
             .then(_ => {
-                User.findByIdAndUpdate(
-                    request.session.userId,
-                    request.body.isComplete ? {$inc: {completedTasks: 1}} : {$inc: {completedTasks: -1}},
-                    {context: "query", new: true}
-                )
+                if (request.session.userId) {
+                    return User.findByIdAndUpdate(
+                        request.session.userId,
+                        request.body.isComplete ? { $inc: { completedTasks: 1 } } : { $inc: { completedTasks: -1 } },
+                        { context: "query", new: true, runValidators: true, session }
+                    )
                     .exec()
                     .then(user => {
+                        if (user === null) {
+                            return Promise.resolve();
+                        }
                         switch (user.completedTasks) {
                             case 5:
-                                achievementHelper.addAchievement(request.session.userId, 3, "5 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 3, session);
                             case 10:
-                                achievementHelper.addAchievement(request.session.userId, 4, "10 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 4, session);
                             case 25:
-                                achievementHelper.addAchievement(request.session.userId, 5, "25 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 5, session);
                             case 50:
-                                achievementHelper.addAchievement(request.session.userId, 6, "50 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 6, session);
                             case 100:
-                                achievementHelper.addAchievement(request.session.userId, 7, "100 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 7, session);
                             case 150:
-                                achievementHelper.addAchievement(request.session.userId, 8, "150 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 8, session);
                             case 200:
-                                achievementHelper.addAchievement(request.session.userId, 9, "200 items completed!");
-                                break;
+                                return addAchievement(request.session.userId, 9, session);
+                            default:
+                                return Promise.resolve();
                         }
-                    }, error => console.log(error));
+                    });
+                }
+                return Promise.resolve();
             })
+            .then(_ => response.json(item))
     );
 }
 
@@ -572,7 +571,7 @@ function addTag(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text = ` added the tag "${request.body.title}" to the item "${item.title}"`;
                 const users = list.members
@@ -582,7 +581,7 @@ function addTag(request, response) {
                     users.length > 0
                     ? Notification.create({
                           authorUsername,
-                          authorProfilePicturePath,
+                          picturePath,
                           users,
                           text,
                           listId,
@@ -624,7 +623,7 @@ function removeTag(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text =
                     ` removed the tag "${item.tags.find(i => i._id.toString() === request.params.tagId).title}" `
@@ -636,7 +635,7 @@ function removeTag(request, response) {
                     users.length > 0
                     ? Notification.create({
                           authorUsername,
-                          authorProfilePicturePath,
+                          picturePath,
                           users,
                           text,
                           listId,
@@ -705,7 +704,7 @@ function updateCount(request, response) {
                          )
                          .then(user => {
                              const authorUsername = user.username;
-                             const authorProfilePicturePath = user.profilePicturePath;
+                             const picturePath = user.profilePicturePath;
                              const listId = list._id.toString();
                              const text = ` changed the count of the item "${item.title}"`;
                              const users = list.members
@@ -715,7 +714,7 @@ function updateCount(request, response) {
                                  users.length > 0
                                  ? Notification.create({
                                        authorUsername,
-                                       authorProfilePicturePath,
+                                       picturePath,
                                        users,
                                        text,
                                        listId,
@@ -822,7 +821,7 @@ function addAssignee(request, response) {
                                    )
                                    .then(user => {
                                        const authorUsername = user.username;
-                                       const authorProfilePicturePath = user.profilePicturePath;
+                                       const picturePath = user.profilePicturePath;
                                        const assignee = lists[0].members.find(m => m._id.toString() === request.body.memberId);
                                        const listId = lists[0]._id.toString();
                                        return (
@@ -864,7 +863,7 @@ function addAssignee(request, response) {
                                                users.length > 0
                                                ? Notification.create({
                                                      authorUsername,
-                                                     authorProfilePicturePath,
+                                                     picturePath,
                                                      users,
                                                      text,
                                                      listId,
@@ -879,7 +878,7 @@ function addAssignee(request, response) {
                                                      assignee.userId !== null
                                                      ? Notification.create({
                                                            authorUsername,
-                                                           authorProfilePicturePath,
+                                                           picturePath,
                                                            users: [assignee.userId],
                                                            text: userText,
                                                            listId,
@@ -1011,7 +1010,7 @@ function updateAssignee(request, response) {
                                    )
                                    .then(user => {
                                        const authorUsername = user.username;
-                                       const authorProfilePicturePath = user.profilePicturePath;
+                                       const picturePath = user.profilePicturePath;
                                        const listId = lists[0]._id.toString();
                                        return (
                                            request.session.userId === assignee.userId?.toString()
@@ -1049,7 +1048,7 @@ function updateAssignee(request, response) {
                                                users.length > 0
                                                ? Notification.create({
                                                      authorUsername,
-                                                     authorProfilePicturePath,
+                                                     picturePath,
                                                      users,
                                                      text,
                                                      listId,
@@ -1064,7 +1063,7 @@ function updateAssignee(request, response) {
                                                    assignee.userId !== null
                                                    ? Notification.create({
                                                          authorUsername,
-                                                         authorProfilePicturePath,
+                                                         picturePath,
                                                          users: [assignee.userId],
                                                          text: userText,
                                                          listId,
@@ -1148,7 +1147,7 @@ function removeAssignee(request, response) {
                     )
                     .then(user => {
                         const authorUsername = user.username;
-                        const authorProfilePicturePath = user.profilePicturePath;
+                        const picturePath = user.profilePicturePath;
                         const listId = list._id.toString();
                         return (
                             request.session.userId === assignee.userId?.toString()
@@ -1187,7 +1186,7 @@ function removeAssignee(request, response) {
                                 users.length > 0
                                 ? Notification.create({
                                       authorUsername,
-                                      authorProfilePicturePath,
+                                      picturePath,
                                       users,
                                       text,
                                       listId,
@@ -1202,7 +1201,7 @@ function removeAssignee(request, response) {
                                     assignee.userId !== null
                                     ? Notification.create({
                                           authorUsername,
-                                          authorProfilePicturePath,
+                                          picturePath,
                                           users: [assignee.userId],
                                           text: userText,
                                           listId,
@@ -1259,7 +1258,7 @@ function deleteItem(request, response) {
                     )
                     .then(user => {
                         const authorUsername = user.username;
-                        const authorProfilePicturePath = user.profilePicturePath;
+                        const picturePath = user.profilePicturePath;
                         jobs[item._id.toString()]?.cancel();
                         const listId = list._id.toString();
                         const text = ` deleted the item "${item.title}"`;
@@ -1270,7 +1269,7 @@ function deleteItem(request, response) {
                             users.length > 0
                             ? Notification.create({
                                   authorUsername,
-                                  authorProfilePicturePath,
+                                  picturePath,
                                   users,
                                   text,
                                   listId,
@@ -1313,7 +1312,7 @@ function updatePriority(request, response) {
             )
             .then(user => {
                 const authorUsername = user.username;
-                const authorProfilePicturePath = user.profilePicturePath;
+                const picturePath = user.profilePicturePath;
                 const listId = list._id.toString();
                 const text = ` changed the priority of the item "${ item.title }"`;
                 const users = list.members
@@ -1323,7 +1322,7 @@ function updatePriority(request, response) {
                     users.length > 0
                     ? Notification.create([{
                           authorUsername,
-                          authorProfilePicturePath,
+                          picturePath,
                           users,
                           text,
                           listId,
