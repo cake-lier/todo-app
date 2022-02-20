@@ -37,11 +37,11 @@ function addAchievement(userId, index, session) {
                        .then(_ => {
                            const text = "Achievement unlocked: " + achievements[index];
                            return Notification.create(
-                               {
+                               [{
                                    users: [userId],
                                    text,
                                    picturePath: `/images/achievements/${ index }.png`
-                               },
+                               }],
                                { session }
                            )
                            .catch(error => console.log(error))

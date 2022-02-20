@@ -55,16 +55,20 @@ export default function ListsItem({ setUser, lists, setLists, userId, ownership 
         return () => socket.offAny(handleUpdates);
     }, [ownership, displayError, socket, setLists]);
     return (
-        <div className={"card flex flex-grow-1 overflow-y-auto " + (!lists.length ? "justify-content-center align-items-center" : null) }>
+        <div
+            className={
+                "card flex flex-grow-1 overflow-y-auto " + (!lists.length ? "justify-content-center align-items-center" : "")
+            }
+        >
             <ProgressSpinner
-                className={loading? null : "hidden"}
+                className={ loading ? "" : "hidden" }
                 style={{width: '50px', height: '50px'}}
                 strokeWidth="2"
                 fill="var(--surface-ground)"
                 animationDuration=".5s"
             />
             <DataView
-                className={ !loading && lists.length ? "w-full " : "hidden"}
+                className={ !loading && lists.length ? "w-full" : "hidden"}
                 value={ lists }
                 layout="list"
                 itemTemplate={ list =>
@@ -85,7 +89,11 @@ export default function ListsItem({ setUser, lists, setLists, userId, ownership 
             <div className={ ( !loading && !lists.length ? null : "hidden") }>
                 <EmptyPlaceholder
                     title="No lists to display"
-                    subtitle={ ownership ? "Create a list and start organizing your days!" : "Lists which you are member of will show up here."}
+                    subtitle={
+                        ownership
+                        ? "Create a list and start organizing your days!"
+                        : "Lists which you are member of will show up here."
+                    }
                     type={"lists"}
                 />
             </div>

@@ -64,7 +64,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                  _ => setNotifications(notifications.filter(n => n._id !== id)),
                  error => displayError(error.response.data.error)
             );
-    }
+    };
 
     const deleteAllNotifications = () => {
         axios.delete(`/users/me/notifications`)
@@ -72,7 +72,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                  _ => setNotifications([]),
                  error => displayError(error.response.data.error)
              );
-    }
+    };
 
     const itemTemplate = data => {
         const subtitle = Moment(data.insertionDate).fromNow().toString() + (data.listTitle ? " - List: " + data.listTitle : "");
@@ -87,35 +87,40 @@ export default function Notifications({ notifications, setNotifications, socket,
         );
         const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex - 2) : null;
         const memberUsername = secondPartText !== null ? data.text.substring(memberIndex + 7, secondPartIndex) : null;
+        const notificationText = () => (
+            <div className="mx-2">
+                <div className="flex align-items-center justify-content-start flex-wrap">
+                    <p>
+                        <span className="font-semibold">{ data.authorUsername }</span>
+                        <span>{ firstPartText }</span>
+                        <span className="font-semibold">{ memberIndex === -1 ? null : memberUsername }</span>
+                        <span>
+                            { memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ") + 1) }
+                        </span>
+                    </p>
+                </div>
+                <div>
+                    <p className="text-sm py-1">{ subtitle }</p>
+                </div>
+            </div>
+        );
         return (
             <div className="grid p-3 pl-3 w-full" >
                 <div className="col-11 p-0 flex align-items-center justify-content-start">
-                    <Link to={ data.listId !== null ? "/lists/" + data.listId : "#" }>
-                        <Avatar
-                            icon={ !data.authorUsername && !data.picturePath ? "pi pi-info-circle" : null }
-                            image={
-                                data.authorUsername && data.picturePath
-                                    ? "/static" + data.picturePath
-                                    : (data.authorUsername ? "/static/images/default_profile_picture.jpg" : null)
-                            }
-                            className="p-avatar-circle notification"
-                        />
-                        <div className="mx-2">
-                            <div className="flex align-items-center justify-content-start flex-wrap">
-                                <p>
-                                    <span className="font-semibold">{ data.authorUsername }</span>
-                                    <span>{ firstPartText }</span>
-                                    <span className="font-semibold">{ memberIndex === -1 ? null : memberUsername }</span>
-                                    <span>
-                                    { memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ") + 1) }
-                                </span>
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-sm py-1">{ subtitle }</p>
-                            </div>
-                        </div>
-                    </Link>
+                    <Avatar
+                        icon={ !data.authorUsername && !data.picturePath ? "pi pi-info-circle" : null }
+                        image={
+                            data.picturePath
+                            ? "/static" + data.picturePath
+                            : (data.authorUsername ? "/static/images/default_profile_picture.jpg" : null)
+                        }
+                        className="p-avatar-circle notification"
+                    />
+                    {
+                        data.listId !== null
+                        ? <Link to={ "/lists/" + data.listId }>{ notificationText() }</Link>
+                        : notificationText()
+                    }
                 </div>
                 <div className="col-1 px-0 flex justify-content-end align-items-start">
                     <Button

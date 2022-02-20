@@ -44,7 +44,8 @@ class App extends Component {
     }
 
     setUser(user) {
-        this.state.socket.on("userDataReload", () => axios.get("/users/me").then(user => this.setUser(user.data)));
+        this.state.socket.on("userDataReload", () => axios.get("/users/me").then(user => this.setState({ user: user.data })));
+        this.state.socket.on("achievementReload", () => axios.get("/users/me").then(user => this.setState({ user: user.data })));
         this.setState({
             anonymousId: null,
             user

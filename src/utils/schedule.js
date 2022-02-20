@@ -13,47 +13,8 @@ function scheduleTasks() {
     Item.find({ reminderDate: { $gte: Date.now() } })
         .exec()
         .then(items => items.forEach(item => scheduleForDate(item.listId.toString(), item._id.toString(), item.reminderDate)));
-    cron.schedule(
-        "0 0 * * *",
-        () => User.startSession()
-                  .then(session => session.withTransaction(() =>
-                      User.find(
-                          {
-                              $or: [
-                                  {
-                                      creationDate: { $lte: new Date(new Date().setMonth(new Date().getMonth() - 6)) },
-                                      "achievements.0": null
-                                  },
-                                  {
-                                      creationDate: { $lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
-                                      "achievements.1": null
-                                  },
-                                  {
-                                      creationDate: { $lte: new Date(new Date().setFullYear(new Date().getFullYear() - 2)) },
-                                      "achievements.2": null
-                                  }
-                              ]
-                          },
-                          undefined,
-                          { session }
-                      )
-                      .exec()
-                      .then(users => Promise.all(users.map(user => {
-                          if (user.creationDate.valueOf() < new Date().setFullYear(new Date().getFullYear() - 2)) {
-                              return addAchievement(user._id.toString(), 2, session);
-                          }
-                          if (user.creationDate.valueOf() < new Date().setFullYear(new Date().getFullYear() - 1)) {
-                              return addAchievement(user._id.toString(), 1, session);
-                          }
-                          if (user.creationDate.valueOf() < new Date().setMonth(new Date().getMonth() - 6)) {
-                              return addAchievement(user._id.toString(), 0, session);
-                          }
-                      })))
-                  )),
-        {
-            timezone: "Europe/Rome"
-        }
-    );
+    achievementsCheck();
+    cron.schedule("0 0 * * *", achievementsCheck, { timezone: "Europe/Rome" });
 }
 
 function scheduleForDate(listId, itemId, date) {
@@ -66,7 +27,8 @@ function scheduleForDate(listId, itemId, date) {
                         .exec()
                         .then(item => {
                             if (item !== null) {
-                                const text = `Don't forget the item "${item.title}"` + (item.dueDate ? `: it's due ${ new Date(item.dueDate).toDateString().substr(3)}!`
+                                const text = `Don't forget the item "${item.title}"`
+                                             + (item.dueDate ? `: it's due ${ new Date(item.dueDate).toDateString().substr(3)}!`
                                     : `!`);
                                 Notification.create({
                                     users: list.members.filter(m => m.userId !== null).map(m => m.userId),
@@ -80,6 +42,44 @@ function scheduleForDate(listId, itemId, date) {
                 }
             });
     });
+}
+
+function achievementsCheck() {
+    User.startSession()
+        .then(session => session.withTransaction(() =>
+            User.find(
+                {
+                    $or: [
+                        {
+                            creationDate: { $lte: new Date(new Date().setMonth(new Date().getMonth() - 6)) },
+                            "achievements.0": null
+                        },
+                        {
+                            creationDate: { $lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+                            "achievements.1": null
+                        },
+                        {
+                            creationDate: { $lte: new Date(new Date().setFullYear(new Date().getFullYear() - 2)) },
+                            "achievements.2": null
+                        }
+                    ]
+                },
+                undefined,
+                { session }
+            )
+            .exec()
+            .then(users => Promise.all(users.map(user => {
+                if (user.creationDate.valueOf() < new Date().setFullYear(new Date().getFullYear() - 2)) {
+                    return addAchievement(user._id.toString(), 2, session);
+                }
+                if (user.creationDate.valueOf() < new Date().setFullYear(new Date().getFullYear() - 1)) {
+                    return addAchievement(user._id.toString(), 1, session);
+                }
+                if (user.creationDate.valueOf() < new Date().setMonth(new Date().getMonth() - 6)) {
+                    return addAchievement(user._id.toString(), 0, session);
+                }
+            })))
+        ));
 }
 
 module.exports = {

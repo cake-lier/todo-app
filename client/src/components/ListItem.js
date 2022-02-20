@@ -15,9 +15,6 @@ export default function ListItem({ userId, setUser, list, lists, setLists, owner
             );
     }, [setMembers, displayError, list]);
     const listColor = [ "red-list", "purple-list", "blue-list", "green-list", "yellow-list" ];
-    if (!list) {
-        return;
-    }
     return (
         <div className="col-12 m-0 p-0 pl-2 flex flex-row align-items-center list-item">
             <div className="col-11 flex align-items-center" id="list-icon">

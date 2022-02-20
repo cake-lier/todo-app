@@ -28,12 +28,13 @@ function createList(request, response) {
                 }],
                 { session }
             )
-            .then(list => {
+            .then(lists => {
+                const list = lists[0];
                 const listId = list._id.toString();
                 io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }`);
                 io.in(`user:${ request.session.userId }`).socketsJoin(`list:${ listId }:owner`);
                 io.in(`list:${ listId }`).emit("listCreatedReload", listId);
-                return addAchievement(request.session.userId, 12, session).then(list => response.json(list));
+                return addAchievement(request.session.userId, 12, session).then(_ => response.json(list));
             })
         ))
         .catch(error => {
@@ -73,7 +74,8 @@ function deleteList(request, response) {
                                                authorUsername,
                                                picturePath,
                                                users: list.members
-                                                   .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                                                   .filter(m => m.userId !== null
+                                                                && m.userId.toString() !== request.session.userId)
                                                    .map(m => m.userId),
                                                text,
                                                listId
@@ -357,7 +359,8 @@ function updateVisibility(request, response) {
                         const authorUsername = user.username;
                         const picturePath = user.profilePicturePath;
                         const listId = list._id.toString();
-                        const text = ` made the list "${ list.title }" ${ request.body.isVisible ? "" : "not " }visible to non-registered users`;
+                        const text = ` made the list "${ list.title }" `
+                                     + `${ request.body.isVisible ? "" : "not " }visible to non-registered users`;
                         Notification.create({
                             authorUsername,
                             picturePath,
@@ -369,7 +372,9 @@ function updateVisibility(request, response) {
                         })
                             .catch(error => console.log(error))
                             .then(_ => {
-                                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listVisibilityChanged", listId, `${authorUsername}${text}`);
+                                io.in(`list:${ listId }`)
+                                  .except(`user:${ request.session.userId }`)
+                                  .emit("listVisibilityChanged", listId, `${authorUsername}${text}`);
                                 io.in(`list:${ listId }`).emit("listVisibilityChangedReload", listId);
                                 response.json(list);
                             });
@@ -510,7 +515,9 @@ function addMember(request, response) {
             })
             .catch(error => console.log(error))
             .then(_ => {
-                io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit("listMemberAdded", listId, `${request.body.username}${text}`);
+                io.in(`list:${ listId }`)
+                  .except(`user:${ request.session.userId }`)
+                  .emit("listMemberAdded", listId, `${request.body.username}${text}`);
                 io.in(`list:${ listId }`).emit("listMemberAddedReload", listId);
                 io.in(request.body.socketId).socketsJoin(`list:${ list._id.toString() }`);
                 response.json(list);
