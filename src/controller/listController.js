@@ -61,7 +61,7 @@ function deleteList(request, response) {
                 return Item.deleteMany({ listId: list._id }, { session })
                            .exec()
                            .then(_ =>
-                               User.findById(request.session.userId, { session })
+                               User.findById(request.session.userId, undefined, { session })
                                    .exec()
                                    .then(user => {
                                        const authorUsername = user.username;
@@ -253,7 +253,7 @@ function updateListProperty(
                     sendError(response, Error.ResourceNotFound);
                     return;
                 }
-                onSuccess(response, session, list);
+                return onSuccess(response, session, list);
             })
         ))
         .catch(error => {
@@ -498,6 +498,7 @@ function addMember(request, response) {
                                            .then(_ => {
                                                io.in(`list:${ listId }`)
                                                  .except(`user:${ request.session.userId }`)
+                                                 .except(`user:${ newMemberUserId}`)
                                                  .emit("listMemberAdded", listId, `${authorUsername}${oldMembersText}`);
                                                io.in(`list:${ listId }`)
                                                  .except(request.session.socketId)
@@ -553,7 +554,6 @@ function addMember(request, response) {
                   .except(`user:${ request.session.userId }`)
                   .emit("listMemberAdded", listId, `${request.body.username}${text}`);
                 io.in(`list:${ listId }`)
-                  .except(request.session.socketId)
                   .emit("listMemberAddedReload", listId);
                 io.in(request.body.socketId).socketsJoin(`list:${ list._id.toString() }`);
                 response.json(list);
@@ -643,6 +643,9 @@ function removeMember(request, response) {
                                                .exec()
                                                .then(user => {
                                                    const removedMemberUsername = user.username;
+                                                   const removalText =
+                                                       ` removed the member ${removedMemberUsername} `
+                                                       + `from the list "${list.title}"`;
                                                    // if it was not the current user which left the list
                                                    if (removedMemberUserId.toString() !== request.session.userId) {
                                                        return Notification.create(
@@ -662,9 +665,6 @@ function removeMember(request, response) {
                                                              .emit("listSelfRemoved", listId, `${authorUsername}${userText}`);
                                                            io.in(`user:${ removedMemberUserId }`)
                                                              .emit("listSelfRemovedReload", listId);
-                                                           const removalText =
-                                                               ` removed the member ${removedMemberUsername} `
-                                                               + `from the list "${list.title}"`;
                                                            const users =
                                                                list.members
                                                                    .filter(
