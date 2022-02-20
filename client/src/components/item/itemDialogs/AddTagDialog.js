@@ -43,7 +43,7 @@ export default function AddTagDialog({ itemId, anonymousId, display, setDisplay,
     const renderFooter = () => {
         return (
             <div className="grid">
-                <div className="col-12 p-5 flex justify-content-center">
+                <div className="col-12 pb-4 flex justify-content-center">
                     <Button
                         className={"w-full m-0 p-button" + (formik.isSubmitting ? " p-disabled" : "")}
                         label="Save"

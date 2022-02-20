@@ -91,21 +91,21 @@ export default function Notifications({ notifications, setNotifications, socket,
             <div className="mx-2">
                 <div className="flex align-items-center justify-content-start flex-wrap">
                     <p>
-                        <span className="font-semibold">{ data.authorUsername }</span>
-                        <span>{ firstPartText }</span>
-                        <span className="font-semibold">{ memberIndex === -1 ? null : memberUsername }</span>
-                        <span>
+                        <span className="font-semibold text-base">{ data.authorUsername }</span>
+                        <span className="font-normal text-base">{ firstPartText }</span>
+                        <span className="font-semibold text-base">{ memberIndex === -1 ? null : memberUsername }</span>
+                        <span className="font-normal text-base">
                             { memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ") + 1) }
                         </span>
                     </p>
                 </div>
                 <div>
-                    <p className="text-sm py-1">{ subtitle }</p>
+                    <p className="text-sm py-1 font-normal">{ subtitle }</p>
                 </div>
             </div>
         );
         return (
-            <div className="grid p-3 pl-3 w-full" >
+            <div className="grid p-3 pl-4 w-full" >
                 <div className="col-11 p-0 flex align-items-center justify-content-start">
                     <Avatar
                         icon={ !data.authorUsername && !data.picturePath ? "pi pi-info-circle" : null }

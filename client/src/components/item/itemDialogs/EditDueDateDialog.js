@@ -23,7 +23,7 @@ export default function EditDueDateDialog({ item, anonymousId, updateItem, displ
     };
     const dueDateFooter = () => {
         return (
-            <div className="flex justify-content-center pb-5 pt-5 px-3">
+            <div className="flex justify-content-center p-3">
                 <Button
                     className="mx-1"
                     label="Set due date"

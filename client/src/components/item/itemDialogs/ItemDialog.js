@@ -30,10 +30,10 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
     const getFormErrorMessage = name => isFormFieldValid(name) ? "" : <p className="p-error text-sm">{ formik.errors[name] }</p>;
     return (
         <Dialog
+            className="pb-5"
             header={ headerTitle }
             closable={ false }
             dismissableMask={ true }
-            footer={<div className="grid"><br/><br/></div>}
             draggable={ false }
             resizable={ false }
             visible={ displayDialog }
@@ -71,7 +71,7 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
                             />
                     </div>
                 </div>
-                <div className="flex justify-content-center">
+                <div className="flex justify-content-center pt-3">
                     <Button label={ buttonText } type="submit" />
                 </div>
             </form>

@@ -105,10 +105,9 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
             />
             <Menu model={ items } popup ref={ menu } id="overlay_tmenu" />
             <Dialog
-                className="w-27rem m-3"
+                className="w-27rem m-3 pb-5"
                 header="Join code"
                 visible={ displayJoinCodeDialog }
-                footer={<div className="grid"><br/><br/></div>}
                 closable={ false }
                 dismissableMask={ true }
                 draggable={ false }

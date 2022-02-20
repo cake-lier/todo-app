@@ -39,9 +39,8 @@ export default function UpdateAssigneeDialog({ item, anonymousId, members, updat
 
     return (
         <Dialog
-            className="m-3 h-20rem"
+            className={"md:w-8 m-3 pb-6 " + (members.length > 3 ? " h-20rem" : null )}
             header="Assign the item to"
-            footer={<div className="grid"><br/><br/></div>}
             visible={ display }
             onHide={ () => setDisplay(false) }
             dismissableMask={ true }

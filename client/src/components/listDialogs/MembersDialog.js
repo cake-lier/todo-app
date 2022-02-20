@@ -1,5 +1,5 @@
 import {Dialog} from "primereact/dialog";
-import { DataView} from 'primereact/dataview';
+import { DataView } from 'primereact/dataview';
 import { Avatar } from 'primereact/avatar';
 import axios from "axios";
 import { useState } from "react";
@@ -39,7 +39,7 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
     }
     const iconTemplate = member => {
         return (
-            <div className="col-12 m-0 p-0 flex flex-row align-items-center">
+            <div className="col-12 m-0 p-0 my-1 flex flex-row align-items-center">
                 <div className="col-10 m-0 p-0 flex flex-row align-items-center">
                     <Avatar
                         className="custom-target-icon"
@@ -62,10 +62,9 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
     }
     return (
         <Dialog
-            className="w-27rem h-20rem m-3"
+            className={"w-27rem m-3 pb-5 " + (members.length > 4 ? " h-25rem" : null )}
             visible={ display }
             header={ renderHeader() }
-            footer={<div className="grid"><br/><br/></div>}
             dismissableMask={ true }
             draggable={ false }
             resizable={ false }
@@ -73,10 +72,9 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
             onHide={ () => setDisplay(false) }
         >
             <Dialog
-                className="w-27rem m-3"
+                className="w-27rem m-3 pb-4"
                 header="Add a member"
                 visible={ displayAddMember }
-                footer={<div className="grid"><br/></div>}
                 closable={ false }
                 dismissableMask={ true }
                 draggable={ false }

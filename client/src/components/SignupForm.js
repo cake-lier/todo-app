@@ -88,9 +88,8 @@ export default function SignupForm(props) {
         <div className="grid">
             <Dialog
                 header={<h1 className="pt-2">"Waffles' Terms of Service"</h1>}
-                className="w-12 md:w-6"
+                className="w-12 pb-3 md:w-6"
                 visible={ isTermsDialogVisible }
-                footer={<div className="grid"><br/></div>}
                 closable={ false }
                 dismissableMask={ true }
                 draggable={ false }
@@ -100,9 +99,8 @@ export default function SignupForm(props) {
             </Dialog>
             <Dialog
                 header={<h1 className="pt-2">"Waffles' Cookie Policy"</h1>}
-                className="w-12 md:w-6"
+                className="w-12 pb-3 md:w-6"
                 visible={ isCookiesDialogVisible }
-                footer={<div className="grid"><br/></div>}
                 closable={ false }
                 dismissableMask={ true }
                 draggable={ false }
