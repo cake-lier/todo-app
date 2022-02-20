@@ -7,6 +7,7 @@ class Error {
     static LoginRequiredError = new Error(3, 401);
     static RequestError = new Error(4, 400);
     static ResourceNotFound = new Error(5, 404);
+    static UserNotFound = new Error(6, 404);
 
     constructor(code, status) {
         this.code = code;

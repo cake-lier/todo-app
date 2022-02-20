@@ -294,17 +294,23 @@ function updatePassword(request, response) {
           });
 }
 
-function sendNotification(userId, list, eventName, text) {
+function sendNotification(request, list, session, eventName, text) {
     const listId = list._id.toString();
-    return Notification.create({
-        users: list.members.filter(m => m.userId !== null && m.userId.toString() !== userId).map(m => m.userId),
-        text,
-        listId
-    })
-    .catch(error => console.log(error))
+    const users = list.members
+                      .filter(m => m.userId !== null && m.userId.toString() !== request.session.userId)
+                      .map(m => m.userId);
+    return (
+        users.length > 0
+        ? Notification.create({
+              users,
+              text,
+              listId
+          })
+        : Promise.resolve()
+    )
     .then(_ => {
-        io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName, listId, text);
-        io.in(`list:${ listId }`).except(`user:${ userId }`).emit(eventName + "Reload", listId);
+        io.in(`list:${ listId }`).except(`user:${ request.session.userId }`).emit(eventName, listId, text);
+        io.in(`list:${ listId }`).except(request.session.socketId).emit(eventName + "Reload", listId);
     });
 }
 
@@ -315,36 +321,37 @@ function deleteUserData(request, response, session, user) {
                    const listIds = lists.map(l => l._id);
                    return List.deleteMany({ _id: { $in: listIds } }, { session })
                               .exec()
-                              .then(_ => Item.deleteMany({ listId: { $in: listIds } }, { session }).exec())
+                              .then(_ =>
+                                  Item.find({ listId: { $in: listIds } }, undefined, { session })
+                                      .exec()
+                                      .then(items => items.forEach(item => jobs[item._id.toString()]?.cancel()))
+                                      .then(_ => Item.deleteMany({ listId: { $in: listIds } }, { session }).exec())
+                              )
                               .then(_ => Promise.all(lists.map(list => {
                                   const listId = list._id.toString();
                                   const listText = `The list "${ list.title }" has just been deleted`;
-                                  return Notification.create({
-                                      users: list.members.filter(m => m.userId !== null && m.userId !== request.session.userId).map(m => m.userId),
-                                      text: listText,
-                                      listId
-                                  })
-                                  .catch(error => console.log(error))
+                                  const users = list.members
+                                                    .filter(m => m.userId !== null && m.userId !== request.session.userId)
+                                                    .map(m => m.userId);
+                                  return (
+                                      users.length > 0
+                                      ? Notification.create(
+                                            [{
+                                                users,
+                                                text: listText,
+                                                listId
+                                            }],
+                                            { session }
+                                          )
+                                      : Promise.resolve()
+                                  )
                                   .then(_ => {
                                       io.in(`list:${ listId }`)
                                         .except(`user:${ request.session.userId }`)
                                         .emit("listDeleted", listId, listText);
                                       io.in(`list:${ listId }`)
-                                        .except(`user:${ request.session.userId }`)
+                                        .except(request.session.socketId)
                                         .emit("listDeletedReload", listId);
-                                      return Item.find({ listId: list._id }, undefined, { session })
-                                                 .exec()
-                                                 .then(items => Promise.all(items.map(item => {
-                                                     jobs[item._id.toString()]?.cancel();
-                                                     return sendNotification(
-                                                         request.session.userId,
-                                                         list,
-                                                         "itemDeleted",
-                                                         `The item "${ item.title }" has just been deleted`
-                                                     );
-                                                 })));
-                                  })
-                                  .then(_ => {
                                       io.in(`list:${ listId }`).socketsLeave(`list:${ listId }`);
                                       io.in(`list:${ listId }:owner`).socketsLeave(`list:${ listId }:owner`);
                                   });
@@ -361,8 +368,9 @@ function deleteUserData(request, response, session, user) {
                            )
                            .exec()
                            .then(_ => Promise.all(lists.map(list => sendNotification(
-                               request.session.userId,
+                               request,
                                list,
+                               session,
                                "listMemberRemoved",
                                `A member has left from the list "${ list.title }"`
                            ))))
@@ -384,8 +392,9 @@ function deleteUserData(request, response, session, user) {
                                    .then(list => {
                                        if (list !== null) {
                                            return sendNotification(
-                                               request.session.userId,
+                                               request,
                                                list,
+                                               session,
                                                "itemAssigneeRemoved",
                                                `An assignee was removed from the item "${ item.title }"`
                                            );

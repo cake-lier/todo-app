@@ -34,17 +34,20 @@ function createItem(request, response) {
                     sendError(response, Error.RequestError);
                     return Promise.resolve();
                 }
-                return Item.create({
-                    listId: request.params.id,
-                    title: request.body.title,
-                    text: request.body.text,
-                    dueDate: request.body.dueDate,
-                    reminderDate: request.body.reminderDate,
-                    tags: request.body.tags,
-                    count: request.body.count,
-                    remainingCount: request.body.count
-                })
-                .then(item =>
+                return Item.create(
+                    [{
+                        listId: request.params.id,
+                        title: request.body.title,
+                        text: request.body.text,
+                        dueDate: request.body.dueDate,
+                        reminderDate: request.body.reminderDate,
+                        tags: request.body.tags,
+                        count: request.body.count,
+                        remainingCount: request.body.count
+                    }],
+                    { session }
+                )
+                .then(items =>
                     addAchievement(request.session.userId, 13, session)
                         .then(_ =>
                             (
@@ -56,6 +59,7 @@ function createItem(request, response) {
                                   })
                             )
                             .then(user => {
+                                const item = items[0];
                                 const authorUsername = user.username;
                                 const picturePath = user.profilePicturePath;
                                 const listId = list._id.toString();
@@ -66,15 +70,17 @@ function createItem(request, response) {
                                                   .map(m => m.userId);
                                 return (
                                     users.length > 0
-                                    ? Notification.create({
-                                          authorUsername,
-                                          picturePath,
-                                          users,
-                                          text,
-                                          listId,
-                                          listTitle: list.title
-                                      })
-                                      .catch(error => console.log(error))
+                                    ? Notification.create(
+                                          [{
+                                              authorUsername,
+                                              picturePath,
+                                              users,
+                                              text,
+                                              listId,
+                                              listTitle: list.title
+                                          }],
+                                          { session }
+                                      )
                                     : Promise.resolve()
                                 )
                                 .then(_ => {
@@ -319,15 +325,17 @@ function updateTitle(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
-                          authorUsername,
-                          picturePath,
-                          users,
-                          text,
-                          listId,
-                          listTitle: list.title
-                      })
-                      .catch(error => console.log(error))
+                    ? Notification.create(
+                          [{
+                              authorUsername,
+                              picturePath,
+                              users,
+                              text,
+                              listId,
+                              listTitle: list.title
+                          }],
+                          { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -379,15 +387,17 @@ function updateDueDate(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
-                        authorUsername,
-                        picturePath,
-                        users,
-                        text,
-                        listId,
-                        listTitle: list.title
-                      })
-                      .catch(error => console.log(error))
+                    ? Notification.create(
+                          [{
+                              authorUsername,
+                              picturePath,
+                              users,
+                              text,
+                              listId,
+                              listTitle: list.title
+                          }],
+                          { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -442,15 +452,17 @@ function updateReminderDate(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
-                          authorUsername,
-                          picturePath,
-                          users,
-                          text,
-                          listId,
-                          listTitle: list.title
-                      })
-                      .catch(error => console.log(error))
+                    ? Notification.create(
+                          [{
+                              authorUsername,
+                              picturePath,
+                              users,
+                              text,
+                              listId,
+                              listTitle: list.title
+                          }],
+                          { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -494,14 +506,17 @@ function updateCompletion(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
-                          authorUsername,
-                          picturePath,
-                          users,
-                          text,
-                          listId,
-                          listTitle: list.title
-                      })
+                    ? Notification.create(
+                          [{
+                              authorUsername,
+                              picturePath,
+                              users,
+                              text,
+                              listId,
+                              listTitle: list.title
+                          }],
+                          { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -579,15 +594,17 @@ function addTag(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
-                          authorUsername,
-                          picturePath,
-                          users,
-                          text,
-                          listId,
-                          listTitle: list.title
-                      })
-                      .catch(error => console.log(error))
+                    ? Notification.create(
+                          [{
+                              authorUsername,
+                              picturePath,
+                              users,
+                              text,
+                              listId,
+                              listTitle: list.title
+                          }],
+                          { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -633,15 +650,17 @@ function removeTag(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create({
-                          authorUsername,
-                          picturePath,
-                          users,
-                          text,
-                          listId,
-                          listTitle: list.title
-                      })
-                      .catch(error => console.log(error))
+                    ? Notification.create(
+                          [{
+                              authorUsername,
+                              picturePath,
+                              users,
+                              text,
+                              listId,
+                              listTitle: list.title
+                          }],
+                          { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
@@ -712,15 +731,17 @@ function updateCount(request, response) {
                                                .map(m => m.userId);
                              return (
                                  users.length > 0
-                                 ? Notification.create({
-                                       authorUsername,
-                                       picturePath,
-                                       users,
-                                       text,
-                                       listId,
-                                       listTitle: list.title
-                                   })
-                                   .catch(error => console.log(error))
+                                 ? Notification.create(
+                                       [{
+                                           authorUsername,
+                                           picturePath,
+                                           users,
+                                           text,
+                                           listId,
+                                           listTitle: list.title
+                                       }],
+                                       { session }
+                                   )
                                  : Promise.resolve()
                              )
                              .then(_ => {
@@ -826,7 +847,8 @@ function addAssignee(request, response) {
                                        const listId = lists[0]._id.toString();
                                        return (
                                            request.session.userId === assignee.userId?.toString()
-                                           || (request.query.anonymousId && request.query.anonymousId === assignee.anonymousId?.toString())
+                                           || (request.query.anonymousId
+                                               && request.query.anonymousId === assignee.anonymousId?.toString())
                                            ? Promise.resolve(` added themselves to the item "${item.title}"`)
                                            : (
                                                assignee.userId !== null
@@ -861,30 +883,34 @@ function addAssignee(request, response) {
                                                                  .map(m => m.userId);
                                            return (
                                                users.length > 0
-                                               ? Notification.create({
-                                                     authorUsername,
-                                                     picturePath,
-                                                     users,
-                                                     text,
-                                                     listId,
-                                                     listTitle: lists[0].title
-                                                 })
-                                                 .catch(error => console.log(error))
+                                               ? Notification.create(
+                                                     [{
+                                                         authorUsername,
+                                                         picturePath,
+                                                         users,
+                                                         text,
+                                                         listId,
+                                                         listTitle: lists[0].title
+                                                     }],
+                                                     { session }
+                                                 )
                                                : Promise.resolve()
                                            )
                                            .then(_ => {
                                                const userText = ` added you to the item "${item.title}"`;
                                                return (
                                                      assignee.userId !== null
-                                                     ? Notification.create({
-                                                           authorUsername,
-                                                           picturePath,
-                                                           users: [assignee.userId],
-                                                           text: userText,
-                                                           listId,
-                                                           listTitle: lists[0].title
-                                                       })
-                                                       .catch(error => console.log(error))
+                                                     ? Notification.create(
+                                                           [{
+                                                               authorUsername,
+                                                               picturePath,
+                                                               users: [assignee.userId],
+                                                               text: userText,
+                                                               listId,
+                                                               listTitle: lists[0].title
+                                                           }],
+                                                           { session }
+                                                       )
                                                      : Promise.resolve()
                                                )
                                                .then(_ => {
@@ -892,10 +918,9 @@ function addAssignee(request, response) {
                                                        io.in(`user:${assignee.userId.toString()}`)
                                                          .except(`user:${request.session.userId}`)
                                                          .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
-                                                   }
-                                                   else {
-                                                       io.in(`anon:${assignee.anonymousId.toString()}`)
-                                                          .except(`anon:${ request.query.anonymousId }`)
+                                                   } else {
+                                                       io.in(`anon:${ assignee.anonymousId.toString() }`)
+                                                         .except(`anon:${ request.query.anonymousId }`)
                                                          .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
                                                    }
                                                    io.in(`list:${listId}`)
@@ -1014,7 +1039,8 @@ function updateAssignee(request, response) {
                                        const listId = lists[0]._id.toString();
                                        return (
                                            request.session.userId === assignee.userId?.toString()
-                                           || (request.query.anonymousId && request.query.anonymousId === assignee.anonymousId?.toString())
+                                           || (request.query.anonymousId
+                                               && request.query.anonymousId === assignee.anonymousId?.toString())
                                            ? Promise.resolve(` updated their assigned count in the item "${item.title}"`)
                                            : (
                                                assignee.userId !== null
@@ -1029,15 +1055,15 @@ function updateAssignee(request, response) {
                                        .then(text => {
                                            if (assignee.userId !== null) {
                                                io.in(`list:${listId}`)
-                                                 .except(`user:${request.session.userId}`)
+                                                 .except(`user:${ request.session.userId }`)
                                                  .except(`anon:${ request.query.anonymousId }`)
-                                                 .except(`user:${assignee.userId.toString()}`)
+                                                 .except(`user:${ assignee.userId.toString() }`)
                                                  .emit("itemAssigneeUpdated", listId, `${authorUsername}${text}`);
                                            } else {
                                                io.in(`list:${listId}`)
-                                                  .except(`user:${request.session.userId}`)
+                                                  .except(`user:${ request.session.userId }`)
                                                   .except(`anon:${ request.query.anonymousId }`)
-                                                  .except(`anon:${assignee.anonymousId}`)
+                                                  .except(`anon:${ assignee.anonymousId }`)
                                                  .emit("itemAssigneeUpdated", listId, `${authorUsername}${text}`);
                                            }
                                            const users = lists[0].members
@@ -1046,37 +1072,41 @@ function updateAssignee(request, response) {
                                                                  .map(m => m.userId);
                                            return (
                                                users.length > 0
-                                               ? Notification.create({
-                                                     authorUsername,
-                                                     picturePath,
-                                                     users,
-                                                     text,
-                                                     listId,
-                                                     listTitle: lists[0].title
-                                                 })
-                                                 .catch(error => console.log(error))
+                                               ? Notification.create(
+                                                     [{
+                                                         authorUsername,
+                                                         picturePath,
+                                                         users,
+                                                         text,
+                                                         listId,
+                                                         listTitle: lists[0].title
+                                                     }],
+                                                     { session }
+                                                 )
                                                : Promise.resolve()
                                            )
                                            .then(_ => {
                                                const userText = ` updated your assigned count in the item "${item.title}"`;
                                                return (
                                                    assignee.userId !== null
-                                                   ? Notification.create({
-                                                         authorUsername,
-                                                         picturePath,
-                                                         users: [assignee.userId],
-                                                         text: userText,
-                                                         listId,
-                                                         listTitle: lists[0].title
-                                                     })
-                                                     .catch(error => console.log(error))
+                                                   ? Notification.create(
+                                                         [{
+                                                             authorUsername,
+                                                             picturePath,
+                                                             users: [assignee.userId],
+                                                             text: userText,
+                                                             listId,
+                                                             listTitle: lists[0].title
+                                                         }],
+                                                         { session }
+                                                     )
                                                    : Promise.resolve()
                                                )
                                                .then(_ => {
                                                    if (assignee.userId !== null) {
                                                        io.in(`user:${assignee.userId.toString()}`)
-                                                           .except(`user:${request.session.userId}`)
-                                                           .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
+                                                         .except(`user:${request.session.userId}`)
+                                                         .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
                                                    } else {
                                                        io.in(`anon:${assignee.anonymousId.toString()}`)
                                                          .except(`anon:${ request.query.anonymousId }`)
@@ -1157,9 +1187,7 @@ function removeAssignee(request, response) {
                                 assignee.userId !== null
                                 ? User.findById(assignee.userId, undefined, {session})
                                       .exec()
-                                      .then(
-                                          user => ` removed the member ${user.username} from the item "${item.title}"`
-                                      )
+                                      .then(user => ` removed the member ${user.username} from the item "${item.title}"`)
                                 : Promise.resolve(` removed the member ${assignee.username} from the item "${item.title}"`)
                               )
                         )
@@ -1184,36 +1212,40 @@ function removeAssignee(request, response) {
                                               .map(m => m.userId);
                             return (
                                 users.length > 0
-                                ? Notification.create({
-                                      authorUsername,
-                                      picturePath,
-                                      users,
-                                      text,
-                                      listId,
-                                      listTitle: list.title
-                                  })
-                                  .catch(error => console.log(error))
+                                ? Notification.create(
+                                      [{
+                                          authorUsername,
+                                          picturePath,
+                                          users,
+                                          text,
+                                          listId,
+                                          listTitle: list.title
+                                      }],
+                                      { session }
+                                  )
                                 : Promise.resolve()
                             )
                             .then(_ => {
                                 const userText = ` removed you from the item "${item.title}"`;
                                 return (
                                     assignee.userId !== null
-                                    ? Notification.create({
-                                          authorUsername,
-                                          picturePath,
-                                          users: [assignee.userId],
-                                          text: userText,
-                                          listId,
-                                          listTitle: list.title
-                                      })
-                                      .catch(error => console.log(error))
+                                    ? Notification.create(
+                                          [{
+                                              authorUsername,
+                                              picturePath,
+                                              users: [assignee.userId],
+                                              text: userText,
+                                              listId,
+                                              listTitle: list.title
+                                          }],
+                                          { session }
+                                      )
                                     : Promise.resolve()
                                 )
                                 .then(_ => {
                                     if (assignee.userId !== null) {
                                         io.in(`user:${assignee.userId.toString()}`)
-                                           .except(`user:${request.session.userId}`)
+                                          .except(`user:${request.session.userId}`)
                                           .emit("itemAssigneeRemoved", listId, `${authorUsername}${userText}`);
                                     } else {
                                         io.in(`anon:${assignee.anonymousId.toString()}`)
@@ -1267,15 +1299,17 @@ function deleteItem(request, response) {
                                           .map(m => m.userId);
                         return (
                             users.length > 0
-                            ? Notification.create({
-                                  authorUsername,
-                                  picturePath,
-                                  users,
-                                  text,
-                                  listId,
-                                  listTitle: list.title
-                              })
-                              .catch(error => console.log(error))
+                            ? Notification.create(
+                                  [{
+                                      authorUsername,
+                                      picturePath,
+                                      users,
+                                      text,
+                                      listId,
+                                      listTitle: list.title
+                                  }],
+                                  { session }
+                              )
                             : Promise.resolve()
                         )
                         .then(_ => {
@@ -1320,15 +1354,17 @@ function updatePriority(request, response) {
                                   .map(m => m.userId);
                 return (
                     users.length > 0
-                    ? Notification.create([{
-                          authorUsername,
-                          picturePath,
-                          users,
-                          text,
-                          listId,
-                          listTitle: list.title
-                      }], { session })
-                      .catch(error => console.log(error))
+                    ? Notification.create(
+                        [{
+                            authorUsername,
+                            picturePath,
+                            users,
+                            text,
+                            listId,
+                            listTitle: list.title
+                        }],
+                        { session }
+                      )
                     : Promise.resolve()
                 )
                 .then(_ => {
