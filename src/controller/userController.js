@@ -444,12 +444,12 @@ function deleteUserData(request, response, session, user) {
                    io.in(`user:${ user._id.toString() }`).disconnectSockets();
                    store.all((error, sessions) => {
                        if (error) {
-                           request.session.destroy(_ => response.send({}));
+                           request.session.destroy(() => response.send({}));
                            return;
                        }
-                       const userSessions = sessions.filter(s => s.userId === request.session.userId);
+                       const userSessions = sessions.filter(s => s.session.userId === request.session.userId);
                        let destroyedSessions = 0;
-                       userSessions.forEach(s => s.destroy(() => {
+                       userSessions.forEach(s => store.destroy(s._id, () => {
                            destroyedSessions++;
                            if (destroyedSessions === userSessions.length) {
                                response.send({});
