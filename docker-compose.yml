@@ -12,16 +12,6 @@ services:
         networks: 
             - nodeapp_network
         depends_on:
-            - mongosetup
-    mongosetup:
-        build:
-            context: ./docker-mongodbsetup
-            dockerfile: Dockerfile
-        image: mongosetup
-        container_name: mongosetup
-        networks:
-            - nodeapp_network
-        depends_on:
             - mongodb1
             - mongodb2
             - mongodb3
@@ -32,11 +22,13 @@ services:
         image: mongodb
         container_name: mongodb1
         hostname: mongodb1
-        entrypoint: [ "/usr/bin/mongod", "--replSet", "rs", "--bind_ip_all", "--journal" ]
+        command: [ "--replSet", "rs", "--bind_ip_all" ]
+        healthcheck:
+            test: test $$(echo "rs.initiate({_id:'rs',members:[{_id:0,host:\"mongodb1:27017\"},{_id:1,host:\"mongodb2:27017\"},{_id:2,host:\"mongodb3:27017\"}]}).ok || rs.status().ok" | mongo --quiet) -eq 1
+            interval: 10s
+            start_period: 30s
         networks:
             - nodeapp_network
-        logging:
-            driver: none
     mongodb2:
         build:
             context: ./docker-mongodb
@@ -44,11 +36,9 @@ services:
         image: mongodb
         container_name: mongodb2
         hostname: mongodb2
-        entrypoint: [ "/usr/bin/mongod", "--replSet", "rs", "--bind_ip_all", "--journal" ]
+        command: ["--replSet", "rs", "--bind_ip_all"]
         networks:
             - nodeapp_network
-        logging:
-            driver: none
     mongodb3:
         build:
             context: ./docker-mongodb
@@ -56,11 +46,9 @@ services:
         image: mongodb
         container_name: mongodb3
         hostname: mongodb3
-        entrypoint: [ "/usr/bin/mongod", "--replSet", "rs", "--bind_ip_all", "--journal" ]
+        command: ["--replSet", "rs", "--bind_ip_all"]
         networks:
             - nodeapp_network
-        logging:
-            driver: none
 
 networks:
     nodeapp_network:
