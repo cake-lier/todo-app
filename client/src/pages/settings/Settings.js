@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Settings(props) {
-    const [notificationEnabled, setNotificationsEnabled] = useState(props.user.enableNotifications);
+    const [notificationEnabled, setNotificationsEnabled] = useState(props.user.notificationsEnabled);
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -39,54 +39,46 @@ export default function Settings(props) {
 
     const getTabElement = tabName => {
         if (tabName === "password") {
-            return (
-                <div className="grid ">
-                    <div className="col-12 md:col-5">
-                        <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />
-                    </div>
-                </div>
-            );
+            return <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />;
         }
         if (tabName === "notifications") {
             return (
-                <div className="grid">
-                    <div className="col-12 mt-3">
-                        <h2 className="font-bold text-lg">Notifications</h2>
-                        <h3 className="text-md mt-2">
-                            You have total control over push notifications you receive for each list. By default, notifications
-                            are on for all lists. You can choose to turn them off for each individual list or disable all
-                            notifications here.
-                        </h3>
-                    </div>
-                    <div className="col-12 mt-2">
-                        <form>
-                            <span className="mt-2 flex align-items-center">
+                <>
+                    <form>
+                        <div className="grid align-items-center mt-3">
+                            <div className="col-12">
+                                <h2 className="font-bold text-lg">Notifications</h2>
+                            </div>
+                            <div className="col-12">
+                                <h3 className="text-md mt-2">
+                                    You have total control over push notifications you receive for each list. By default,
+                                    notifications are on for all lists. You can choose to turn them off for each individual list
+                                    or disable all notifications here.
+                                </h3>
+                            </div>
+                            <div className="col-12">
+                                <span className="mt-2 flex align-items-center">
                                 <label className="mr-2" htmlFor="notifications">All notifications enabled</label>
-                                <InputSwitch id="notifications"
-                                             checked={ notificationEnabled }
-                                             onChange={(e) => changeNotification(e.value)} />
+                                <InputSwitch
+                                    id="notifications"
+                                    checked={ notificationEnabled }
+                                    onChange={ e => changeNotification(e.value) }
+                                />
                             </span>
-                        </form>
-                    </div>
-                </div>
+                            </div>
+                        </div>
+                    </form>
+                </>
             );
         }
         return (
             <>
-                <div className="grid">
-                    <div className="col-12 md:col-5 ">
-                        <ChangeAccountDataForm
-                            user={ props.user }
-                            setUser={ props.setUser }
-                            displayError={ displayError }
-                        />
-                    </div>
-                </div>
-                <div className="grid">
-                    <div className="col-12 md:col-5">
-                        <DeleteAccountForm unsetUser={ props.unsetUser } displayError={ displayError } />
-                    </div>
-                </div>
+                <ChangeAccountDataForm
+                    user={ props.user }
+                    setUser={ props.setUser }
+                    displayError={ displayError }
+                />
+                <DeleteAccountForm unsetUser={ props.unsetUser } displayError={ displayError } />
             </>
         );
     }
@@ -118,8 +110,8 @@ export default function Settings(props) {
                     activeTabIndex={ props.tab === "account" ? 0 : (props.tab === "password" ? 1 : 2) }
                     displayError={ displayError }
                 />
-                <div className="grid overflow-y-auto">
-                    <div className="col-12 ">
+                <div className="grid overflow-y-auto justify-content-center">
+                    <div className="col-12 md:col-10 lg:col-7 xl:col-6">
                         { getTabElement(props.tab) }
                     </div>
                 </div>
@@ -141,8 +133,8 @@ export default function Settings(props) {
                     activeTabIndex={ props.tab === "account" ? 0 : (props.tab === "password" ? 1 : 2) }
                     displayError={ displayError }
                 />
-                <div className="grid">
-                    <div className="col-12">
+                <div className="grid justify-content-center">
+                    <div className="col-12 sm:col-11">
                         { getTabElement(props.tab) }
                     </div>
                 </div>

@@ -77,7 +77,7 @@ export function ChangeAccountDataForm(props) {
     return (
         <form onSubmit={ formik.handleSubmit } className="p-fluid">
             <div className="grid align-items-center">
-                <div className="col-12 mt-1 md:mt-3">
+                <div className="col-12 mt-3">
                     <h2 className="font-bold text-lg">Update your account data</h2>
                 </div>
                 <div className="col-5 md:col-4 mt-3 flex justify-content-center">

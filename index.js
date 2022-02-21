@@ -31,6 +31,11 @@ routes.initializeUserRoutes(app);
 routes.initializeListRoutes(app);
 routes.initializeItemRoutes(app);
 routes.initializeStaticRoutes(app);
-app.get("*", (_, response) => response.sendFile(path.join(__dirname, "client/build/index.html")));
+app.get(
+    "*",
+    (_, response) => response.sendFile(
+        path.join(__dirname, process.argv[3] ? "client/build/index.html" : "client/public/index.html")
+    )
+);
 require("./src/utils/schedule").scheduleTasks();
 global.io = require("./src/utils/sockets").setupSockets(app.listen(8080, () => console.log("Node API server started")));
