@@ -11,7 +11,7 @@ class Home extends Component {
                 <div className="hidden md:inline-block md:col-12 home-bar p-0">
                     <div className="grid">
                         <div className="col-2 flex align-items-center">
-                            <img className="w-5rem ml-1" src="images/logo512.png" alt="App logo" />
+                            <img className="w-4rem ml-1 my-1" src="images/logo512.png" alt="App logo" />
                             <h1 id="appTitle" className="text-5xl font-bold ml-2">Waffles</h1>
                         </div>
                         <div className="col-4 col-offset-6 flex justify-content-end align-items-center">
@@ -24,7 +24,7 @@ class Home extends Component {
                 <div className="md:hidden col-12 flex flex-column home-bar">
                     <div className="grid flex-column">
                         <div className="col-12 flex justify-content-center pb-0">
-                            <img className="h-3rem" src="images/logo512.png"  alt="App logo" />
+                            <img className="h-3rem mb-1" src="images/logo512.png"  alt="App logo" />
                         </div>
                         <div className="col-12 flex justify-content-center pt-0">
                             <h1 id="appTitle" className="text-3xl font-bold">Waffles</h1>
