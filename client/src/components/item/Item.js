@@ -14,17 +14,14 @@ import ChipAssignee from "./ChipAssignee";
 import "./Item.scss"
 
 export default function Item({ item, anonymousId, listMembers, deleteItem, updateItem, displayError }){
-    // item dots menu
     const menu = useRef(null);
 
-    // dialogs
     const [displayEditDueDate, setDisplayEditDueDate] = useState(false);
     const [displayEditReminderDate, setDisplayEditReminderDate] = useState(false);
     const [displayAddTag, setDisplayAddTag] = useState(false);
     const [displayEdit, setDisplayEdit] = useState(false);
     const [displayAssignees, setDisplayAssignees] = useState(false);
 
-    // assignees
     const [assignees, setAssignees] = useState([]);
     useEffect(() => {
         axios.get(`/items/${ item._id }/assignees`, { params: anonymousId !== null ? { anonymousId } : {} })
@@ -34,13 +31,7 @@ export default function Item({ item, anonymousId, listMembers, deleteItem, updat
              );
     }, [setAssignees, displayError, item, anonymousId]);
 
-    // priority star
     const [priority, setPriority] = useState(item.priority);
-
-    //TODO this is no fix
-    useEffect(() => {
-        setPriority(item.priority)
-    }, [item])
 
     const togglePriority = () => {
         setPriority(!priority);

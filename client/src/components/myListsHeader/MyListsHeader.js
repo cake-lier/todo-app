@@ -33,7 +33,7 @@ export default function MyListsHeader({ appendList, setOrdering, displayError })
             </div>
             <div className="col-6 m-0 pl-1 flex align-content-center justify-content-end">
                 <Button
-                    id="order-button"
+                    id="header-secondary-button"
                     className="py-0"
                     label="Sort by"
                     icon="pi pi-sort-amount-down-alt"

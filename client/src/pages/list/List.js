@@ -7,7 +7,7 @@ import axios from "axios";
 import JoinDialog from "../../components/joinDialog/JoinDialog";
 import ItemsContainer from "../../components/item/itemsContainer/ItemsContainer";
 
-export default function List({ user, anonymousId, unsetAnonymousId, setUser, unsetUser, notifications, setNotifications, socket }) {
+export default function List({ user, anonymousId, unsetAnonymousId, setUser, unsetUser, notifications, setNotifications, hideCompleted, setHideCompleted, socket }) {
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -89,6 +89,8 @@ export default function List({ user, anonymousId, unsetAnonymousId, setUser, uns
                     members={ members }
                     setMembers={ setMembers }
                     disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
+                    hideCompleted={ hideCompleted }
+                    setHideCompleted={ setHideCompleted }
                     socket={ socket }
                     displayError={ displayError }
                 />
@@ -116,6 +118,8 @@ export default function List({ user, anonymousId, unsetAnonymousId, setUser, uns
                         members={ members }
                         setMembers={ setMembers }
                         disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
+                        hideCompleted={ hideCompleted }
+                        setHideCompleted={ setHideCompleted }
                         socket={ socket }
                         displayError={ displayError }
                     />

@@ -10,13 +10,16 @@ import ListOptionsMenu from "../../ListOptionsMenu";
 import {useNavigate} from "react-router-dom";
 import {Menu} from "primereact/menu";
 import {DataView} from "primereact/dataview";
+import {Divider} from "primereact/divider";
 
-export default function ItemsContainer({ userId, anonymousId, setUser, list, setList, members, setMembers, disabledNotificationsLists, socket, displayError }) {
-    // checklist
+export default function ItemsContainer({ userId, anonymousId, setUser, list, setList, members, setMembers, disabledNotificationsLists, hideCompleted, setHideCompleted, socket, displayError }) {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
-    const updateItem = useCallback(item => setItems(items.map(i => (i._id === item._id) ? item : i)), [items, setItems]);
+    const updateItem = useCallback(
+        item => setItems(items.map(i => (i._id === item._id) ? item : i).filter(i => !hideCompleted || !i.completionDate)),
+        [items, setItems]
+    );
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
     const [ordering, setOrdering] = useState(null);
     const menu = useRef();
@@ -58,17 +61,16 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                 return null;
         }
     };
-    // init items from database
     const getItems = useCallback(() => {
         axios.get(`/lists/${ list._id }/items/`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
                  items => {
-                     setItems(items.data);
+                     setItems(items.data.filter(item => !hideCompleted || !item.completionDate));
                      setLoading(false);
                  },
                  error => displayError(error.response.data.error)
              );
-    }, [displayError, list, anonymousId, setItems, setLoading]);
+    }, [displayError, list, anonymousId, setItems, setLoading, hideCompleted]);
     useEffect(getItems, [getItems]);
     useEffect(() => {
         function handleUpdates(event, eventListId) {
@@ -84,7 +86,6 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
     }, [socket, list, getItems]);
-    // delete item
     const deleteItem = (item) => {
         axios.delete("/items/" + item._id, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
@@ -99,23 +100,30 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
             navigate("/my-lists");
             return;
         }
-        setList(lists[0])
+        setList(lists[0]);
     }, [navigate, setList]);
     return (
         <>
             <div className="grid flex-column">
                 <div className="col-12 m-0 p-0 pr-2 grid">
-                    <div className="col-10 p-0">
+                    <div className="col-8 sm:col-10 p-0">
                         <Button
                             className="m-3"
                             label="New Item" icon="pi pi-plus"
                             onClick={() => setDisplayDialog(true)}
                         />
                     </div>
-                    <div className="col-2 m-0 pl-1 flex align-items-center justify-content-end">
+                    <div className="col-4 sm:col-2 m-0 sm:pl-1 flex flex-column sm:flex-row align-items-end sm:align-items-center justify-content-end">
                         <Button
                             className="my-2"
-                            id="order-button"
+                            id="header-secondary-button"
+                            label={ (hideCompleted ? "Show" : "Hide" ) + " completed" }
+                            icon="pi pi-filter"
+                            onClick={ () => setHideCompleted(!hideCompleted) }
+                        />
+                        <Button
+                            className="my-2"
+                            id="header-secondary-button"
                             label="Sort by"
                             icon="pi pi-sort-amount-down-alt"
                             onClick={ e => menu.current.toggle(e) }
@@ -137,6 +145,7 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                     </div>
                 </div>
             </div>
+            <Divider className="m-0 mb-3" />
             <div className="grid flex-column flex-grow-1 overflow-y-auto">
                 {
                     loading
@@ -175,9 +184,9 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                                 <div
                                     className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
                                     <EmptyPlaceholder
-                                        title={"No items to display"}
-                                        subtitle={"Items that have a due date will show up here."}
-                                        type={"items"}
+                                        title="No items to display"
+                                        subtitle="Items of this list will show up here."
+                                        type="items"
                                     />
                                 </div>
                         )

@@ -42,7 +42,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                     <div className="col-12 m-0 pl-1 flex align-content-center justify-content-end">
                         <Button
                             className="my-2"
-                            id="order-button"
+                            id="header-secondary-button"
                             label="Sort by"
                             icon="pi pi-sort-amount-down-alt"
                             onClick={ e => menu.current.toggle(e) }
@@ -80,7 +80,7 @@ export default function SharedWithMe({ setUser, user, unsetUser, notifications, 
                         <div className="col-12 m-0 pl-1 flex align-content-center justify-content-end">
                             <Button
                                 className="my-2"
-                                id="order-button"
+                                id="header-secondary-button"
                                 label="Sort by"
                                 icon="pi pi-sort-amount-down-alt"
                                 onClick={ e => menu.current.toggle(e) }

@@ -29,6 +29,7 @@ class App extends Component {
             anonymousId: null,
             notifications: [],
             notificationsUnread: false,
+            hideCompleted: false,
             setNotificationsUnread: notificationsUnread => {
                 this.setState({ notificationsUnread });
             },
@@ -41,6 +42,7 @@ class App extends Component {
         this.setAnonymousId = this.setAnonymousId.bind(this);
         this.unsetAnonymousId = this.unsetAnonymousId.bind(this);
         this.setNotifications = this.setNotifications.bind(this);
+        this.setHideCompleted = this.setHideCompleted.bind(this);
     }
 
     setUser(user) {
@@ -53,6 +55,10 @@ class App extends Component {
     }
 
     unsetUser() {
+        this.setState({
+            notificationsUnread: false,
+            hideCompleted: false
+        });
         if (this.state.socket !== null) {
             this.state.socket.disconnect();
         }
@@ -96,6 +102,10 @@ class App extends Component {
 
     setNotifications(notifications) {
         this.setState({ notifications });
+    }
+
+    setHideCompleted(hideCompleted) {
+        this.setState({ hideCompleted });
     }
 
     componentDidMount() {
@@ -305,6 +315,8 @@ class App extends Component {
                                 unsetUser={ this.unsetUser }
                                 notifications={ this.state.notifications }
                                 setNotifications={ this.setNotifications }
+                                hideCompleted={ this.state.hideCompleted }
+                                setHideCompleted={ this.setHideCompleted }
                                 socket={ this.state.socket }
                               />
                             : <Navigate to="/"/>
