@@ -18,7 +18,7 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
     const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
     const updateItem = useCallback(
         item => setItems(items.map(i => (i._id === item._id) ? item : i).filter(i => !hideCompleted || !i.completionDate)),
-        [items, setItems]
+        [items, setItems, hideCompleted]
     );
     const removeItem = useCallback(item => setItems(items.filter(i => i._id !== item._id)), [items, setItems]);
     const [ordering, setOrdering] = useState(null);
