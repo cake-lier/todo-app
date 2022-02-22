@@ -282,6 +282,21 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.87), rgba(0, 0, 0, 0.87));
 }
 
+.p-menu a.p-menuitem-link.p-disabled {
+    background-color: getPrimaryColorWithAlpha(0.04);
+    opacity: 100%;
+    &:hover, &:focus {
+        background-color: getPrimaryColorWithAlpha(0.04);
+    }
+    &:active {
+        background: getPrimaryColorWithAlpha(0.16);
+    }
+}
+
+.p-menu .p-menuitem .p-menuitem-link:not(.p-disabled):hover {
+    background-color: getPrimaryColorWithAlpha(0.04);
+}
+
 @keyframes p-progress-spinner-color {
     100%,
     0% {

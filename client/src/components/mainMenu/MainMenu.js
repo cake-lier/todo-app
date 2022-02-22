@@ -2,7 +2,6 @@ import { Menu } from 'primereact/menu';
 import { PrimeIcons } from 'primereact/api';
 import { useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
-import "./MainMenu.scss";
 
 export default function MainMenu({ selected }) {
     const navigate = useNavigate();
@@ -75,10 +74,10 @@ export default function MainMenu({ selected }) {
         <div className="grid h-full w-min align-content-between"
              style={{backgroundColor: "#FFF", borderRight: "1px solid lightgrey"}}>
             <div className="col-12 p-0 flex">
-                <Menu className="mainMenu border-none p-0 flex-shrink-1 border-noround" model={ mainItems } />
+                <Menu className="border-none p-0 flex-shrink-1 border-noround" model={ mainItems } />
             </div>
             <div className="col-12 p-0 flex">
-                <Menu className="mainMenu border-none p-0 flex-shrink-1 border-noround" model={ subItems } />
+                <Menu className="border-none p-0 flex-shrink-1 border-noround" model={ subItems } />
             </div>
         </div>
     );
