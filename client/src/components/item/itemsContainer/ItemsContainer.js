@@ -24,7 +24,9 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
         { label: "Name ascending", icon: "pi pi-sort-alpha-down", command: _ => setOrdering(0) },
         { label: "Name descending", icon: "pi pi-sort-alpha-up", command: _ => setOrdering(1) },
         { label: "Creation ascending", icon: "pi pi-sort-numeric-down", command: _ => setOrdering(2) },
-        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) }
+        { label: "Creation descending", icon: "pi pi-sort-numeric-up", command: _ => setOrdering(3) },
+        { label: "Due date", icon: "pi pi-calendar", command: _ => setOrdering(4) },
+        { label: "Priority", icon: "pi pi-star", command: _ => setOrdering(5) }
     ];
     const getSortField = ordering => {
         switch (ordering) {
@@ -34,6 +36,10 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
             case 2:
             case 3:
                 return "creationDate";
+            case 4:
+                return "dueDate";
+            case 5:
+                return "priority";
             default:
                 return null;
         }
@@ -42,9 +48,11 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
         switch (ordering) {
             case 0:
             case 2:
+            case 4:
                 return 1;
             case 1:
             case 3:
+            case 5:
                 return -1;
             default:
                 return null;
@@ -98,9 +106,10 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
             <div className="grid flex-column">
                 <div className="col-12 m-0 p-0 pr-2 grid">
                     <div className="col-10 p-0">
-                        <Button className="m-3"
-                                label="New Item" icon="pi pi-plus"
-                                onClick={() => setDisplayDialog(true)}
+                        <Button
+                            className="m-3"
+                            label="New Item" icon="pi pi-plus"
+                            onClick={() => setDisplayDialog(true)}
                         />
                     </div>
                     <div className="col-2 m-0 pl-1 flex align-items-center justify-content-end">

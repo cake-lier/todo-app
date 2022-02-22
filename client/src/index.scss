@@ -176,6 +176,10 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     width: auto;
 }
 
+.p-avatar-group .p-avatar {
+    border-width: 0 !important;
+}
+
 .p-dataview-emptymessage {
     font-size: 1.5em;
 }

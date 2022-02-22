@@ -207,9 +207,9 @@ export default function SignupForm(props) {
                         />
                         <label htmlFor="accept" className={ "inline-block w-8 md:w-12 " + getLabelErrorClass("accept") }>
                             I read and agree to
-                            Waffles' <button style={{ fontSize: "16px" }} onClick={ () => setTermsDialogVisible(true) }>
+                            Waffles' <button type="button" style={{ fontSize: "16px" }} onClick={ () => setTermsDialogVisible(true) }>
                                 Terms of Service
-                            </button> and <button style={{ fontSize: "16px" }} onClick={ () => setCookiesDialogVisible(true) }>
+                            </button> and <button type="button" style={{ fontSize: "16px" }} onClick={ () => setCookiesDialogVisible(true) }>
                                 Cookie Policy
                             </button>.*
                         </label>
