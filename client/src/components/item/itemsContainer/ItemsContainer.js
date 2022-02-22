@@ -115,15 +115,13 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                     </div>
                     <div className="md:col-8 col-2 m-0 p-0 flex flex-row align-items-center justify-content-end">
                         <Button
-                            className="my-2 hidden md:block"
-                            id="header-secondary-button"
+                            className="my-2 hidden md:block p-button-text only-text-button"
                             label={ (hideCompleted ? "Show" : "Hide" ) + " completed" }
                             icon="pi pi-filter"
                             onClick={ () => setHideCompleted(!hideCompleted) }
                         />
                         <Button
-                            className="my-2 hidden md:block"
-                            id="header-secondary-button"
+                            className="my-2 hidden md:block p-button-text only-text-button"
                             label="Sort by"
                             icon="pi pi-sort-amount-down-alt"
                             onClick={ e => menu.current.toggle(e) }
@@ -146,15 +144,13 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                 </div>
                 <div className="col-12 md:hidden m-0 p-0 flex align-items-center justify-content-evenly">
                     <Button
-                        className="my-2"
-                        id="header-secondary-button"
+                        className="my-2 p-button-text only-text-button"
                         label={ (hideCompleted ? "Show" : "Hide" ) + " completed" }
                         icon="pi pi-filter"
                         onClick={ () => setHideCompleted(!hideCompleted) }
                     />
                     <Button
-                        className="my-2"
-                        id="header-secondary-button"
+                        className="my-2 p-button-text only-text-button"
                         label="Sort by"
                         icon="pi pi-sort-amount-down-alt"
                         onClick={ e => menu.current.toggle(e) }

@@ -58,6 +58,9 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
             color: $primary-color;
         }
     }
+    &.p-button-text:enabled:focus{
+        background: getPrimaryColorWithAlpha(0.04);
+    }
     position: static !important;
 }
 
@@ -69,6 +72,10 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
         .pi {
             font-size: x-large;
         }
+    }
+
+    &.only-text-button {
+        color: $text-color !important;
     }
 }
 

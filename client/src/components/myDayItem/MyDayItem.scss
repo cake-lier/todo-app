@@ -10,6 +10,15 @@
   box-shadow: none !important;
 }
 
+.p-panel .p-panel-header .p-panel-header-icon {
+  &:enabled:hover, &:focus {
+    background-color: getPrimaryColorWithAlpha(0.04) !important;
+  }
+  &:active {
+    background: getPrimaryColorWithAlpha(0.16);
+  }
+}
+
 .p-panel-header {
   border-bottom: 1px solid lightgrey !important;
 }

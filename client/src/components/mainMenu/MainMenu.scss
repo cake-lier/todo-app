@@ -1,6 +1,16 @@
 @import "../../colors";
 
-div#mainMenu.p-menu a.p-menuitem-link.p-disabled {
-  background-color: $disabled-color;
+div.mainMenu.p-menu a.p-menuitem-link.p-disabled {
+  background-color: getPrimaryColorWithAlpha(0.04);
   opacity: 100%;
+  &:hover, &:focus {
+    background-color: getPrimaryColorWithAlpha(0.04);
+  }
+  &:active {
+    background: getPrimaryColorWithAlpha(0.16);
+  }
+}
+
+div.mainMenu.p-menu .p-menuitem .p-menuitem-link:not(.p-disabled):hover {
+  background-color: getPrimaryColorWithAlpha(0.04);
 }

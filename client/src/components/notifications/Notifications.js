@@ -195,8 +195,8 @@ export default function Notifications({ notifications, setNotifications, socket,
                               value={ notifications }
                           />
                       </OverlayPanel>
-                      <i
-                          className="pi pi-bell mr-2 p-text-secondary p-overlay-badge cursor-pointer"
+                      <Button
+                          className="pi pi-bell mr-2 p-text-secondary p-overlay-badge p-button-text p-button-rounded only-text-button"
                           style={{ fontSize: '2rem' }}
                           onClick={ e => {
                               panel.current.toggle(e);
@@ -204,7 +204,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                           } }
                       >
                           <Badge className={ notificationsUnread ? null : "hidden" } severity="danger" />
-                      </i>
+                      </Button>
                   </>
             }
         </>

@@ -26,6 +26,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                 </label>
                 <div className="field-checkbox m-1 mb-0">
                     <Checkbox
+                        className="read-only-checkbox"
                         inputId={ item._id }
                         name="item"
                         checked={ !!item.completionDate }

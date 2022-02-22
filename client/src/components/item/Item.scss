@@ -9,6 +9,10 @@
   border: 2px solid $divider-color !important;
 }
 
+.read-only-checkbox.p-checkbox:not(.p-checkbox-disabled):hover {
+  box-shadow: none;
+}
+
 .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon.pi-check:before {
   top: 9px !important;
   left: 3px !important;
