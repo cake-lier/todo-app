@@ -84,6 +84,7 @@ export default function Search({ user, unsetUser, socket, notifications, setNoti
                                           currentItems={ items }
                                           lists={ lists }
                                           displayError={ displayError }
+                                          showCheckbox={ true }
                                       />
                                 }
                             </div>
@@ -132,6 +133,7 @@ export default function Search({ user, unsetUser, socket, notifications, setNoti
                                             currentItems={ items }
                                             lists={ lists }
                                             displayError={ displayError }
+                                            showCheckbox={ true }
                                         />
                                 }
                             </div>

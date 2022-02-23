@@ -6,7 +6,7 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import "./Item.scss"
 
-export default function ReadonlyItem({ item, lists, displayError }) {
+export default function ReadonlyItem({ item, lists, displayError, showCheckbox }) {
     const [assignees, setAssignees] = useState(null);
     useEffect(() => {
         axios.get(`/items/${ item._id }/assignees`)
@@ -18,6 +18,7 @@ export default function ReadonlyItem({ item, lists, displayError }) {
     if (assignees === null) {
         return null;
     }
+    console.log(showCheckbox)
     return (
         <div className="flex justify-content-between m-2 w-full">
             <div>
@@ -26,11 +27,12 @@ export default function ReadonlyItem({ item, lists, displayError }) {
                 </label>
                 <div className="field-checkbox m-1 mb-0">
                     <Checkbox
-                        className="read-only-checkbox"
+                        className={"read-only-checkbox " + (showCheckbox ? null : " hidden")}
                         inputId={ item._id }
                         name="item"
                         checked={ !!item.completionDate }
                     />
+                    <i className={ "pi pi-circle-fill read-only-item " + (showCheckbox ? " hidden" : null)} />
                     <label className="text-xl" htmlFor={ item._id }>
                         { item.title }
                     </label>
