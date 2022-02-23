@@ -105,25 +105,23 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
     return (
         <>
             <div className="grid flex-column">
-                <div className="col-12 m-0 p-0 pr-2 grid">
-                    <div className="col-8 sm:col-10 p-0">
+                <div className="col-12 flex flex-row align-items-center m-0 p-0 pr-2 grid">
+                    <div className="md:col-4 col-10 m-0 p-0 flex justify-content-start">
                         <Button
                             className="m-3"
                             label="New Item" icon="pi pi-plus"
                             onClick={() => setDisplayDialog(true)}
                         />
                     </div>
-                    <div className="col-4 sm:col-2 m-0 sm:pl-1 flex flex-column sm:flex-row align-items-end sm:align-items-center justify-content-end">
+                    <div className="md:col-8 col-2 m-0 p-0 flex flex-row align-items-center justify-content-end">
                         <Button
-                            className="my-2"
-                            id="header-secondary-button"
+                            className="my-2 hidden md:block p-button-text only-text-button"
                             label={ (hideCompleted ? "Show" : "Hide" ) + " completed" }
                             icon="pi pi-filter"
                             onClick={ () => setHideCompleted(!hideCompleted) }
                         />
                         <Button
-                            className="my-2"
-                            id="header-secondary-button"
+                            className="my-2 hidden md:block p-button-text only-text-button"
                             label="Sort by"
                             icon="pi pi-sort-amount-down-alt"
                             onClick={ e => menu.current.toggle(e) }
@@ -143,6 +141,20 @@ export default function ItemsContainer({ userId, anonymousId, setUser, list, set
                             displayError={ displayError }
                         />
                     </div>
+                </div>
+                <div className="col-12 md:hidden m-0 p-0 flex align-items-center justify-content-evenly">
+                    <Button
+                        className="my-2 p-button-text only-text-button"
+                        label={ (hideCompleted ? "Show" : "Hide" ) + " completed" }
+                        icon="pi pi-filter"
+                        onClick={ () => setHideCompleted(!hideCompleted) }
+                    />
+                    <Button
+                        className="my-2 p-button-text only-text-button"
+                        label="Sort by"
+                        icon="pi pi-sort-amount-down-alt"
+                        onClick={ e => menu.current.toggle(e) }
+                    />
                 </div>
             </div>
             <Divider className="m-0 mb-3" />

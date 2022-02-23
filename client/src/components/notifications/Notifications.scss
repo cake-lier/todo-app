@@ -20,6 +20,9 @@
 
 .p-datascroller.p-datascroller-inline .p-datascroller-list > li {
   border: none !important;
+  &:hover {
+    background-color: getPrimaryColorWithAlpha(0.04);
+  }
 }
 
 .p-button.p-button-text.remove-notification {
@@ -29,8 +32,14 @@
   width: fit-content !important;
 }
 
-.underline-text{
+.underline-text {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-decoration-color: $divider-color;
+}
+
+.notification-bell {
+  &:hover {
+    background-color: getPrimaryColorWithAlpha(0.04);
+  }
 }

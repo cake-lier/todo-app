@@ -1,5 +1,4 @@
 import { Button } from 'primereact/button';
-import "./MyListsHeader.scss";
 import {useRef, useState} from "react";
 import CreateListDialog from "../listDialogs/CreateListDialog";
 import {Menu} from "primereact/menu";
@@ -33,8 +32,7 @@ export default function MyListsHeader({ appendList, setOrdering, displayError })
             </div>
             <div className="col-6 m-0 pl-1 flex align-content-center justify-content-end">
                 <Button
-                    id="header-secondary-button"
-                    className="py-0"
+                    className="py-0 p-button-text only-text-button"
                     label="Sort by"
                     icon="pi pi-sort-amount-down-alt"
                     onClick={ e => menu.current.toggle(e) }

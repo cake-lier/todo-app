@@ -36,7 +36,7 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background: $primary-color;
     &:enabled{
         &:hover {
-            background: getPrimaryColorWithAlpha(0.92);
+            background: getPrimaryColorWithAlpha(0.92) ;
         }
         &:active, &:focus {
             background: getPrimaryColorWithAlpha(0.68);
@@ -58,6 +58,9 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
             color: $primary-color;
         }
     }
+    &.p-button-text:enabled:focus{
+        background: getPrimaryColorWithAlpha(0.04);
+    }
     position: static !important;
 }
 
@@ -69,6 +72,10 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
         .pi {
             font-size: x-large;
         }
+    }
+
+    &.only-text-button {
+        color: $text-color !important;
     }
 }
 
@@ -273,6 +280,20 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
 .p-input-filled .p-chips-multiple-container:not(.p-disabled):hover {
     background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.87), rgba(0, 0, 0, 0.87));
+}
+
+.p-menu a.p-menuitem-link.p-disabled {
+    background-color: getPrimaryColorWithAlpha(0.10);
+    opacity: 100%;
+}
+
+.p-menu .p-menuitem .p-menuitem-link:not(.p-disabled){
+    &:hover, &:focus {
+        background-color: getPrimaryColorWithAlpha(0.04);
+    }
+    &:active {
+        background: getPrimaryColorWithAlpha(0.16);
+    }
 }
 
 @keyframes p-progress-spinner-color {

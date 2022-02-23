@@ -98,7 +98,7 @@ export default function Item({ item, anonymousId, listMembers, deleteItem, updat
     ];
     return (
         <>
-            <div className="flex justify-content-between m-2 mx-3 w-full">
+            <div className="flex justify-content-between m-2 ml-3 w-full">
                 <div>
                     <div className="field-checkbox m-1 mb-0">
                         <Checkbox

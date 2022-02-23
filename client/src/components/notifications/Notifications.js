@@ -105,7 +105,7 @@ export default function Notifications({ notifications, setNotifications, socket,
             </div>
         );
         return (
-            <div className="grid p-3 pl-4 w-full" >
+            <div className="grid p-2 pl-4 w-full" >
                 <div className="col-11 p-0 flex align-items-center justify-content-start">
                     <Avatar
                         icon={ !data.authorUsername && !data.picturePath ? "pi pi-info-circle" : null }
@@ -119,7 +119,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                     {
                         data.listId !== null
                         ? <Link to={ "/lists/" + data.listId }>{ notificationText() }</Link>
-                        : notificationText()
+                            : <Link to={"/achievements"}> { notificationText() } </Link>
                     }
                 </div>
                 <div className="col-1 px-0 flex justify-content-end align-items-start">
@@ -196,7 +196,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                           />
                       </OverlayPanel>
                       <i
-                          className="pi pi-bell mr-2 p-text-secondary p-overlay-badge cursor-pointer"
+                          className="pi pi-bell mr-2 p-text-secondary p-overlay-badge cursor-pointer notification-bell"
                           style={{ fontSize: '2rem' }}
                           onClick={ e => {
                               panel.current.toggle(e);

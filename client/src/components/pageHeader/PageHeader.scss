@@ -38,7 +38,7 @@
 }
 
 #headerTabMenu.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover {
-  background-color: transparent;
+  background-color: getPrimaryColorWithAlpha(0.04);
 }
 
 #headerTabMenu.p-tabmenu .p-tabmenu-nav li.p-highlight .p-menuitem-link:focus {
