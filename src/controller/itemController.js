@@ -38,7 +38,6 @@ function createItem(request, response) {
                     [{
                         listId: request.params.id,
                         title: request.body.title,
-                        text: request.body.text,
                         dueDate: request.body.dueDate,
                         reminderDate: request.body.reminderDate,
                         tags: request.body.tags,

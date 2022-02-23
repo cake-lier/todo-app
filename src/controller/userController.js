@@ -9,9 +9,7 @@ const Notification = require("../model/notificationsModel").createNotificationMo
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const mongoose = require("mongoose");
-const schedule = require("node-schedule");
 const { addAchievement } = require("../utils/achievements");
-const _ = require("lodash");
 const rounds = 12;
 
 function decodeImage(encodedImage, response) {
@@ -166,7 +164,7 @@ function updateAccount(request, response) {
                     io.in(`user:${ userId.toString() }`).except(request.session.socketId).emit("userDataReload");
                     response.json(createUpdatedUserDocument(user, request.body.username, request.body.email, path));
                 },
-                error => {
+                error => {res
                     console.log(error);
                     sendError(response, Error.GeneralError);
                 }
@@ -618,7 +616,10 @@ function addReportsAchievement(request, response) {
     if (!validateRequest(request, response, [], [], true)) {
         return;
     }
-    User.startSession().then(session => session.withTransaction(() => addAchievement(request.session.userId, 10, session)));
+    User.startSession()
+        .then(session => session.withTransaction(() =>
+            addAchievement(request.session.userId, 10, session).then(_ => response.send({}))
+        ));
 }
 
 module.exports = {
