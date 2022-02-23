@@ -19,8 +19,8 @@ export function UserIcon({ user, unsetUser, displayError }) {
         [unsetUser, displayError]
     );
     const items = [
-        { label: `Username: ${ user.username }`, icon: PrimeIcons.USER, disabled: true },
-        { label: `E-mail: ${ user.email }`, icon: PrimeIcons.ENVELOPE, disabled: true },
+        { label: `Username: ${ user.username }`, icon: PrimeIcons.USER, disabled: true, className: "disabled-item"},
+        { label: `E-mail: ${ user.email }`, icon: PrimeIcons.ENVELOPE, disabled: true, className: "disabled-item"},
         { separator: true },
         { label: "Settings", icon: PrimeIcons.COG, command: handleOnClickSettings },
         { label: "Logout", icon: PrimeIcons.SIGN_OUT, command: handleOnClickLogout }
@@ -28,7 +28,7 @@ export function UserIcon({ user, unsetUser, displayError }) {
     const menu = useRef();
     return (
         <>
-            <Menu id="profilePictureMenu" model={ items } popup ref={ menu } />
+            <Menu id="profilePictureMenu" className="w-min" model={ items } popup ref={ menu } />
             <Avatar
                 image={ user.profilePicturePath !== null ? user.profilePicturePath : "" }
                 onClick={ e => menu.current.toggle(e) }

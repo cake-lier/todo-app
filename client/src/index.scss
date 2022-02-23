@@ -36,7 +36,7 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     background: $primary-color;
     &:enabled{
         &:hover {
-            background: getPrimaryColorWithAlpha(0.92);
+            background: getPrimaryColorWithAlpha(0.92) ;
         }
         &:active, &:focus {
             background: getPrimaryColorWithAlpha(0.68);
@@ -283,18 +283,17 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 }
 
 .p-menu a.p-menuitem-link.p-disabled {
-    background-color: getPrimaryColorWithAlpha(0.04);
+    background-color: getPrimaryColorWithAlpha(0.10);
     opacity: 100%;
+}
+
+.p-menu .p-menuitem .p-menuitem-link:not(.p-disabled){
     &:hover, &:focus {
         background-color: getPrimaryColorWithAlpha(0.04);
     }
     &:active {
         background: getPrimaryColorWithAlpha(0.16);
     }
-}
-
-.p-menu .p-menuitem .p-menuitem-link:not(.p-disabled):hover {
-    background-color: getPrimaryColorWithAlpha(0.04);
 }
 
 @keyframes p-progress-spinner-color {
