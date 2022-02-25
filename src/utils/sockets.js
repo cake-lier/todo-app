@@ -36,7 +36,7 @@ function setupSockets(server) {
                     },
                     error => {
                         console.log(error);
-                        completionCallback({ success: false });
+                        completionCallback({ error: true });
                     }
                 );
         });
