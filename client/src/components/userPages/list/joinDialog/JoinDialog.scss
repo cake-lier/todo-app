@@ -1,0 +1,10 @@
+@import "../../../../colors";
+
+#accept-button {
+  background-color: #85DE73 !important;
+}
+
+#refuse-button {
+  background-color: $primary-color !important;
+  color: white !important;
+}

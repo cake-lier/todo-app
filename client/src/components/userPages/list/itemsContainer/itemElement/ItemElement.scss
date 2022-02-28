@@ -1,0 +1,38 @@
+@import "../../../../../colors";
+
+.p-checkbox, .p-checkbox-box {
+  width: 25px !important;
+  height: 25px !important;
+}
+
+.p-checkbox .p-checkbox-box {
+  border: 2px solid $divider-color !important;
+}
+
+.read-only-checkbox.p-checkbox {
+  cursor: default;
+  &:not(.p-checkbox-disabled):hover, &.p-checkbox-checked:not(.p-checkbox-disabled):hover {
+    box-shadow: none;
+  }
+}
+
+.p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon.pi-check:before {
+  top: 9px !important;
+  left: 3px !important;
+}
+
+.priority-star {
+  color: $divider-color
+}
+
+.priority-star-fill {
+  color: $primary-color
+}
+
+.read-only-item {
+  margin-left: 8px;
+  font-size: smaller !important;
+  &.pi {
+    color: $text-color
+  }
+}

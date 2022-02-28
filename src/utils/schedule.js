@@ -3,7 +3,7 @@
 const User = require("../model/userModel").createUserModel();
 const Item = require("../model/itemModel").createItemModel();
 const List = require("../model/listModel").createListModel();
-const Notification = require("../model/notificationsModel").createNotificationModel();
+const Notification = require("../model/notificationModel").createNotificationModel();
 const schedule = require("node-schedule");
 const cron = require("node-cron");
 const { addAchievement } = require("./achievements");

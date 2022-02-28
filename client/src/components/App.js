@@ -3,22 +3,23 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Dialog } from "primereact/dialog";
 import axios from "axios";
 import { io } from "socket.io-client";
-import Home from "../pages/home/Home";
-import Login from "../pages/login/Login";
-import MyDay from "../pages/myDay/MyDay";
-import Signup from "../pages/signup/Signup";
-import Settings from "../pages/settings/Settings";
-import Calendar from "../pages/calendar/Calendar";
-import Join from "../pages/join/Join";
-import MyLists from "../pages/myLists/MyLists";
-import SharedWithMe from "../pages/sharedWithMe/SharedWithMe";
-import List from "../pages/list/List";
-import Reports from "../pages/reports/Reports";
-import Achievements from "../pages/achievements/Achievements";
+import Home from "../pages/publicPages/home/Home";
+import Login from "../pages/publicPages/login/Login";
+import MyDay from "../pages/userPages/myDay/MyDay";
+import Signup from "../pages/publicPages/signup/Signup";
+import Settings from "../pages/userPages/settings/Settings";
+import Calendar from "../pages/userPages/calendar/Calendar";
+import Join from "../pages/publicPages/join/Join";
+import MyLists from "../pages/userPages/myLists/MyLists";
+import SharedWithMe from "../pages/userPages/sharedWithMe/SharedWithMe";
+import List from "../pages/userPages/list/List";
+import Reports from "../pages/userPages/reports/Reports";
+import Achievements from "../pages/userPages/achievements/Achievements";
 import { NotificationsContext } from "../utils/contexts";
-import LegalAdvisory from "../pages/LegalAdvisory";
-import Search from "../pages/search/Search";
-import Error404 from "../pages/Error404";
+import LegalAdvisory from "../pages/publicPages/legalAdvisory/LegalAdvisory";
+import Search from "../pages/userPages/search/Search";
+import Error404 from "../pages/publicPages/error404/Error404";
+import TermsAndCookies from "../pages/userPages/termsAndCookies/TermsAndCookies";
 
 class App extends Component {
 
@@ -359,31 +360,23 @@ class App extends Component {
                         path="/legal"
                         element={
                             this.state.user !== null
-                            ? <LegalAdvisory
-                                user={ this.state.user }
-                                unsetUser={ this.unsetUser }
-                                notifications={ this.state.notifications }
-                                setNotifications={ this.setNotifications }
-                                socket={ this.state.socket }
-                            />
+                            ? <TermsAndCookies
+                                  user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
+                                  notifications={ this.state.notifications }
+                                  setNotifications={ this.setNotifications }
+                                  socket={ this.state.socket }
+                              />
                             : <Navigate to="/" />
                         }
                     />
                     <Route
                         path="/legal/terms-and-conditions"
-                        element={
-                            this.state.user === null
-                            ? <LegalAdvisory displayTerms={ true } user={ this.state.user } />
-                            : <Navigate to="/my-day" />
-                        }
+                        element={ this.state.user === null ? <LegalAdvisory displayTerms={ true } /> : <Navigate to="/legal" /> }
                     />
                     <Route
                         path="/legal/cookie-policy"
-                        element={
-                            this.state.user === null
-                            ? <LegalAdvisory displayTerms={ false } user={ this.state.user } />
-                            : <Navigate to="/my-day" />
-                        }
+                        element={ this.state.user === null ? <LegalAdvisory displayTerms={ false } /> : <Navigate to="/legal" /> }
                     />
                     <Route
                         path="/search"
@@ -391,7 +384,6 @@ class App extends Component {
                             this.state.user !== null
                             ? <Search
                                   user={ this.state.user }
-                                  setUser={ this.setUser }
                                   unsetUser={ this.unsetUser }
                                   notifications={ this.state.notifications }
                                   setNotifications={ this.setNotifications }

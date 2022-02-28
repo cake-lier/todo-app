@@ -2,7 +2,7 @@
 
 const { validateRequest, sendError, Error } = require("../utils/validation");
 const mongoose = require("mongoose");
-const Notification = require("../model/notificationsModel").createNotificationModel();
+const { Notification } = require("../model/model");
 
 function getUserNotifications(request, response) {
     if (!validateRequest(request, response, [], [], true)) {

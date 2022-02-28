@@ -1,7 +1,7 @@
 "use strict";
 
 const User = require("../model/userModel.js").createUserModel();
-const Notification = require("../model/notificationsModel").createNotificationModel();
+const Notification = require("../model/notificationModel").createNotificationModel();
 const achievements = [
     "6 months!",
     "1 year!",
@@ -16,7 +16,7 @@ const achievements = [
     "you visited the reports page!",
     "your first collaboration!",
     "your first list!",
-    "your first item!"
+    "your first itemElement!"
 ];
 
 function addAchievement(userId, index, session) {

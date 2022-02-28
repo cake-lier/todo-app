@@ -2,10 +2,7 @@
 
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const uuid = require("uuid");
-const User = require("../model/userModel").createUserModel();
-const List = require("../model/listModel").createListModel();
-const Item = require("../model/itemModel").createItemModel();
-const Notification = require("../model/notificationsModel").createNotificationModel();
+const { User, List, Item, Notification } = require("../model/model");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const mongoose = require("mongoose");

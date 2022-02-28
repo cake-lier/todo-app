@@ -1,9 +1,6 @@
 "use strict";
 
-const List = require("../model/listModel").createListModel();
-const Item = require("../model/itemModel").createItemModel();
-const User = require("../model/userModel.js").createUserModel();
-const Notification = require("../model/notificationsModel").createNotificationModel();
+const { User, List, Item, Notification } = require("../model/model");
 const uuid = require("uuid");
 const otp = require("otp-generator");
 const { Error, validateRequest, sendError } = require("../utils/validation");

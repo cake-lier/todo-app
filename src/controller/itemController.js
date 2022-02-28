@@ -1,9 +1,6 @@
 "use strict";
 
-const User = require("../model/userModel.js").createUserModel();
-const List = require("../model/listModel").createListModel();
-const Item = require("../model/itemModel").createItemModel();
-const Notification = require("../model/notificationsModel").createNotificationModel();
+const { User, List, Item, Notification } = require("../model/model");
 const { Error, validateRequest, sendError } = require("../utils/validation");
 const mongoose = require("mongoose");
 const { addAchievement } = require("../utils/achievements");

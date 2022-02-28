@@ -1,0 +1,45 @@
+@import "../../../colors";
+
+#notifications-overlay-panel {
+  &.p-overlaypanel .p-overlaypanel-content{
+    padding: 0 !important;
+  }
+  .p-datascroller .p-datascroller-content {
+    padding: 0 !important;
+  }
+}
+
+.notification .pi-info-circle:before{
+  font-size:x-large;
+}
+
+.red-color {
+  color: $primary-color !important;
+  font-weight: normal !important;
+}
+
+.p-datascroller.p-datascroller-inline .p-datascroller-list > li {
+  border: none !important;
+  &:hover {
+    background-color: getPrimaryColorWithAlpha(0.04);
+  }
+}
+
+.p-button.p-button-text.remove-notification {
+  color: black !important;
+  padding: 0 !important;
+  height: fit-content !important;
+  width: fit-content !important;
+}
+
+.underline-text {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: $divider-color;
+}
+
+.notification-bell {
+  &:hover {
+    background-color: getPrimaryColorWithAlpha(0.04);
+  }
+}

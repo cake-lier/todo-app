@@ -1,0 +1,61 @@
+@import "../../../colors";
+
+.pi-circle-fill {
+  &.item {
+    font-size: 3rem !important;
+  }
+}
+
+.pi-list {
+  &.item {
+    font-size: x-large !important;
+  }
+}
+
+#list-icon .pi-list {
+  position: relative;
+  right: 37px;
+}
+
+.list-title {
+  padding: 3px;
+  position: relative;
+  right: 23px;
+  &:hover {
+    background-color: getPrimaryColorWithAlpha(0.04);
+  }
+}
+
+.list-item {
+    border: none !important;
+}
+
+.p-dataview .p-dataview-content {
+  padding: 0 !important;
+}
+
+.red-color {
+  & .p-menuitem-icon, .p-menuitem-text {
+    color: $primary-color !important;
+  }
+}
+
+.green-list {
+  color: $pastel-green;
+}
+
+.yellow-list {
+  color: $pastel-yellow;
+}
+
+.blue-list {
+  color: $pastel-blue;
+}
+
+.purple-list {
+  color: $pastel-purple;
+}
+
+.red-list {
+  color: $pastel-red;
+}
