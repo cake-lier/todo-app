@@ -1,6 +1,7 @@
 import _ from "lodash";
 import { Chart } from "primereact/chart";
 import { filterByDateRange, getLabelsByDateRange, groupByDateRange } from "../../../../utils/dates";
+import EmptyPlaceholder from "../../emptyPlaceholder/EmptyPlaceholder";
 
 export default function ItemsChart(props) {
     const data =
@@ -89,6 +90,25 @@ export default function ItemsChart(props) {
             }
         }
     };
+    if (chartData.datasets.length === 0) {
+        return <EmptyPlaceholder
+            title={
+                "No "
+                + (props.filter === 0
+                    ? "yearly"
+                    : (props.filter === 1 ? "monthly" : "weekly"))
+                + " report to display"
+            }
+            subtitle={
+                "Complete an item "
+                + (props.filter === 0
+                    ? "this year"
+                    : (props.filter === 1 ? "this month" : "this week"))
+                + " and then come back here"
+            }
+            type="reports"
+        />;
+    }
     return (
         <>
             <Chart id="itemsCompleted" type="bar" options={ options } data={ chartData } />

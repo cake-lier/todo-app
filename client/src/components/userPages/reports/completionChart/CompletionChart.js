@@ -1,6 +1,7 @@
 import { Chart } from "primereact/chart";
 import _ from "lodash";
 import { filterByDateRange } from "../../../../utils/dates";
+import EmptyPlaceholder from "../../emptyPlaceholder/EmptyPlaceholder";
 
 export default function CompletionChart(props) {
     const datasets =
@@ -77,6 +78,29 @@ export default function CompletionChart(props) {
             }
         }
     };
+    if (chartData.datasets[0].data.length === 0) {
+        return <EmptyPlaceholder
+            title={
+                "No "
+                + (props.filter === 0
+                   ? "yearly"
+                   : (props.filter === 1
+                      ? "monthly"
+                      : (props.filter === 2 ? "weekly" : "all time")))
+                + " report to display"
+            }
+            subtitle={
+                "Complete an item "
+                + (props.filter === 0
+                    ? "this year "
+                    : (props.filter === 1
+                        ? "this month "
+                        : (props.filter === 2 ? "this week " : "")))
+                + "and then come back here"
+            }
+            type="reports"
+        />;
+    }
     return (
         <>
             <Chart id="completionRate" type="doughnut" options={ options } data={ chartData } />
