@@ -32,7 +32,7 @@ export default function ReadonlyItemElement({ item, lists, displayError, showChe
                         name="item"
                         checked={ !!item.completionDate }
                     />
-                    <i className={ "pi pi-circle-fill read-only-itemElement " + (showCheckbox ? " hidden" : null)} />
+                    <i className={ "pi pi-circle-fill read-only-item " + (showCheckbox ? " hidden" : null)} />
                     <label className="text-xl" htmlFor={ item._id }>
                         { item.title }
                     </label>

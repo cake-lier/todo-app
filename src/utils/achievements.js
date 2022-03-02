@@ -16,7 +16,7 @@ const achievements = [
     "you visited the reports page!",
     "your first collaboration!",
     "your first list!",
-    "your first itemElement!"
+    "your first item!"
 ];
 
 function addAchievement(userId, index, session) {

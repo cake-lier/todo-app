@@ -24,7 +24,7 @@ export default function Achievements({ user, unsetUser, socket, notifications, s
         "You visited the reports page",
         "Your first collaboration",
         "Your first list",
-        "Your first itemElement"
+        "Your first item"
     ];
     return (
         <div className="grid h-screen">

@@ -18,7 +18,7 @@ export default function ListElement({ userId, setUser, list, lists, setLists, ow
     return (
         <div className="col-12 m-0 p-0 pl-2 flex flex-row align-items-center list-item">
             <div className="col-11 flex align-items-center" id="list-icon">
-                <i className={ "pi pi-circle-fill itemElement " + (listColor[list.colorIndex]) } />
+                <i className={ "pi pi-circle-fill item " + (listColor[list.colorIndex]) } />
                 <i className="list-item pi pi-list item" />
                 <h1 className="ml-2 cursor-pointer text-xl list-title" onClick={ () => onTitleClick(list._id) }>{ list.title }</h1>
             </div>

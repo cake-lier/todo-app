@@ -47,7 +47,7 @@ export default function Calendar({ user, unsetUser, socket, notifications, setNo
         function handleUpdates(event) {
             if (new RegExp(
                     "/^(?:list(?:Deleted|Self(?:Added|Removed))|"
-                    + "itemElement(?:Created|(?:Title|DueDate|Reminder|Completion)Changed|Deleted))Reload$/"
+                    + "item(?:Created|(?:Title|DueDate|Reminder|Completion)Changed|Deleted))Reload$/"
                 ).test(event)) {
                 updateEvents();
             }

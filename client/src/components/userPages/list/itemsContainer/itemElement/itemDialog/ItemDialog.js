@@ -14,7 +14,7 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
         validate: data => {
             let errors = {};
             if (!data.title) {
-                errors.title = "A title for the itemElement is required.";
+                errors.title = "A title for the item is required.";
             }
             return errors;
         },

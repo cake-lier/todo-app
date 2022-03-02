@@ -57,7 +57,7 @@ export default function MyDayContainer({ socket, displayError }) {
         function handleUpdates(event) {
             if (new RegExp(
                     "^(?:list(?:Deleted|Self(?:Added|Removed))|"
-                    + "itemElement(?:Created|(?:Title|Text|Date|Completion|Count)Changed|Assignee(?:Added|Changed|Removed)|"
+                    + "item(?:Created|(?:Title|Text|Date|Completion|Count)Changed|Assignee(?:Added|Changed|Removed)|"
                     + "Tags(?:Added|Removed)|Deleted))Reload$"
                 ).test(event)) {
                 getItems();

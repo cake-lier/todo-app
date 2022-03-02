@@ -1,18 +1,17 @@
-import {useCallback, useRef, useState} from "react";
+import { useCallback, useRef } from "react";
 import SideMenu from "../../../components/userPages/sideMenu/SideMenu";
 import ErrorMessages from "../../../components/userPages/errorMessages/ErrorMessages";
 import { ChangeAccountDataForm } from "../../../components/userPages/settings/changeAccountDataForm/ChangeAccountDataForm";
 import DeleteAccountForm from "../../../components/userPages/settings/deleteAccountForm/DeleteAccountForm";
 import ChangePasswordForm from "../../../components/userPages/settings/changePasswordForm/ChangePasswordForm";
 import { Messages } from "primereact/messages";
-import { InputSwitch } from 'primereact/inputswitch';
-import "./Settings.scss";
 import PageHeader from "../../../components/userPages/pageHeader/PageHeader";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import NotificationPreferencesForm
+    from "../../../components/userPages/settings/notificationPreferencesForm/NotificationPreferencesForm";
+import "./Settings.scss";
 
 export default function Settings(props) {
-    const [notificationEnabled, setNotificationsEnabled] = useState(props.user.notificationsEnabled);
     const errors = useRef();
     const displayError = useCallback(lastErrorCode => {
         errors.current.displayError(lastErrorCode);
@@ -27,48 +26,12 @@ export default function Settings(props) {
         );
     }
 
-    const changeNotification = enabled => {
-        setNotificationsEnabled(enabled);
-        axios.put("/users/me/enableNotifications", { enabled })
-             .then(
-                 user => props.setUser(user.data),
-                 error => displayError(error.response.data.error)
-             );
-    }
-
     const getTabElement = tabName => {
         if (tabName === "password") {
             return <ChangePasswordForm displaySuccess={ displaySuccess } displayError={ displayError } />;
         }
         if (tabName === "notifications") {
-            return (
-                <>
-                    <form>
-                        <div className="grid align-items-center mt-3">
-                            <div className="col-12">
-                                <h2 className="font-bold text-lg">Notifications</h2>
-                            </div>
-                            <div className="col-12">
-                                <h3 className="text-md mt-2">
-                                    You have total control over push notifications you receive for each list. By default,
-                                    notifications are on for all lists. You can choose to turn them off for each individual list
-                                    or disable all notifications here.
-                                </h3>
-                            </div>
-                            <div className="col-12">
-                                <span className="mt-2 flex align-items-center">
-                                <label className="mr-2" htmlFor="notifications">All notifications enabled</label>
-                                <InputSwitch
-                                    id="notifications"
-                                    checked={ notificationEnabled }
-                                    onChange={ e => changeNotification(e.value) }
-                                />
-                            </span>
-                            </div>
-                        </div>
-                    </form>
-                </>
-            );
+            return <NotificationPreferencesForm user={ props.user } setUser={ props.setUser } displayError={ displayError } />;
         }
         return (
             <>

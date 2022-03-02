@@ -49,9 +49,9 @@ export default function Reports({ user, setUser, unsetUser, tab, socket, notific
             .then(lists => setLists(lists.data))
             .then(_ => axios.get("/items"))
             .then(
-                 items => setItems(items.data),
-                 error => displayError(error.response.data.error)
-             )
+                items => setItems(items.data),
+                error => displayError(error.response.data.error)
+            )
             .then(_ => setLoading(false))
     }, [setLists, setItems, displayError, setLoading]);
     useEffect(updateItems, [updateItems]);
@@ -59,7 +59,7 @@ export default function Reports({ user, setUser, unsetUser, tab, socket, notific
         function handleUpdates(event) {
             if (new RegExp(
                     "^(?:list(?:Deleted|TitleChanged|Self(?:Added|Removed))"
-                    + "|itemElement(?:Created|(?:Completion|Count)Changed|Deleted))Reload$"
+                    + "|item(?:Created|(?:Completion|Count)Changed|Deleted))Reload$"
                 ).test(event)) {
                 updateItems();
             }
@@ -109,7 +109,7 @@ export default function Reports({ user, setUser, unsetUser, tab, socket, notific
                             ? <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
                                   <EmptyPlaceholder
                                       title={ "No reports to display" }
-                                      subtitle={ "Complete your first itemElement and then come back here" }
+                                      subtitle={ "Complete your first item and then come back here" }
                                       type={"reports"}
                                   />
                               </div>
@@ -162,7 +162,7 @@ export default function Reports({ user, setUser, unsetUser, tab, socket, notific
                             <div className="col-12 flex flex-grow-1 flex-column justify-content-center align-content-center">
                                 <EmptyPlaceholder
                                     title={ "No reports to display" }
-                                    subtitle={ "Complete your first itemElement and then come back here" }
+                                    subtitle={ "Complete your first item and then come back here" }
                                     type={"reports"}/>
                             </div>
                         : <>

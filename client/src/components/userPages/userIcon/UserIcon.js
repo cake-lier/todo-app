@@ -19,8 +19,8 @@ export function UserIcon({ user, unsetUser, displayError }) {
         [unsetUser, displayError]
     );
     const items = [
-        { label: `Username: ${ user.username }`, icon: PrimeIcons.USER, disabled: true, className: "disabled-itemElement"},
-        { label: `E-mail: ${ user.email }`, icon: PrimeIcons.ENVELOPE, disabled: true, className: "disabled-itemElement"},
+        { label: `Username: ${ user.username }`, icon: PrimeIcons.USER, disabled: true, className: "disabled-item"},
+        { label: `E-mail: ${ user.email }`, icon: PrimeIcons.ENVELOPE, disabled: true, className: "disabled-item"},
         { separator: true },
         { label: "Settings", icon: PrimeIcons.COG, command: handleOnClickSettings },
         { label: "Logout", icon: PrimeIcons.SIGN_OUT, command: handleOnClickLogout }

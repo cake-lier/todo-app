@@ -2,10 +2,11 @@ import ErrorMessages from "../../../components/userPages/errorMessages/ErrorMess
 import SideMenu from "../../../components/userPages/sideMenu/SideMenu";
 import PageHeader from "../../../components/userPages/pageHeader/PageHeader";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import JoinDialog from "../../../components/userPages/list/joinDialog/JoinDialog";
 import ItemsContainer from "../../../components/userPages/list/itemsContainer/ItemsContainer";
+import ListHeader from "../../../components/userPages/list/listHeader/ListHeader";
 
 export default function List({
     user,
@@ -59,6 +60,53 @@ export default function List({
         socket.onAny(handleUpdates);
         return () => socket.offAny(handleUpdates);
     }, [id, socket, getHeader, navigate, unsetAnonymousId, user]);
+    const updateList = useCallback(lists => {
+        if (lists.length < 1) {
+            navigate("/my-lists");
+            return;
+        }
+        setList(lists[0]);
+    }, [navigate, setList]);
+    const [ordering, setOrdering] = useState(null);
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const appendItem = useCallback(item => setItems(items.concat(item)), [items, setItems]);
+    const updateItem = useCallback(
+        item => setItems(items.map(i => (i._id === item._id) ? item : i).filter(i => !hideCompleted || !i.completionDate)),
+        [items, setItems, hideCompleted]
+    );
+    const deleteItem = useCallback(item => {
+        axios.delete("/items/" + item._id, { params: anonymousId !== null ? { anonymousId } : {} })
+            .then(
+                _ => setItems(items.filter(i => i._id !== item._id)),
+                error => displayError(error.response.data.error)
+            );
+    }, [anonymousId, displayError, items, setItems]);
+    const getItems = useCallback(() => {
+        axios.get(`/lists/${ id }/items/`, { params: anonymousId !== null ? { anonymousId } : {} })
+             .then(
+                 items => {
+                     setItems(items.data.filter(item => !hideCompleted || !item.completionDate));
+                     setLoading(false);
+                 },
+                 error => displayError(error.response.data.error)
+             );
+    }, [displayError, id, anonymousId, setItems, setLoading, hideCompleted]);
+    useEffect(getItems, [getItems]);
+    useEffect(() => {
+        function handleUpdates(event, eventListId) {
+            if (list._id === eventListId
+                && new RegExp(
+                    "^item(?:Created|(?:Title|DueDate|ReminderDate|Priority|Completion|Count)Changed|Tags(?:Added|Removed)"
+                    + "|Assignee(?:Added|Removed|Updated)|Deleted)Reload$"
+                ).test(event)
+            ) {
+                getItems();
+            }
+        }
+        socket.onAny(handleUpdates);
+        return () => socket.offAny(handleUpdates);
+    }, [socket, list, getItems]);
     if (list === null) {
         return null;
     }
@@ -91,18 +139,29 @@ export default function List({
                     socket={ socket }
                     displayError={ displayError }
                 />
-                <ItemsContainer
+                <ListHeader
                     userId={ user?._id }
-                    anonymousId={ anonymousId }
                     setUser={ setUser }
-                    list={ list }
-                    setList={ setList }
+                    anonymousId={ anonymousId }
                     members={ members }
                     setMembers={ setMembers }
+                    list={ list }
+                    updateList={ updateList }
                     disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
+                    setOrdering={ setOrdering }
+                    appendItem={ appendItem }
                     hideCompleted={ hideCompleted }
                     setHideCompleted={ setHideCompleted }
-                    socket={ socket }
+                    displayError={ displayError }
+                />
+                <ItemsContainer
+                    anonymousId={ anonymousId }
+                    items={ items }
+                    members={ members }
+                    ordering={ ordering }
+                    loading={ loading }
+                    updateItem={ updateItem }
+                    deleteItem={ deleteItem }
                     displayError={ displayError }
                 />
             </div>
@@ -120,18 +179,29 @@ export default function List({
                         socket={ socket }
                         displayError={ displayError }
                     />
-                    <ItemsContainer
+                    <ListHeader
                         userId={ user?._id }
-                        anonymousId={ anonymousId }
                         setUser={ setUser }
-                        list={ list }
-                        setList={ setList }
+                        anonymousId={ anonymousId }
                         members={ members }
                         setMembers={ setMembers }
+                        list={ list }
+                        updateList={ updateList }
                         disabledNotificationsLists={ user ? user.disabledNotificationsLists: [] }
+                        setOrdering={ setOrdering }
+                        appendItem={ appendItem }
                         hideCompleted={ hideCompleted }
                         setHideCompleted={ setHideCompleted }
-                        socket={ socket }
+                        displayError={ displayError }
+                    />
+                    <ItemsContainer
+                        anonymousId={ anonymousId }
+                        items={ items }
+                        members={ members }
+                        ordering={ ordering }
+                        loading={ loading }
+                        updateItem={ updateItem }
+                        deleteItem={ deleteItem }
                         displayError={ displayError }
                     />
                 </div>
