@@ -18,7 +18,6 @@ export default function ReadonlyItemElement({ item, lists, displayError, showChe
     if (assignees === null) {
         return null;
     }
-    console.log(showCheckbox)
     return (
         <div className="flex justify-content-between m-2 w-full">
             <div>

@@ -100,6 +100,7 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
         <>
             <Button
                 icon="pi pi-ellipsis-h"
+                aria-label="open list sub-menu"
                 onClick={ e => menu.current.toggle(e) }
                 className="p-button-rounded p-button-icon-only p-button-text three-dots text-3xl"
             />

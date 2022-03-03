@@ -34,6 +34,7 @@ export function UserIcon({ user, unsetUser, displayError }) {
                 onClick={ e => menu.current.toggle(e) }
                 shape="circle"
                 className="w-3rem h-3rem"
+                aria-label="open user sub-menu"
             />
         </>
     );

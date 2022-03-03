@@ -171,6 +171,7 @@ export default function ItemElement({ item, anonymousId, listMembers, deleteItem
                 </div>
                 <Button
                     icon="pi pi-ellipsis-h"
+                    aria-label="open item sub-menu"
                     onClick={ e => menu.current.toggle(e) }
                     className="p-button-rounded p-button-icon-only p-button-text three-dots"
                 />

@@ -22,7 +22,7 @@ export default function PageHeader({ user, isAnonymous, unsetUser, title, showDa
                     {
                         user
                         ? <>
-                              <Button id="burger-menu" icon="pi pi-bars cursor-pointer" onClick={() => setVisible(true)}/>
+                              <Button id="burger-menu" icon="pi pi-bars cursor-pointer" aria-label="toggle side menu" onClick={() => setVisible(true)}/>
                               <Sidebar className="p-0 m-0 md:hidden" showCloseIcon={false} visible={visible} onHide={() => setVisible(false)}>
                                   <SideMenu selected={(title ? title : null)} />
                               </Sidebar>

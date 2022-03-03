@@ -13,7 +13,7 @@ export default function Login(props) {
     }, [errors]);
     return (
         <div className="grid h-screen align-items-center">
-            <ErrorMessages ref={ e => this.errors = e } />
+            <ErrorMessages ref={ errors } />
             <div className="col-12 md:col-4 md:col-offset-4">
                 <Card><LoginForm setUser={ props.setUser } displayError={ displayError } /></Card>
             </div>
