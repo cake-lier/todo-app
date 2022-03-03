@@ -30,6 +30,7 @@ export default function NotificationPreferencesForm({ user, setUser, displayErro
                         <label className="mr-2" htmlFor="notifications">All notifications enabled</label>
                         <InputSwitch
                             id="notifications"
+                            aria-label="toggle push notification"
                             checked={ notificationEnabled }
                             onChange={ e => changeNotificationsPreferences(e.value) }
                         />

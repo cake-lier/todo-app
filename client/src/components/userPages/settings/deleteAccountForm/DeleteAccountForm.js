@@ -38,7 +38,7 @@ export default function DeleteAccountForm({ unsetUser, displayError }) {
                             id="password"
                             name="password"
                             className={ "w-full" + (deletionFailed ? " p-invalid" : "") }
-                            value={ this.state.password }
+                            value={ password }
                             onChange={ e => setPassword(e.target.value) }
                             feedback={ false }
                             toggleMask
