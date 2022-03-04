@@ -1,11 +1,14 @@
+import Moment from "moment";
+
 export function filterByDateRange(rangeType, date) {
+    const today = Moment(new Date());
     switch (rangeType) {
         case 0:
-            return new Date(date).valueOf() - new Date().setFullYear(new Date().getFullYear() - 1) > 0;
+            return Moment(date).isBetween(Moment(new Date()).subtract(1, 'years'), today, 'day', '[]');
         case 1:
-            return new Date(date).valueOf() - new Date().setMonth(new Date().getMonth() - 1) > 0;
+            return Moment(date).isBetween(Moment(new Date()).subtract(1, "months"), today, 'day', '[]');
         case 2:
-            return new Date(date).valueOf() - new Date().setDate(new Date().getDate() - 7) > 0;
+            return Moment(date).isBetween(Moment(new Date()).subtract(7, 'days'), today, 'day', '[]');
         default:
             return true;
     }
