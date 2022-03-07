@@ -18,11 +18,7 @@ export default function Reports({ user, setUser, unsetUser, tab, socket, notific
     }, [errors]);
     useEffect(() => {
         if (!user.achievements[10]) {
-            axios.put("/users/me/achievements/reports")
-                 .then(
-                     user => setUser(user.data),
-                     error => displayError(error.response.data.error)
-                 );
+            axios.put("/users/me/achievements/reports").catch(error => displayError(error.response.data.error));
         }
     }, [user, setUser, displayError]);
     const [filter, setFilter] = useState(0);
