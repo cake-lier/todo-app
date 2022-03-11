@@ -28,7 +28,7 @@ export default function JoinDialog({ listId, socket, displayError }) {
     const handleResponse = isApproved => {
         if (isApproved) {
             axios.post(
-                `/lists/${ this.state.listId }/members`,
+                `/lists/${ listId }/members`,
                 {
                     isAnonymous: true,
                     socketId: anonymousSocket,

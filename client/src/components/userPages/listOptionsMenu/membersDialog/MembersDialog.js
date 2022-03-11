@@ -62,7 +62,7 @@ export default function MembersDialog({ members, setMembers, display, setDisplay
     }
     return (
         <Dialog
-            className={"w-27rem m-3 pb-5 " + (members.length > 4 ? " h-25rem" : null )}
+            className={"w-27rem m-3 pb-5 " + (members.length > 5 ? " h-25rem" : null )}
             visible={ display }
             header={ renderHeader() }
             dismissableMask={ true }

@@ -861,15 +861,15 @@ function addAssignee(request, response) {
                                        .then(text => {
                                            if (assignee.userId !== null) {
                                                io.in(`list:${listId}`)
-                                                 .except(`user:${request.session.userId}`)
+                                                 .except(`user:${ request.session.userId }`)
                                                  .except(`anon:${ request.query.anonymousId }`)
-                                                 .except(`user:${assignee.userId?.toString()}`)
+                                                 .except(`user:${ assignee.userId?.toString() }`)
                                                  .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
                                            } else {
                                                io.in(`list:${listId}`)
-                                                 .except(`user:${request.session.userId}`)
+                                                 .except(`user:${ request.session.userId }`)
                                                  .except(`anon:${ request.query.anonymousId }`)
-                                                 .except(`anon:${assignee.anonymousId}`)
+                                                 .except(`anon:${ assignee.anonymousId }`)
                                                  .emit("itemAssigneeAdded", listId, `${authorUsername}${text}`);
                                            }
                                            const users = lists[0].members
@@ -895,7 +895,7 @@ function addAssignee(request, response) {
                                            .then(_ => {
                                                const userText = ` added you to the item "${item.title}"`;
                                                return (
-                                                     assignee.userId !== null
+                                                     assignee.userId !== null && request.session.userId !== assignee.userId?.toString()
                                                      ? Notification.create(
                                                            [{
                                                                authorUsername,
@@ -911,11 +911,12 @@ function addAssignee(request, response) {
                                                )
                                                .then(_ => {
                                                    if (assignee.userId !== null) {
-                                                       io.in(`user:${assignee.userId.toString()}`)
-                                                         .except(`user:${request.session.userId}`)
+                                                       io.in(`user:${ assignee.userId.toString() }`)
+                                                         .except(`user:${ request.session.userId }`)
                                                          .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
                                                    } else {
                                                        io.in(`anon:${ assignee.anonymousId.toString() }`)
+                                                         .except(`user:${ request.session.userId }`)
                                                          .except(`anon:${ request.query.anonymousId }`)
                                                          .emit("itemAssigneeAdded", listId, `${authorUsername}${userText}`);
                                                    }

@@ -25,6 +25,8 @@ export default function AddMemberDialog({ list, display, setDisplay, updateList,
             error => {
                 if (error.response.data.error === 6) {
                     setEmailErrorText("This email is not associated to any user.");
+                } else if (error.response.data.error === 7) {
+                    setEmailErrorText("The user is already a member of this list.")
                 } else {
                     displayError(error.response.data.error);
                 }

@@ -60,7 +60,7 @@ export default function LoginForm({ setUser, displayError }) {
                         <label htmlFor="password" className={ loginFailed ? "p-error" : "" }>Password</label>
                     </span>
                     <p className={ "text-sm p-error mt-2" + (loginFailed ? "" : " hidden") }>
-                        Username or password are incorrect.
+                        Email or password are incorrect.
                     </p>
                     <Button disabled={ isSubmitting } type="submit" className="w-full mt-5" label="Login" />
                 </form>

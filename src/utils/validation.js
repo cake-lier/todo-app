@@ -8,6 +8,7 @@ class Error {
     static RequestError = new Error(4, 400);
     static ResourceNotFound = new Error(5, 404);
     static UserNotFound = new Error(6, 404);
+    static ExistingMemberError = new Error(7, 400);
 
     constructor(code, status) {
         this.code = code;

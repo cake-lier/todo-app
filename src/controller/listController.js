@@ -432,80 +432,94 @@ function addMember(request, response) {
                         }
                         const newMemberUserId = user._id.toString();
                         const newMemberUsername = user.username;
-                        return List.findOneAndUpdate(
+                        List.findOne(
                             {
                                 _id: mongoose.Types.ObjectId(request.params.id),
                                 members: {
-                                    $elemMatch: { userId: mongoose.Types.ObjectId(request.session.userId), role: "owner" },
-                                    $not: { $elemMatch: { userId: user._id } }
+                                    $elemMatch: { userId: user._id }
                                 }
-                            },
-                            { $push: { members: { userId: user._id } } },
-                            { runValidators: true, context: "query", new: true, session },
+                            }
                         )
                         .exec()
                         .then(list => {
-                            if (list === null) {
-                                sendError(response, Error.ResourceNotFound);
-                                return Promise.resolve();
+                            if (list !== null) {
+                                sendError(response, Error.ExistingMemberError);
+                                return Promise.resolve()
                             }
-                            return User.findById(request.session.userId, undefined, { session })
-                                       .exec()
-                                       .then(user => {
-                                           const authorUsername = user.username;
-                                           const picturePath = user.profilePicturePath;
-                                           const listId = list._id.toString();
-                                           const newMemberText = ` added you to the the list "${ list.title }"`;
-                                           const oldMembersText = ` added the new member ${newMemberUsername} to the list `
-                                                                  + `"${ list.title }"`;
-                                           return Notification.create(
-                                               [{
-                                                   authorUsername,
-                                                   picturePath,
-                                                   users: [newMemberUserId],
-                                                   text: newMemberText,
-                                                   listId
-                                               }],
-                                               { session }
-                                           )
-                                           .then(_ => {
-                                               io.in(`user:${ newMemberUserId }`)
-                                                 .emit("listSelfAdded", listId, `${authorUsername}${newMemberText}`);
-                                               io.in(`user:${ newMemberUserId }`).emit("listSelfAddedReload", listId);
-                                               const users = list.members
-                                                                 .filter(m => m.userId !== null
-                                                                              && m.userId.toString() !== request.session.userId
-                                                                              && m.userId.toString() !== newMemberUserId)
-                                                                 .map(m => m.userId);
-                                               return (
-                                                   users.length > 0
-                                                   ? Notification.create(
-                                                         [{
-                                                             authorUsername,
-                                                             picturePath,
-                                                             users,
-                                                             text: oldMembersText,
-                                                             listId
-                                                         }],
-                                                         { session }
-                                                     )
-                                                   : Promise.resolve()
-                                               );
-                                           })
-                                           .then(_ => {
-                                               io.in(`list:${ listId }`)
-                                                 .except(`user:${ request.session.userId }`)
-                                                 .except(`user:${ newMemberUserId}`)
-                                                 .emit("listMemberAdded", listId, `${authorUsername}${oldMembersText}`);
-                                               io.in(`list:${ listId }`)
-                                                 .except(request.session.socketId)
-                                                 .emit("listMemberAddedReload", listId);
-                                               io.in(`user:${ newMemberUserId }`).socketsJoin(`list:${ listId }`);
-                                           })
-                                           .then(_ => addAchievement(request.session.userId, 11, session))
-                                           .then(_ => response.json(list));
-                                       })
-                        });
+                            return List.findOneAndUpdate(
+                                {
+                                    _id: mongoose.Types.ObjectId(request.params.id),
+                                    members: {
+                                        $elemMatch: { userId: mongoose.Types.ObjectId(request.session.userId), role: "owner" },
+                                    }
+                                },
+                                { $push: { members: { userId: user._id } } },
+                                { runValidators: true, context: "query", new: true, session },
+                            )
+                                .exec()
+                                .then(list => {
+                                    if (list === null) {
+                                        sendError(response, Error.ResourceNotFound);
+                                        return Promise.resolve();
+                                    }
+                                    return User.findById(request.session.userId, undefined, { session })
+                                        .exec()
+                                        .then(user => {
+                                            const authorUsername = user.username;
+                                            const picturePath = user.profilePicturePath;
+                                            const listId = list._id.toString();
+                                            const newMemberText = ` added you to the the list "${ list.title }"`;
+                                            const oldMembersText = ` added the new member ${newMemberUsername} to the list `
+                                                + `"${ list.title }"`;
+                                            return Notification.create(
+                                                [{
+                                                    authorUsername,
+                                                    picturePath,
+                                                    users: [newMemberUserId],
+                                                    text: newMemberText,
+                                                    listId
+                                                }],
+                                                { session }
+                                            )
+                                                .then(_ => {
+                                                    io.in(`user:${ newMemberUserId }`)
+                                                        .emit("listSelfAdded", listId, `${authorUsername}${newMemberText}`);
+                                                    io.in(`user:${ newMemberUserId }`).emit("listSelfAddedReload", listId);
+                                                    const users = list.members
+                                                        .filter(m => m.userId !== null
+                                                            && m.userId.toString() !== request.session.userId
+                                                            && m.userId.toString() !== newMemberUserId)
+                                                        .map(m => m.userId);
+                                                    return (
+                                                        users.length > 0
+                                                            ? Notification.create(
+                                                                [{
+                                                                    authorUsername,
+                                                                    picturePath,
+                                                                    users,
+                                                                    text: oldMembersText,
+                                                                    listId
+                                                                }],
+                                                                { session }
+                                                            )
+                                                            : Promise.resolve()
+                                                    );
+                                                })
+                                                .then(_ => {
+                                                    io.in(`list:${ listId }`)
+                                                        .except(`user:${ request.session.userId }`)
+                                                        .except(`user:${ newMemberUserId}`)
+                                                        .emit("listMemberAdded", listId, `${authorUsername}${oldMembersText}`);
+                                                    io.in(`list:${ listId }`)
+                                                        .except(request.session.socketId)
+                                                        .emit("listMemberAddedReload", listId);
+                                                    io.in(`user:${ newMemberUserId }`).socketsJoin(`list:${ listId }`);
+                                                })
+                                                .then(_ => addAchievement(request.session.userId, 11, session))
+                                                .then(_ => response.json(list));
+                                        })
+                                });
+                        })
                     })
             ))
             .catch(error => {

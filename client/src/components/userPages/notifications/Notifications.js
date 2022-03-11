@@ -22,6 +22,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                          .then(
                              notifications => {
                                  setNotifications(notifications.data);
+                                 console.log(event)
                                  if (notificationsEnabled && !(disabledNotificationsLists.includes(listId))) {
                                      toast.current.show({
                                          severity: 'info',
@@ -78,14 +79,14 @@ export default function Notifications({ notifications, setNotifications, socket,
         const subtitle = Moment(data.insertionDate).fromNow().toString() + (data.listTitle ? " - List: " + data.listTitle : "");
         const memberIndex = data.text.indexOf("member")
         const secondPartIndex =
-            data.text.includes("in")
-            ? data.text.indexOf("in")
-            : (data.text.includes("from") ? data.text.indexOf("from") : data.text.indexOf("to"));
+            data.text.includes("in the")
+            ? data.text.indexOf("in the")
+            : (data.text.includes("from the") ? data.text.indexOf("from the") : data.text.indexOf("to the"));
         const firstPartText = data.text.substring(
             0,
             (memberIndex === -1 ? data.text.length : (memberIndex + 7))
         );
-        const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex - 2) : null;
+        const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex-2) : null;
         const memberUsername = secondPartText !== null ? data.text.substring(memberIndex + 7, secondPartIndex) : null;
         const notificationText = () => (
             <div className="mx-2">
@@ -200,7 +201,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                           style={{ fontSize: '2rem' }}
                           onClick={ e => {
                               panel.current.toggle(e);
-                              setNotificationsUnread(false);
+                              if (notificationsUnread) setNotificationsUnread(false);
                           } }
                       >
                           <Badge className={ notificationsUnread ? null : "hidden" } severity="danger" />

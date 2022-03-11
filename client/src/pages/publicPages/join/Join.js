@@ -11,7 +11,7 @@ export default function Join(props) {
     }, [errors]);
     return (
         <div className="grid h-screen align-items-center justify-content-center">
-            <ErrorMessages ref={ e => this.errors = e } />
+            <ErrorMessages ref={ errors } />
             <div className="col-12 sm:col-8 md:col-6 lg:col-4">
                 <Card>
                     <JoinForm

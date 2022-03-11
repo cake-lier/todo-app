@@ -17,7 +17,7 @@ export default function PageHeader({ user, isAnonymous, unsetUser, title, showDa
     const [visible, setVisible] = useState(false);
     if (isResponsive) {
         return (
-            <div className="grid sticky top-0 z-5" style={{backgroundColor: "white"}}>
+            <div className="grid sticky top-0 z-1" style={{backgroundColor: "white"}}>
                 <div className="col-9 p-0 m-0 flex flex-columns justify-content-right">
                     {
                         user
