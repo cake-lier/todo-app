@@ -22,7 +22,6 @@ export default function Notifications({ notifications, setNotifications, socket,
                          .then(
                              notifications => {
                                  setNotifications(notifications.data);
-                                 console.log(event)
                                  if (notificationsEnabled && !(disabledNotificationsLists.includes(listId))) {
                                      toast.current.show({
                                          severity: 'info',

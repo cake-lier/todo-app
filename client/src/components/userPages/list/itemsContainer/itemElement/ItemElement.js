@@ -31,13 +31,10 @@ export default function ItemElement({ item, anonymousId, listMembers, deleteItem
              );
     }, [setAssignees, displayError, item, anonymousId]);
 
-    const [priority, setPriority] = useState(item.priority);
-
     const togglePriority = () => {
-        setPriority(!priority);
         axios.put(
             `/items/${ item._id }/priority`,
-            { priority: !priority },
+            { priority: !item.priority },
             { params: anonymousId !== null ? { anonymousId } : {} }
         )
         .then(
@@ -112,9 +109,9 @@ export default function ItemElement({ item, anonymousId, listMembers, deleteItem
                         <div className="flex align-items-center">
                             <p className="count-items flex m-1 text-xl" style={{ color: "#E61950" }}>x{ item.count }</p>
                         </div>
-                        <span className={(priority ? "priority-star-fill" : "priority-star")}>
+                        <span className={(item.priority ? "priority-star-fill" : "priority-star")}>
                             <i
-                                className={ (priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 cursor-pointer" }
+                                className={ (item.priority ? "pi pi-star-fill" : "pi pi-star") + " ml-2 cursor-pointer" }
                                 onClick={ togglePriority }
                             />
                         </span>

@@ -85,8 +85,8 @@ export default function List({
     const getItems = useCallback(() => {
         axios.get(`/lists/${ id }/items/`, { params: anonymousId !== null ? { anonymousId } : {} })
              .then(
-                 items => {
-                     setItems(items.data.filter(item => !hideCompleted || !item.completionDate));
+                 itemsResponse => {
+                     setItems(itemsResponse.data.filter(item => !hideCompleted || !item.completionDate));
                      setLoading(false);
                  },
                  error => displayError(error.response.data.error)
