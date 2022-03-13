@@ -231,6 +231,7 @@ class App extends Component {
                             this.state.user !== null
                             ? <Settings
                                   user={ this.state.user }
+                                  unsetUser={ this.unsetUser }
                                   notifications={ this.state.notifications }
                                   setNotifications={ this.setNotifications }
                                   socket={ this.state.socket }
@@ -246,6 +247,7 @@ class App extends Component {
                             ? <Settings
                                   user={ this.state.user }
                                   setUser={ this.setUser }
+                                  unsetUser={ this.unsetUser }
                                   notifications={ this.state.notifications }
                                   setNotifications={ this.setNotifications }
                                   socket={ this.state.socket }
