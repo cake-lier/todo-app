@@ -33,7 +33,7 @@ export default function ChangePasswordForm(props) {
             )
             .then(
                 _ => {
-                    props.displaySuccess();
+                    props.displaySuccess("The password was changed successfully.");
                     formik.resetForm();
                 },
                 error => {

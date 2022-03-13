@@ -49,7 +49,6 @@ export default function DeleteAccountForm({ unsetUser, displayError }) {
                         The password is incorrect.
                     </p>
                     <Button
-                        id="deleteAccount"
                         disabled={ isSubmitting }
                         type="submit"
                         className="w-full mt-3"

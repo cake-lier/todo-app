@@ -49,6 +49,7 @@ export function ChangeAccountDataForm(props) {
                     props.setUser(user.data);
                     setProfilePicture(user.data.profilePicturePath);
                     fileUploader.current.clear();
+                    props.displaySuccess("Your account data was changed successfully.");
                     formik.resetForm({ username: user.data.username, email: user.data.email });
                 },
                 error => props.displayError(error.response.data.error)
@@ -120,7 +121,6 @@ export function ChangeAccountDataForm(props) {
             <span className="p-float-label p-input-icon-right w-full mt-2">
                 <i className="pi pi-user" />
                 <InputText
-                    id="username"
                     name="username"
                     className={ "w-full " + getFieldErrorClass("username") }
                     value={ formik.values.username }
@@ -132,7 +132,6 @@ export function ChangeAccountDataForm(props) {
             <span className="p-float-label p-input-icon-right w-full mt-2">
                 <i className="pi pi-envelope" />
                 <InputText
-                    id="email"
                     name="email"
                     className={ "w-full " + getFieldErrorClass("email") }
                     value={ formik.values.email }

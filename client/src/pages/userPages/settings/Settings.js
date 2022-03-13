@@ -18,7 +18,7 @@ export default function Settings(props) {
     }, [errors]);
     const messages = useRef();
     const displaySuccess =
-        () => messages.current.show({ severity: "success", content: "The password was changed successfully." });
+        (msg) => messages.current.show({ severity: "success", content: msg });
     const navigate = useNavigate();
     const useOnTabClicked = url => {
         return useCallback(
@@ -38,6 +38,7 @@ export default function Settings(props) {
                 <ChangeAccountDataForm
                     user={ props.user }
                     setUser={ props.setUser }
+                    displaySuccess={ displaySuccess }
                     displayError={ displayError }
                 />
                 <DeleteAccountForm unsetUser={ props.unsetUser } displayError={ displayError } />
