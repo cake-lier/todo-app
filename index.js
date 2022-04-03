@@ -1,10 +1,14 @@
 const express = require("express");
 const path = require("path");
 global.appRoot = path.resolve(__dirname);
-require("mongoose").connect(
-    process.argv[2]
-    ?? "mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/todo?replicaSet=rs&serverSelectionTimeoutMS=60000"
-);
+const mongoose = require("mongoose");
+mongoose.connect(process.argv[2] ?? "mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/todo?replicaSet=rs")
+        .then(mongoose => {
+            if (process.argv[3]) {
+                require("./dbinit").initializeDatabase(mongoose.connection.db);
+            }
+        });
+mongoose.set("autoCreate", !process.argv[3]);
 const app = express();
 app.use(express.json({ limit: 2097152 }));
 app.use("/static", express.static(__dirname + "/public"));
@@ -12,8 +16,7 @@ app.use(express.static(path.join(__dirname, "client/build")));
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
 global.store = new MongoDBStore({
-    uri: process.argv[2]
-         ?? "mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/todo?replicaSet=rs&serverSelectionTimeoutMS=60000",
+    uri: process.argv[2] ?? "mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/todo?replicaSet=rs",
     collection: "sessions"
 });
 app.use(session({
