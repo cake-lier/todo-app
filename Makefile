@@ -10,8 +10,8 @@ all: build up
 .PHONY: build up down clean
  
 build:  
-	docker build -t ${NODEAPP_IMAGE} . 
-	cd ${MONGODB_DOCKERFILE_PATH}; docker build -t ${MONGODB_IMAGE} .
+	docker build -t matteocastellucci3/${NODEAPP_IMAGE}:latest .
+	cd ${MONGODB_DOCKERFILE_PATH}; docker build -t matteocastellucci3/${MONGODB_IMAGE}:latest .
  
 up: 
 	docker compose up | grep ${NODEAPP_IMAGE}

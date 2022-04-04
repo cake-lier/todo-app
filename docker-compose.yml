@@ -1,12 +1,10 @@
 version: "3.9"
 
 services:
-    nodeapp: 
-        build:
-            context: .
-            dockerfile: Dockerfile 
-        image: nodeapp
+    nodeapp:
+        image: matteocastellucci3/nodeapp:latest
         container_name: nodeapp
+        hostname: nodeapp
         ports: 
             - "8080:8080"
         networks: 
@@ -16,10 +14,7 @@ services:
             - mongodb2
             - mongodb3
     mongodb1:
-        build:
-            context: ./docker-mongodb
-            dockerfile: Dockerfile
-        image: mongodb
+        image: matteocastellucci3/mongodb:latest
         container_name: mongodb1
         hostname: mongodb1
         command: [ "--replSet", "rs", "--bind_ip_all" ]
@@ -30,20 +25,14 @@ services:
         networks:
             - nodeapp_network
     mongodb2:
-        build:
-            context: ./docker-mongodb
-            dockerfile: Dockerfile
-        image: mongodb
+        image: matteocastellucci3/mongodb:latest
         container_name: mongodb2
         hostname: mongodb2
         command: ["--replSet", "rs", "--bind_ip_all"]
         networks:
             - nodeapp_network
     mongodb3:
-        build:
-            context: ./docker-mongodb
-            dockerfile: Dockerfile
-        image: mongodb
+        image: matteocastellucci3/mongodb:latest
         container_name: mongodb3
         hostname: mongodb3
         command: ["--replSet", "rs", "--bind_ip_all"]
