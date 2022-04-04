@@ -29,26 +29,34 @@ This app keeps on giving: a system of achievements is in place for making the or
 
 ## How (to install)?
 
-The installation procedure of the whole app under any system is fast and easy.
+The installation procedure of the whole app under any system is fast and easy. It comes in two different flavors.
 
-1. For first, just clone this repo.
-2. Then, move to the main folder of the cloned repo with: 
- 
-   ```cd todo-app```
+### Pull the required images from DockerHub
 
-3. As a last step, compile the project using:
+You don't need to build the images for the Docker containers used by this app all by yourself. In fact, we have you covered: you can simply download the images which are available at the DockerHub website and then use those for deploying the app on your machine. You can do this in three easy steps:
 
-   ```make```
+1. Clone this repo.
+2. Move to the main folder of this repo with ```cd todo-app```.
+3. Deploy the application using ```make up```.
 
-Et voilà! When the message 
+### Build your own images
 
-> "Node app setup completed, you can now access the web app" 
+If you don't trust us for whatever reason, and with us our images, you can always build them yourself. The procedure for compiling and deploying the app will take more time, but in the end, the result will be the same. The steps are the ones that follows, which are very similar to the ones before:
 
-appears on-screen, the app will be correctly installed onto your system. For using it, just reach 
+1. Clone this repo.
+2. Move to the main folder of this repo with ```cd todo-app```.
+3. Compile and deploy the application using ```make```.
 
-``` localhost:8080 ```
+Et voilà! 
 
-from your browser to access the app.
+### Accessing the application
+
+Regardless of which procedure you followed, when the two messages
+
+> "Connection with the database established"
+> "Node API server started" 
+
+appear on-screen the app will be correctly installed onto your system. For using it, just reach ``` localhost:8080 ``` from your browser to access the app. The app may take some seconds to load, so be patient for a bit.
 
 The installation will require git, make, and Docker to correctly work and nothing else. Node, npm, MongoDB, and its replica set services will be installed and set up automatically.
 
