@@ -314,9 +314,9 @@ class App extends Component {
                                 : <Navigate to="/" />
                         }
                     />
-                    <Route path="/lists" element={ <Navigate to="/my-lists" /> } />
+                    <Route path="/list" element={ <Navigate to="/my-lists" /> } />
                     <Route
-                        path="/lists/:id"
+                        path="/list/:id"
                         element={
                             this.state.user !== null || this.state.anonymousId !== null
                             ? <List

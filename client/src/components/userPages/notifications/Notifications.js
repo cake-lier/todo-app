@@ -118,8 +118,8 @@ export default function Notifications({ notifications, setNotifications, socket,
                     />
                     {
                         data.listId !== null
-                        ? <Link to={ "/lists/" + data.listId }>{ notificationText() }</Link>
-                            : <Link to={"/achievements"}> { notificationText() } </Link>
+                        ? <Link to={ "/list/" + data.listId }>{ notificationText() }</Link>
+                        : <Link to="/achievements">{ notificationText() }</Link>
                     }
                 </div>
                 <div className="col-1 px-0 flex justify-content-end align-items-start">

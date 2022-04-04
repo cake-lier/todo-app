@@ -27,7 +27,7 @@ export default function Calendar({ user, unsetUser, socket, notifications, setNo
                              borderColor: item.completionDate === null ? "#E61950" : "#555661",
                              start: item.dueDate,
                              title: item.completionDate === null ? item.title : "\u{2611}️ " + item.title,
-                             url: "/lists/" + item.listId
+                             url: "/list/" + item.listId
                          };
                      }
                      return {
@@ -36,7 +36,7 @@ export default function Calendar({ user, unsetUser, socket, notifications, setNo
                          backgroundColor: item.completionDate === null ? "#E61950" : "#555661",
                          borderColor: item.completionDate === null ? "#E61950" : "#555661",
                          start: item.reminderDate,
-                         url: "/lists/" + item.listId
+                         url: "/list/" + item.listId
                      };
                  })),
                  error => displayError(error.response.data.error)

@@ -1,7 +1,10 @@
+'use strict';
+
 const { ObjectId } = require("bson");
 
 function initializeDatabase(db) {
     db.dropCollection("users")
+      .catch(() => {})
       .then(_ => db.createCollection("users"))
       .then(users => users.insertMany(
           [{
@@ -174,6 +177,7 @@ function initializeDatabase(db) {
           }]
       ));
     db.dropCollection("lists")
+      .catch(() => {})
       .then(_ => db.createCollection("lists"))
       .then(lists => lists.insertMany(
           [{
@@ -371,6 +375,7 @@ function initializeDatabase(db) {
           }]
       ));
     db.dropCollection("items")
+      .catch(() => {})
       .then(_ => db.createCollection("items"))
       .then(items => items.insertMany(
           [{
@@ -987,6 +992,7 @@ function initializeDatabase(db) {
           }]
       ));
     db.dropCollection("notifications")
+      .catch(() => {})
       .then(_ => db.createCollection("notifications"))
       .then(notifications => notifications.insertMany(
           [{

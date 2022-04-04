@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function ListElement({ userId, setUser, list, lists, setLists, ownership, disabledNotificationsLists, displayError }) {
     const navigate = useNavigate();
-    const onTitleClick = useCallback(id => navigate(`/lists/${ id }`), [navigate]);
+    const onTitleClick = useCallback(id => navigate(`/list/${ id }`), [navigate]);
     const [members, setMembers] = useState([]);
     useEffect(() => {
         axios.get(`/lists/${ list._id }/members/`)

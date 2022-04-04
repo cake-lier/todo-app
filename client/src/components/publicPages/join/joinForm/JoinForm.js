@@ -27,7 +27,7 @@ export default function JoinForm({ setAnonymousId, socket, displayError }) {
             const handleJoinResponse = (listId, anonymousId) => {
                 if (listId !== null) {
                     setAnonymousId(anonymousId);
-                    navigate("/lists/" + listId);
+                    navigate("/list/" + listId);
                 } else {
                     displayError(96);
                     formik.setSubmitting(false);
