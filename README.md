@@ -54,6 +54,7 @@ Et voilà!
 Regardless of which procedure you followed, when the two messages
 
 > "Connection with the database established"
+
 > "Node API server started" 
 
 appear on-screen the app will be correctly installed onto your system. For using it, just reach ``` localhost:8080 ``` from your browser to access the app. The app may take some seconds to load, so be patient for a bit.

@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 mongoose.connect(process.argv[2] ?? "mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/todo?replicaSet=rs")
         .then(mongoose => {
             if (process.argv[3]) {
-                require("./dbinit").initializeDatabase(mongoose.connection.db);
+                return require("./dbinit").initializeDatabase(mongoose.connection.db);
             }
         });
 mongoose.set("autoCreate", !process.argv[3]);
