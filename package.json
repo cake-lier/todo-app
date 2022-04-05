@@ -14,8 +14,16 @@
     "connect-mongodb-session": "^3.1.1",
     "express": "^4.17.2",
     "express-session": "^1.17.2",
+    "lodash": "^4.17.21",
     "mongoose": "^6.1.5",
-    "socketio": "^1.0.0",
+    "node-cron": "^3.0.0",
+    "node-schedule": "^2.1.0",
+    "otp-generator": "^4.0.0",
+    "run-rs": "^0.7.5",
+    "socket.io": "^4.4.1",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   }
 }

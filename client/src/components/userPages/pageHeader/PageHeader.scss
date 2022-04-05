@@ -1,0 +1,59 @@
+@import "../../../colors";
+
+.p-sidebar .p-sidebar-header {
+  display: none;
+}
+
+.p-sidebar .p-sidebar-content {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.p-sidebar-left .p-sidebar {
+  width: min-content !important;
+}
+
+#burger-menu {
+  background: white !important;
+
+  .pi {
+    color: $text-color;
+    font-size: xx-large;
+  }
+}
+
+.p-tabmenu .p-tabmenu-nav {
+  border: 0 !important;
+  position: unset !important;
+  overflow: hidden;
+}
+
+.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+  border: 0 !important;
+  color: lightgrey !important;
+}
+
+.p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
+  color: $text-color !important;
+}
+
+#headerTabMenu.p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover {
+  background-color: getPrimaryColorWithAlpha(0.04);
+}
+
+#headerTabMenu.p-tabmenu .p-tabmenu-nav li.p-highlight .p-menuitem-link:focus {
+  background-color: transparent;
+}
+
+.p-tabmenu-nav .p-menuitem-text {
+  line-height: normal !important;
+}
+
+.p-tabmenuitem {
+  flex: auto;
+  justify-content: center !important;
+}
+
+#headerTabMenu.p-tabmenu .p-tabmenu-nav .p-tabmenu-ink-bar {
+  display: none;
+}

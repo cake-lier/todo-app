@@ -1,0 +1,52 @@
+@import "../../../colors";
+
+div#reportsPageContainer {
+    background-color: $secondary-background;
+}
+
+div#filters > div.p-selectbutton > div.p-button {
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+}
+
+div#filters .p-buttonset .p-button:not(:last-child) {
+    border-right: 0 !important;
+}
+
+#completionRate.p-chart {
+    width: 100%;
+}
+
+#itemsCompleted.p-chart {
+    width: 95%;
+    height: 100%;
+}
+
+@media screen and (min-width: 768px) {
+    #completionRate.p-chart {
+        width: 80%;
+    }
+
+    #itemsCompleted.p-chart {
+        width: 77.5%;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    #completionRate.p-chart {
+        width: 65%;
+    }
+
+    #itemsCompleted.p-chart {
+        width: 95%;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    #completionRate.p-chart {
+        width: 37.5%;
+    }
+
+    #itemsCompleted.p-chart {
+        width: 75%;
+    }
+}
