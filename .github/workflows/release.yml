@@ -24,13 +24,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Deploy mongodb docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: ./docker-mongodb/
-          tags: |
-            matteocastellucci3/mongodb:latest
-          push: true
       - name: Deploy nodeapp docker image
         uses: docker/build-push-action@v2
         with:
