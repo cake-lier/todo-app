@@ -29,7 +29,22 @@ This app keeps on giving: a system of achievements is in place for making the or
 
 ## How (to install)?
 
-The installation procedure of the whole app under any system is fast and easy. It comes in two different flavors.
+The installation procedure of the whole app under any system is fast and easy. It comes in three different flavors.
+
+### Do-It-Yourself
+
+Wanna feel like a real programmer? You can boot up the application from scratch in development mode piece by piece on your local machine. You just need to:
+
+1. Clone this repo.
+2. Move to the main folder of this repo with ```cd todo-app```.
+3. Install all dependencies required by the server with ```npm install```.
+4. Start the cluster of MongoDB databases with ```npx run-rs```.
+5. Start the Node server with ```node index.js```.
+6. Move to the folder containing the client implementation with ```cd client```.
+7. Install all dependencies required by the client with ```npm install```.
+8. Start the React development server with ```npm run start```.
+
+This option is the most complicated of all three, because it has more steps than the others and it needs that git, Node.js and the NPM package manager are installed on your local machine. No need for MongoDB, make or Docker, though. The only advantage is that, when all the steps are completed, your browser will automatically open the home page of the application. When following this procedure, no demo data will be inserted into the MongoDB replica set. If you don't care for developing something onto this application and just want to see it running, we recommend you to follow the next procedure instead.
 
 ### Pull the required images from DockerHub
 
@@ -51,7 +66,7 @@ Et voilà!
 
 ### Accessing the application
 
-Regardless of which procedure you followed, when the two messages
+Regardless of which of the last two procedures you followed, when the two messages
 
 > "Node API server started"
 
@@ -59,7 +74,7 @@ Regardless of which procedure you followed, when the two messages
 
 appear on-screen the app will be correctly installed onto your system. For using it, just reach ``` localhost:8080 ``` from your browser to access the app. The app may take some seconds to make those messages appear, so be patient for a bit. If the app exits unexpectedly during this phase, please retry.
 
-The installation will require git, make, and Docker to correctly work and nothing else. Node, npm, MongoDB, and its replica set services will be installed and set up automatically.
+The last two installations will require git, make, and Docker to correctly work and nothing else. Node, npm, MongoDB, and its replica set services will be installed and set up automatically.
 
 ## One last thing... What about the name?
 
