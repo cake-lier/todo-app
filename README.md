@@ -44,7 +44,7 @@ Wanna feel like a real programmer? You can boot up the application from scratch 
 7. Install all dependencies required by the client with ```npm install```.
 8. Start the React development server with ```npm run start```.
 
-This option is the most complicated of all three, because it has more steps than the others and it needs that git, Node.js and the NPM package manager are installed on your local machine. No need for MongoDB, make or Docker, though. The only advantage is that, when all the steps are completed, your browser will automatically open the home page of the application. When following this procedure, no demo data will be inserted into the MongoDB replica set. If you don't care for developing something onto this application and just want to see it running, we recommend you to follow the next procedure instead.
+This option is the most complicated of all three, because it has more steps than the others and it needs that git, Node.js and the NPM package manager are all installed on your local machine. No need for MongoDB, make or Docker, though. The only advantage is that, when all the steps are completed, your browser will automatically open the home page of the application. When following this procedure, no demo data will be inserted into the MongoDB replica set. If you don't care for developing something onto this application and just want to see it running, we recommend you to follow the next procedure instead.
 
 ### Pull the required images from DockerHub
 
