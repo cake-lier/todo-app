@@ -1,4 +1,4 @@
-FROM node:16.15.0
+FROM node:17.9.0
 
 WORKDIR /usr/src/todo-app
 
