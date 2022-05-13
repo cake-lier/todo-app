@@ -8,7 +8,7 @@
     "@fullcalendar/interaction": "5.10.1",
     "@fullcalendar/moment": "5.10.1",
     "@fullcalendar/react": "5.10.1",
-    "axios": "0.24.0",
+    "axios": "0.27.2",
     "bootstrap": "4.0.0",
     "chart.js": "3.7.1",
     "copy-to-clipboard": "3.3.1",
