@@ -120,7 +120,11 @@ class App extends Component {
 
     componentDidMount() {
         const socket = io();
-        socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
+        socket.on(
+            "joinRequest",
+            (listId, listTitle, username, anonymousSocketId) =>
+                socket.emit("joinApproval", socket.id, listId, anonymousSocketId, false)
+        );
         socket.on("connect", () => {
             axios.post("/socket", { socketId: socket.id })
                  .then(_ => axios.get("/users/me"))

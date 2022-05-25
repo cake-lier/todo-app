@@ -1,5 +1,6 @@
 "use strict";
 
+const _ = require("lodash");
 const List = require("../model/listModel").createListModel();
 const requests = {};
 
@@ -25,7 +26,9 @@ function setupSockets(server) {
                                       });
                                       return;
                                   }
-                                  requests[listId] = { anonymousSocket: socketId, ownerSockets: sockets.map(s => s.id) };
+                                  const pendingRequest = {};
+                                  pendingRequest[socketId] = sockets.map(s => s.id);
+                                  requests[listId] = Object.assign(pendingRequest, requests[listId]);
                                   completionCallback({
                                       error: false,
                                       sent: true
@@ -40,11 +43,13 @@ function setupSockets(server) {
                     }
                 );
         });
-        socket.on("joinApproval", (socketId, listId, isApproved, anonymousId) => {
-            const data = requests[listId];
-            if (data && data.ownerSockets.includes(socketId)) {
-                delete requests[listId];
-                io.in(data.anonymousSocket).emit("joinResponse", isApproved ? listId : null, anonymousId);
+        socket.on("joinApproval", (socketId, listId, anonymousSocketId, isApproved, anonymousId) => {
+            if (requests?.[listId]?.[anonymousSocketId]?.includes(socketId)) {
+                delete requests[listId][anonymousSocketId];
+                if (_.isEmpty(requests[listId])) {
+                    delete requests[listId];
+                }
+                io.in(anonymousSocketId).emit("joinResponse", isApproved ? listId : null, anonymousId);
             }
         });
     });
