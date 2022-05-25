@@ -22,7 +22,11 @@ export default function JoinDialog({ listId, socket, displayError }) {
         socket.on("joinRequest", handleJoinRequest);
         return () => {
             socket.off("joinRequest", handleJoinRequest);
-            socket.on("joinRequest", listId => socket.emit("joinApproval", socket.id, listId, false));
+            socket.on(
+                "joinRequest",
+                (listId, listTitle, username, anonymousSocketId) =>
+                    socket.emit("joinApproval", socket.id, listId, anonymousSocketId, false)
+            );
         };
     });
     const handleResponse = isApproved => {
@@ -40,16 +44,17 @@ export default function JoinDialog({ listId, socket, displayError }) {
                     "joinApproval",
                     socket.id,
                     listId,
+                    anonymousSocket,
                     true,
                     list.data.members[list.data.members.length - 1].anonymousId
                 ),
                 error => {
                     displayError(error.response.data.error);
-                    socket.emit("joinApproval", socket.id, listId, false, null);
+                    socket.emit("joinApproval", socket.id, listId, anonymousSocket, false, null);
                 }
             );
         } else {
-            socket.emit("joinApproval", socket.id, listId, false, null);
+            socket.emit("joinApproval", socket.id, listId, anonymousSocket, false, null);
         }
         setDisplayJoinDialog(false);
     };
