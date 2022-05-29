@@ -5,7 +5,7 @@ import React from "react";
 import {Button} from "primereact/button";
 import {useFormik} from "formik";
 
-export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayDialog, title, count, onSubmit, resetAfterSubmit }){
+export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayDialog, title, count, onSubmit, resetAfterSubmit, minCount }){
     const formik = useFormik({
         initialValues: {
             title,
@@ -67,7 +67,7 @@ export function ItemDialog({ headerTitle, buttonText, displayDialog, setDisplayD
                                 buttonLayout="horizontal"
                                 incrementButtonIcon="pi pi-plus"
                                 decrementButtonIcon="pi pi-minus"
-                                min={ 0 }
+                                min={ minCount }
                             />
                     </div>
                 </div>

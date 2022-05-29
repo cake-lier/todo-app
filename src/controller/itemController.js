@@ -1058,14 +1058,17 @@ function updateAssignee(request, response) {
                                                  .emit("itemAssigneeUpdated", listId, `${authorUsername}${text}`);
                                            } else {
                                                io.in(`list:${listId}`)
-                                                  .except(`user:${ request.session.userId }`)
-                                                  .except(`anon:${ request.query.anonymousId }`)
-                                                  .except(`anon:${ assignee.anonymousId }`)
+                                                 .except(`user:${ request.session.userId }`)
+                                                 .except(`anon:${ request.query.anonymousId }`)
+                                                 .except(`anon:${ assignee.anonymousId }`)
                                                  .emit("itemAssigneeUpdated", listId, `${authorUsername}${text}`);
                                            }
                                            const users = lists[0].members
-                                                                 .filter(m => m.userId !== null
-                                                                         && m.userId.toString() !== request.session.userId)
+                                                                 .filter(m =>
+                                                                     m.userId !== null
+                                                                     && m.userId.toString() !== request.session.userId
+                                                                     && m.userId.toString() !== assignee.userId?.toString()
+                                                                 )
                                                                  .map(m => m.userId);
                                            return (
                                                users.length > 0
@@ -1086,6 +1089,7 @@ function updateAssignee(request, response) {
                                                const userText = ` updated your assigned count in the item "${item.title}"`;
                                                return (
                                                    assignee.userId !== null
+                                                   && assignee.userId.toString() !== request.session.userId
                                                    ? Notification.create(
                                                          [{
                                                              authorUsername,
@@ -1101,15 +1105,15 @@ function updateAssignee(request, response) {
                                                )
                                                .then(_ => {
                                                    if (assignee.userId !== null) {
-                                                       io.in(`user:${assignee.userId.toString()}`)
-                                                         .except(`user:${request.session.userId}`)
-                                                         .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
+                                                       io.in(`user:${ assignee.userId.toString() }`)
+                                                         .except(`user:${ request.session.userId }`)
+                                                         .emit("itemAssigneeUpdated", listId, `${ authorUsername }${ userText }`);
                                                    } else {
-                                                       io.in(`anon:${assignee.anonymousId.toString()}`)
+                                                       io.in(`anon:${ assignee.anonymousId.toString() }`)
                                                          .except(`anon:${ request.query.anonymousId }`)
-                                                         .emit("itemAssigneeUpdated", listId, `${authorUsername}${userText}`);
+                                                         .emit("itemAssigneeUpdated", listId, `${ authorUsername }${ userText }`);
                                                    }
-                                                   io.in(`list:${listId}`)
+                                                   io.in(`list:${ listId }`)
                                                      .except(request.session.socketId)
                                                      .emit("itemAssigneeUpdatedReload", listId);
                                                    response.json(item);
@@ -1178,7 +1182,8 @@ function removeAssignee(request, response) {
                         const listId = list._id.toString();
                         return (
                             request.session.userId === assignee.userId?.toString()
-                            || (request.query.anonymousId !== undefined && request.query.anonymousId === assignee.anonymousId?.toString())
+                            || (request.query.anonymousId !== undefined
+                                && request.query.anonymousId === assignee.anonymousId?.toString())
                             ? Promise.resolve(` removed themselves from the item "${item.title}"`)
                             : (
                                 assignee.userId !== null
@@ -1205,7 +1210,7 @@ function removeAssignee(request, response) {
                             const users = list.members
                                               .filter(m => m.userId !== null
                                                            && m.userId.toString() !== request.session.userId
-                                                           && m.userId.toString() !== assignee.userId)
+                                                           && m.userId.toString() !== assignee.userId?.toString())
                                               .map(m => m.userId);
                             return (
                                 users.length > 0
@@ -1225,7 +1230,7 @@ function removeAssignee(request, response) {
                             .then(_ => {
                                 const userText = ` removed you from the item "${item.title}"`;
                                 return (
-                                    assignee.userId !== null
+                                    assignee.userId !== null && assignee.userId.toString() !== request.session.userId
                                     ? Notification.create(
                                           [{
                                               authorUsername,
@@ -1241,13 +1246,13 @@ function removeAssignee(request, response) {
                                 )
                                 .then(_ => {
                                     if (assignee.userId !== null) {
-                                        io.in(`user:${assignee.userId.toString()}`)
-                                          .except(`user:${request.session.userId}`)
-                                          .emit("itemAssigneeRemoved", listId, `${authorUsername}${userText}`);
+                                        io.in(`user:${ assignee.userId.toString() }`)
+                                          .except(`user:${ request.session.userId }`)
+                                          .emit("itemAssigneeRemoved", listId, `${ authorUsername }${ userText }`);
                                     } else {
-                                        io.in(`anon:${assignee.anonymousId.toString()}`)
+                                        io.in(`anon:${ assignee.anonymousId.toString() }`)
                                           .except(`anon:${ request.query.anonymousId }`)
-                                          .emit("itemAssigneeRemoved", listId, `${authorUsername}${userText}`);
+                                          .emit("itemAssigneeRemoved", listId, `${ authorUsername }${ userText }`);
                                     }
                                     io.in(`list:${listId}`)
                                       .except(request.session.socketId)

@@ -1,10 +1,39 @@
 @import "colors";
 
-*:not(.pi) {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-                 "Droid Sans", "Helvetica Neue", sans-serif !important;
-    -webkit-font-smoothing: antialiased !important;
-    -moz-osx-font-smoothing: grayscale !important;
+* {
+    scrollbar-width: thin;          /* "auto" or "thin" */
+    scrollbar-color: $pastel-red #ffecd2;   /* scroll thumb and track */
+
+    &:not(.pi) {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+        "Droid Sans", "Helvetica Neue", sans-serif !important;
+        -webkit-font-smoothing: antialiased !important;
+        -moz-osx-font-smoothing: grayscale !important;
+    }
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        background-color: #F5F5F5;
+        overflow-scrolling: auto !important;
+    }
+
+    &::-webkit-scrollbar-track {
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        background-color: #F5F5F5;
+        border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        background-image: -webkit-gradient(linear, left top, right top, from(#ffecd2), to($pastel-red));
+        background-image: -webkit-linear-gradient(left, #ffecd2 0%, $pastel-red 100%);
+        background-image: linear-gradient(to right, #ffecd2 0%, $pastel-red 100%);
+
+        &:hover {
+            background: #555;
+        }
+    }
 }
 
 code {
@@ -34,22 +63,27 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 
 .p-button {
     background: $primary-color;
+
     &:enabled{
         &:hover {
             background: getPrimaryColorWithAlpha(0.92) ;
         }
+
         &:active, &:focus {
             background: getPrimaryColorWithAlpha(0.68);
         }
     }
+
     &:not(button):not(a):not(.p-disabled){
         &:hover {
             background: getPrimaryColorWithAlpha(0.92);
         }
+
         &:active, &:focus {
             background: getPrimaryColorWithAlpha(0.68);
         }
     }
+
     &.p-button-outlined {
         border-color: $primary-color;
         color: $primary-color;
@@ -58,34 +92,37 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
             color: $primary-color;
         }
     }
-    &.p-button-text:enabled:focus{
-        background: getPrimaryColorWithAlpha(0.04);
-    }
-    position: static !important;
-}
 
-.p-button.p-button-text {
-    color: $primary-color !important;
+    &.p-button-text {
+        color: $primary-color !important;
 
-    &.three-dots{
-        color: $text-color !important;
-        .pi {
-            font-size: x-large;
+        &:enabled:focus{
+            background: getPrimaryColorWithAlpha(0.04);
+        }
+
+        &.three-dots{
+            color: $text-color !important;
+            .pi {
+                font-size: x-large;
+            }
+        }
+
+        &.only-text-button {
+            color: $text-color !important;
+        }
+
+        &:enabled:hover, &:not(button):not(a):not(.p-disabled):hover {
+            background: getPrimaryColorWithAlpha(0.04);
+            color: $primary-color;
+        }
+
+        &:enabled:active, &:not(button):not(a):not(.p-disabled):active {
+            background: getPrimaryColorWithAlpha(0.16);
+            color: $primary-color;
         }
     }
 
-    &.only-text-button {
-        color: $text-color !important;
-    }
-}
-
-.p-button.p-button-text:enabled:hover, .p-button.p-button-text:not(button):not(a):not(.p-disabled):hover {
-    background: getPrimaryColorWithAlpha(0.04);
-    color: $primary-color;
-}
-.p-button.p-button-text:enabled:active, .p-button.p-button-text:not(button):not(a):not(.p-disabled):active {
-    background: getPrimaryColorWithAlpha(0.16);
-    color: $primary-color;
+    position: static !important;
 }
 
 .p-inputtext:enabled:focus {
@@ -93,87 +130,107 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     border-color: $primary-color;
 }
 
-.p-float-label input:focus ~ label, .p-float-label .p-inputwrapper-focus ~ label {
+.p-float-label input:focus ~ label {
     color: $primary-color;
+
+    &.p-error {
+        color: $error-color;
+    }
 }
 
-.p-float-label input:focus ~ label.p-error, .p-float-label .p-inputwrapper-focus ~ label.p-error {
-    color: $error-color;
+.p-float-label .p-inputwrapper-focus ~ label {
+    color: $primary-color;
+
+    &.p-error {
+        color: $error-color;
+    }
 }
 
-.p-checkbox .p-checkbox-box.p-highlight {
-    border-color: $primary-color;
-    background: $primary-color;
-    &:not(.p-disabled) {
-        &:hover {
-            border-color: $primary-color;
-            background: $primary-color;
+.p-checkbox {
+    & .p-checkbox-box.p-highlight {
+        border-color: $primary-color;
+        background: $primary-color;
+
+        &:not(.p-disabled) {
+            &:hover {
+                border-color: $primary-color;
+                background: $primary-color;
+            }
+
+            &.p-focus {
+                border-color: $primary-color;
+            }
         }
+    }
+
+    &:not(.p-checkbox-disabled) .p-checkbox-box {
         &.p-focus {
             border-color: $primary-color;
         }
-    }
-}
 
-.p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box {
-    &.p-focus {
-        border-color: $primary-color;
+        &.p-highlight:hover {
+            border-color: $primary-color;
+            background: $primary-color;
+        }
     }
-    &.p-highlight:hover {
-        border-color: $primary-color;
-        background: $primary-color;
-    }
-}
 
-.p-dialog .p-dialog-content {
-    padding-bottom: 0 !important;
-    border-bottom-right-radius: 4px !important;
-    border-bottom-left-radius: 4px !important;
+    &.p-checkbox-checked:not(.p-checkbox-disabled) {
+        &:hover {
+            box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
+        }
+
+        &.p-checkbox-focused {
+            box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
+        }
+    }
 }
 
 .p-dialog {
     background-color: white;
+
+    & .p-dialog-content {
+        padding-bottom: 0 !important;
+        border-bottom-right-radius: 4px !important;
+        border-bottom-left-radius: 4px !important;
+    }
 }
 
-.p-checkbox.p-checkbox-checked:not(.p-checkbox-disabled):hover {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
+.p-input-filled .p-checkbox {
+    & .p-checkbox-box.p-highlight {
+        background: $primary-color;
+    }
+
+    &:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover {
+        background: $primary-color;
+    }
 }
 
-.p-checkbox.p-checkbox-checked:not(.p-checkbox-disabled).p-checkbox-focused {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
-}
+.p-inputswitch.p-inputswitch-checked {
+    & .p-inputswitch-slider {
+        background: getPrimaryColorWithAlpha(0.5);
 
-.p-input-filled .p-checkbox .p-checkbox-box.p-highlight {
-    background: $primary-color;
-}
+        &:before {
+            background: $primary-color;
+        }
+    }
 
-.p-input-filled .p-checkbox:not(.p-checkbox-disabled) .p-checkbox-box.p-highlight:hover {
-    background: $primary-color;
-}
+    &:not(.p-disabled):hover .p-inputswitch-slider {
+        background: getPrimaryColorWithAlpha(0.5);
 
-.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider {
-    background: getPrimaryColorWithAlpha(0.5);
-}
-.p-inputswitch.p-inputswitch-checked .p-inputswitch-slider:before {
-    background: $primary-color;
-}
-.p-inputswitch.p-inputswitch-checked:not(.p-disabled):hover .p-inputswitch-slider {
-    background: getPrimaryColorWithAlpha(0.5);
-}
+        &:before {
+            box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04),
+            0 3px 1px -2px rgba(0, 0, 0, 0.2),
+            0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+            0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+        }
+    }
 
-.p-inputswitch.p-inputswitch-checked:not(.p-disabled):hover .p-inputswitch-slider:before {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04),
-                0 3px 1px -2px rgba(0, 0, 0, 0.2),
-                0px 2px 2px 0px rgba(0, 0, 0, 0.14),
-                0px 1px 5px 0px rgba(0, 0, 0, 0.12);
-}
-
-.p-inputswitch.p-inputswitch-checked.p-inputswitch-focus .p-inputswitch-slider:before,
-.p-inputswitch.p-inputswitch-checked.p-inputswitch-focus:not(.p-disabled):hover .p-inputswitch-slider:before {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12),
-                0 3px 1px -2px rgba(0, 0, 0, 0.2),
-                0px 2px 2px 0px rgba(0, 0, 0, 0.14),
-                0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+    &.p-inputswitch-focus .p-inputswitch-slider:before, &.p-inputswitch-focus:not(.p-disabled):hover .p-inputswitch-slider:before {
+        box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12),
+        0 3px 1px -2px rgba(0, 0, 0, 0.2),
+        0px 2px 2px 0px rgba(0, 0, 0, 0.14),
+        0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+    }
 }
 
 .grid {
@@ -181,7 +238,8 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
 }
 
 .p-avatar img {
-    width: auto;
+    width: inherit;
+    height: 100%;
 }
 
 .p-avatar-group .p-avatar {
@@ -192,107 +250,88 @@ h1, h2, h3, h4, h5, h6, p, div:not(.p-message-wrapper), .p-menu .p-menuitem-link
     font-size: 1.5em;
 }
 
-* {
-    scrollbar-width: thin;          /* "auto" or "thin" */
-    scrollbar-color: $pastel-red #ffecd2;   /* scroll thumb and track */
+.p-radiobutton {
+    & .p-radiobutton-box {
+        &:not(.p-disabled).p-focus {
+            border-color: $primary-color;
+        }
+
+        & .p-radiobutton-icon {
+            background-color: $primary-color;
+        }
+
+        &.p-highlight {
+            border-color: $primary-color;
+
+            &:not(.p-disabled) {
+                &:hover {
+                    border-color: $primary-color;
+                    color: $primary-color;
+                }
+
+                &.p-focus {
+                    border-color: $primary-color;
+                }
+            }
+        }
+    }
+
+    &.p-radiobutton-checked:not(.p-radiobutton-disabled) {
+        &:hover {
+            box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
+        }
+
+        &.p-radiobutton-focused {
+            box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
+        }
+    }
 }
 
-*::-webkit-scrollbar {
-    width: 8px;
-    background-color: #F5F5F5;
-    overflow-scrolling: auto !important;
+.p-datepicker table td {
+    & > span.p-highlight {
+        color: $primary-color;
+        background: getPrimaryColorWithAlpha(0.12);
+    }
+
+    &.p-datepicker-today > span.p-highlight {
+        color: $primary-color;
+        background: getPrimaryColorWithAlpha(0.12);
+    }
 }
 
-*::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
-    background-color: #F5F5F5;
-    border-radius: 10px;
-}
+.p-chips .p-chips-multiple-container {
+    &:not(.p-disabled).p-focus {
+        border-color: $primary-color;
+        box-shadow: inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color;
+    }
 
-*::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
-    background-image: -webkit-gradient(linear, left top, right top, from(#ffecd2), to($pastel-red));
-    background-image: -webkit-linear-gradient(left, #ffecd2 0%, $pastel-red 100%);
-    background-image: linear-gradient(to right, #ffecd2 0%, $pastel-red 100%);
-}
-
-*::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-.p-avatar img {
-    width: inherit;
-    height: 100%;
-}
-
-.p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
-    border-color: $primary-color;
-}
-.p-radiobutton .p-radiobutton-box .p-radiobutton-icon {
-    background-color: $primary-color;
-}
-.p-radiobutton .p-radiobutton-box.p-highlight {
-    border-color: $primary-color;
-}
-.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
-    border-color: $primary-color;
-    color: $primary-color;
-}
-
-.p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled).p-focus {
-    border-color: $primary-color;
-}
-
-.p-radiobutton.p-radiobutton-checked:not(.p-radiobutton-disabled):hover {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.04);
-}
-.p-radiobutton.p-radiobutton-checked:not(.p-radiobutton-disabled).p-radiobutton-focused {
-    box-shadow: 0 0 1px 10px getPrimaryColorWithAlpha(0.12);
-}
-
-.p-datepicker table td > span.p-highlight {
-    color: $primary-color;
-    background: getPrimaryColorWithAlpha(0.12);
-}
-
-.p-datepicker table td.p-datepicker-today > span.p-highlight {
-    color: $primary-color;
-    background: getPrimaryColorWithAlpha(0.12);
-}
-
-.p-chips .p-chips-multiple-container:not(.p-disabled).p-focus {
-    border-color: $primary-color;
-}
-
-.p-chips .p-chips-multiple-container .p-chips-token {
-    background: getPrimaryColorWithAlpha(0.12);
-    color: $primary-color;
-}
-
-.p-chips .p-chips-multiple-container:not(.p-disabled).p-focus {
-    box-shadow: inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color, inset 0 0 0 1px $primary-color;
+    & .p-chips-token {
+        background: getPrimaryColorWithAlpha(0.12);
+        color: $primary-color;
+    }
 }
 
 .p-input-filled .p-chips-multiple-container {
     background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.38));
-}
 
-.p-input-filled .p-chips-multiple-container:not(.p-disabled):hover {
-    background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.87), rgba(0, 0, 0, 0.87));
-}
-
-.p-menu a.p-menuitem-link.p-disabled {
-    background-color: getPrimaryColorWithAlpha(0.10);
-    opacity: 100%;
-}
-
-.p-menu .p-menuitem .p-menuitem-link:not(.p-disabled){
-    &:hover, &:focus {
-        background-color: getPrimaryColorWithAlpha(0.04);
+    &:not(.p-disabled):hover {
+        background-image: linear-gradient(to bottom, $primary-color, $primary-color), linear-gradient(to bottom, rgba(0, 0, 0, 0.87), rgba(0, 0, 0, 0.87));
     }
-    &:active {
-        background: getPrimaryColorWithAlpha(0.16);
+}
+
+.p-menu {
+    & a.p-menuitem-link.p-disabled {
+        background-color: getPrimaryColorWithAlpha(0.10);
+        opacity: 100%;
+    }
+
+    & .p-menuitem .p-menuitem-link:not(.p-disabled){
+        &:hover, &:focus {
+            background-color: getPrimaryColorWithAlpha(0.04);
+        }
+        &:active {
+            background: getPrimaryColorWithAlpha(0.16);
+        }
     }
 }
 

@@ -7,8 +7,8 @@ import EditReminderDateDialog from "./editReminderDateDialog/EditReminderDateDia
 import ChipTag from "../chipTag/ChipTag";
 import EditItemDialog from "./editItemDialog/EditItemDialog";
 import axios from "axios";
-import AddTagDialog from "./AddTagDialog/AddTagDialog";
-import UpdateAssigneeDialog from "./UpdateAssigneeDialog/UpdateAssigneeDialog";
+import AddTagDialog from "./addTagDialog/AddTagDialog";
+import UpdateAssigneeDialog from "./updateAssigneeDialog/UpdateAssigneeDialog";
 import {Chip} from "primereact/chip";
 import ChipAssignee from "../chipAssignee/ChipAssignee";
 import "./ItemElement.scss"
@@ -200,6 +200,7 @@ export default function ItemElement({ item, anonymousId, listMembers, deleteItem
             />
             <EditItemDialog
                 item={ item }
+                assignees={ assignees }
                 anonymousId={ anonymousId }
                 updateItem={ updateItem }
                 displayEdit={ displayEdit }

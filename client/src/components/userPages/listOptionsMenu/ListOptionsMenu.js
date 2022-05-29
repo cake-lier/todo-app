@@ -47,9 +47,7 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
             "/users/me/enableListNotifications",
             { enabled: disabledNotificationsLists.includes(list._id), listId: list._id }
         ).then(
-            user => {
-                setUser(user.data);
-            },
+            user => setUser(user.data),
             error => displayError(error.response.data.error)
         );
     }
@@ -63,7 +61,7 @@ export default function ListOptionsMenu({ userId, anonymousId, members, setMembe
     const items = [
         { label: "Edit list", icon: PrimeIcons.PENCIL, command: openEditDialog },
         {
-            label: (ownership ? "Modify members" : "Show members"),
+            label: (ownership ? "Edit members" : "Show members"),
             icon: PrimeIcons.USER_EDIT,
             command: openMembersDialog
         },

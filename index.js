@@ -4,11 +4,13 @@ global.appRoot = path.resolve(__dirname);
 const mongoose = require("mongoose");
 mongoose.connect(process.argv[2] ?? "mongodb://127.0.0.1:27017,127.0.0.1:27018,127.0.0.1:27019/todo?replicaSet=rs")
         .then(mongoose => {
-            if (process.argv[3]) {
+            if (process.argv[3] === "true") {
                 return require("./dbinit").initializeDatabase(mongoose.connection.db);
             }
         });
-mongoose.set("autoCreate", !process.argv[3]);
+if (process.argv[3] === "true") {
+    mongoose.set("autoCreate", false);
+}
 const app = express();
 app.use(express.json({ limit: 2097152 }));
 app.use("/static", express.static(__dirname + "/public"));
@@ -41,7 +43,7 @@ routes.initializeStaticRoutes(app);
 app.get(
     "*",
     (_, response) => response.sendFile(
-        path.join(__dirname, process.argv[3] ? "client/build/index.html" : "client/public/index.html")
+        path.join(__dirname, process.argv[3] === "true" ? "client/build/index.html" : "client/public/index.html")
     )
 );
 require("./src/utils/schedule").scheduleTasks();

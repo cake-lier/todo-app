@@ -47,21 +47,25 @@ class App extends Component {
     }
 
     setUser(user) {
-        this.state.socket.on("userDataReload", () => axios.get("/users/me").then(user => this.setState({ user: user.data })));
-        this.state.socket.on("achievementReload", () => axios.get("/users/me").then(user => this.setState({ user: user.data })));
-        axios.get("/users/me/notifications")
-            .then(
-                notificationsResponse => {
-                    this.setState({
-                        notifications: notificationsResponse.data,
-                        notificationsUnread: notificationsResponse.data.length > 0
-                    });
-                }
-            );
-        this.setState({
-            anonymousId: null,
-            user
-        });
+        if (!this.state.user) {
+            this.state
+                .socket
+                .on("userDataReload", () => axios.get("/users/me").then(user => this.setState({ user: user.data })));
+            this.state
+                .socket
+                .on("achievementReload", () => axios.get("/users/me").then(user => this.setState({ user: user.data })));
+            axios.get("/users/me/notifications")
+                 .then(
+                     notificationsResponse => {
+                         this.setState({
+                             notifications: notificationsResponse.data,
+                             notificationsUnread: notificationsResponse.data.length > 0
+                         });
+                     }
+                 );
+            this.setState({ anonymousId: null });
+        }
+        this.setState({ user });
     }
 
     unsetUser() {

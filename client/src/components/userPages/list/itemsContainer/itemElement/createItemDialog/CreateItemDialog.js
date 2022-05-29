@@ -26,6 +26,7 @@ export default function CreateItemDialog({ listId, anonymousId, appendItem, disp
             count={ 1 }
             onSubmit={ onSubmit }
             resetAfterSubmit={ true }
+            minCount={ 0 }
         />
     )
 }

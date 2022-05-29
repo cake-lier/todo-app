@@ -1,7 +1,7 @@
 import {ItemDialog} from "../itemDialog/ItemDialog";
 import axios from "axios";
 
-export default function EditItemDialog({ item, anonymousId, updateItem, displayEdit, setDisplayEdit, displayError }) {
+export default function EditItemDialog({ item, assignees, anonymousId, updateItem, displayEdit, setDisplayEdit, displayError }) {
     const onSubmit = data => {
         (
             data.title !== item.title
@@ -43,6 +43,7 @@ export default function EditItemDialog({ item, anonymousId, updateItem, displayE
             count={ item.count }
             onSubmit={ onSubmit }
             resetAfterSubmit={ false }
+            minCount={ assignees.map(a => a.count).reduce((c1, c2) => c1 + c2, 0) }
         />
     );
 }

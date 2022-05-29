@@ -85,7 +85,7 @@ export default function Notifications({ notifications, setNotifications, socket,
             0,
             (memberIndex === -1 ? data.text.length : (memberIndex + 7))
         );
-        const secondPartText = memberIndex !== -1 ? data.text.substr(secondPartIndex-2) : null;
+        const secondPartText = memberIndex !== -1 ? data.text.substring(secondPartIndex-2) : null;
         const memberUsername = secondPartText !== null ? data.text.substring(memberIndex + 7, secondPartIndex) : null;
         const notificationText = () => (
             <div className="mx-2">
@@ -95,7 +95,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                         <span className="font-normal text-base">{ firstPartText }</span>
                         <span className="font-semibold text-base">{ memberIndex === -1 ? null : memberUsername }</span>
                         <span className="font-normal text-base">
-                            { memberIndex === -1 ? null : secondPartText.substr(secondPartText.indexOf(" ") + 1) }
+                            { memberIndex === -1 ? null : secondPartText.substring(secondPartText.indexOf(" ") + 1) }
                         </span>
                     </p>
                 </div>
@@ -144,6 +144,8 @@ export default function Notifications({ notifications, setNotifications, socket,
                           id="notifications-overlay-panel"
                           breakpoints={{'662px': '95vw'}}
                           style={{width: '460px'}}
+                          onShow={ () => setNotificationsUnread(false) }
+                          onHide={ () => setNotificationsUnread(false) }
                       >
                           <DataScroller
                               rows={ 5 }
@@ -198,10 +200,7 @@ export default function Notifications({ notifications, setNotifications, socket,
                       <i
                           className="pi pi-bell mr-2 p-text-secondary p-overlay-badge cursor-pointer notification-bell"
                           style={{ fontSize: '2rem' }}
-                          onClick={ e => {
-                              panel.current.toggle(e);
-                              if (notificationsUnread) setNotificationsUnread(false);
-                          } }
+                          onClick={ e => panel.current.toggle(e) }
                       >
                           <Badge className={ notificationsUnread ? null : "hidden" } severity="danger" />
                       </i>
