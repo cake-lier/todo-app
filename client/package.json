@@ -12,7 +12,7 @@
     "bootstrap": "5.2.3",
     "chart.js": "4.3.0",
     "copy-to-clipboard": "3.3.3",
-    "formik": "2.3.3",
+    "formik": "2.4.0",
     "lodash": "4.17.21",
     "moment": "2.29.4",
     "otp-input-react": "0.3.0",
