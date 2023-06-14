@@ -25,7 +25,7 @@
     "react-router-dom": "6.12.1",
     "react-scripts": "5.0.1",
     "react-transition-group": "4.4.5",
-    "sass": "1.63.3",
+    "sass": "1.63.4",
     "socket.io-client": "4.6.2"
   },
   "scripts": {
